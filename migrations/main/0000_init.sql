@@ -107,7 +107,7 @@ CREATE TABLE "expeditions" (
 	"used_time_ticket" boolean DEFAULT false NOT NULL,
 	"result" jsonb,
 	"claimed_at" timestamp with time zone,
-	CONSTRAINT "expeditions_repeat_range" CHECK ("expeditions"."repeat_total" >= 1 and "expeditions"."repeat_done" between 0 and "expeditions"."repeat_total")
+	CONSTRAINT "expeditions_repeat_range" CHECK ("expeditions"."repeat_total" between 1 and 200 and "expeditions"."repeat_done" between 0 and "expeditions"."repeat_total")
 );
 --> statement-breakpoint
 ALTER TABLE "expeditions" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
@@ -315,6 +315,8 @@ CREATE TABLE "regions" (
 	"required_level" smallint NOT NULL,
 	"requires_time_ticket" boolean DEFAULT false NOT NULL,
 	"special_map_chance" real DEFAULT 0.01 NOT NULL,
+	"hunt_seconds" integer DEFAULT 300 NOT NULL,
+	"hunt_stamina_cost" smallint DEFAULT 1 NOT NULL,
 	"sort_order" smallint DEFAULT 0 NOT NULL
 );
 --> statement-breakpoint

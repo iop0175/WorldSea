@@ -1,6 +1,6 @@
 {
-  "id": "ea9b59cd-a0c7-4432-9907-30ea8bf184d5",
-  "prevId": "1d13a20a-7091-4866-b1af-4de3cda480ce",
+  "id": "c918ebde-574a-4555-bb37-3c8fd9d096a6",
+  "prevId": "e41c1be0-7097-47b6-bb6b-c70daa2ec371",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -897,7 +897,7 @@
       "checkConstraints": {
         "expeditions_repeat_range": {
           "name": "expeditions_repeat_range",
-          "value": "\"expeditions\".\"repeat_total\" >= 1 and \"expeditions\".\"repeat_done\" between 0 and \"expeditions\".\"repeat_total\""
+          "value": "\"expeditions\".\"repeat_total\" between 1 and 200 and \"expeditions\".\"repeat_done\" between 0 and \"expeditions\".\"repeat_total\""
         }
       },
       "isRLSEnabled": true
@@ -2696,6 +2696,20 @@
           "primaryKey": false,
           "notNull": true,
           "default": 0.01
+        },
+        "hunt_seconds": {
+          "name": "hunt_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 300
+        },
+        "hunt_stamina_cost": {
+          "name": "hunt_stamina_cost",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
         },
         "sort_order": {
           "name": "sort_order",

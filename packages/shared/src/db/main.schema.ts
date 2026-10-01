@@ -115,6 +115,10 @@ export const regions = pgTable('regions', {
   requiresTimeTicket: boolean('requires_time_ticket').notNull().default(false),
   /** 특별 맵 등장 확률 (원정 1회당) */
   specialMapChance: real('special_map_chance').notNull().default(0.01),
+  /** 사냥 1회 기본 시간(초). 고급 지역일수록 길다. 헌터 기동 스킬로 단축 */
+  huntSeconds: integer('hunt_seconds').notNull().default(300),
+  /** 사냥 1회 스태미너 소모량 */
+  huntStaminaCost: smallint('hunt_stamina_cost').notNull().default(1),
   sortOrder: smallint('sort_order').notNull().default(0),
 }).enableRLS();
 
@@ -368,7 +372,7 @@ export const expeditions = pgTable(
     endsAt: ts('ends_at').notNull(),
     /** 사냥 1회당 스태미너 소모량 */
     staminaCost: smallint('stamina_cost').notNull(),
-    /** 반복 사냥: 설정 횟수 (1이면 1회 사냥) */
+    /** 반복 사냥: 설정 횟수 (1이면 1회 사냥). 최대 100, 구독 또는 높은 VIP는 200 (Workers가 검사, DB는 200 상한만) */
     repeatTotal: smallint('repeat_total').notNull().default(1),
     /** 반복 사냥: 끝난 횟수. 요청 시점에 경과 시간·스태미너로 계산해 갱신한다 (틱 루프 없음) */
     repeatDone: smallint('repeat_done').notNull().default(0),
@@ -383,7 +387,7 @@ export const expeditions = pgTable(
   },
   (t) => [
     index('expeditions_player_status_idx').on(t.playerId, t.status),
-    check('expeditions_repeat_range', sql`${t.repeatTotal} >= 1 and ${t.repeatDone} between 0 and ${t.repeatTotal}`),
+    check('expeditions_repeat_range', sql`${t.repeatTotal} between 1 and 200 and ${t.repeatDone} between 0 and ${t.repeatTotal}`),
     index('expeditions_active_ends_idx').on(t.endsAt).where(sql`${t.status} = 'active'`),
     // 헌터 한 명은 동시에 원정 하나만
     uniqueIndex('expeditions_one_active_per_hunter')

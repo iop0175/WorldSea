@@ -33,6 +33,7 @@ import {
 import { authUsers } from 'drizzle-orm/supabase';
 import type {
   HunterSkills,
+  HuntOptions,
   ExpeditionResult,
   Genotype,
   LocusDef,
@@ -365,7 +366,16 @@ export const expeditions = pgTable(
     status: expeditionStatus('status').notNull().default('active'),
     startedAt: ts('started_at').notNull().defaultNow(),
     endsAt: ts('ends_at').notNull(),
+    /** 사냥 1회당 스태미너 소모량 */
     staminaCost: smallint('stamina_cost').notNull(),
+    /** 반복 사냥: 설정 횟수 (1이면 1회 사냥) */
+    repeatTotal: smallint('repeat_total').notNull().default(1),
+    /** 반복 사냥: 끝난 횟수. 요청 시점에 경과 시간·스태미너로 계산해 갱신한다 (틱 루프 없음) */
+    repeatDone: smallint('repeat_done').notNull().default(0),
+    /** 반복 사냥 옵션 (스태미너 부족 시 자동 회복, 장비, 미니게임 자동 설정) */
+    options: jsonb('options').$type<HuntOptions>().notNull().default({ recovery: 'none' }),
+    /** 반복이 중간에 멈춘 이유: 'stamina_empty' | 'premium_cap' | 'gear_empty' | 'manual' */
+    stopReason: varchar('stop_reason', { length: 20 }),
     usedTimeTicket: boolean('used_time_ticket').notNull().default(false),
     /** 완료 시 서버가 확정한 일반 수확 (수령 전까지 보관) */
     result: jsonb('result').$type<ExpeditionResult>(),
@@ -373,6 +383,7 @@ export const expeditions = pgTable(
   },
   (t) => [
     index('expeditions_player_status_idx').on(t.playerId, t.status),
+    check('expeditions_repeat_range', sql`${t.repeatTotal} >= 1 and ${t.repeatDone} between 0 and ${t.repeatTotal}`),
     index('expeditions_active_ends_idx').on(t.endsAt).where(sql`${t.status} = 'active'`),
     // 헌터 한 명은 동시에 원정 하나만
     uniqueIndex('expeditions_one_active_per_hunter')

@@ -100,9 +100,14 @@ CREATE TABLE "expeditions" (
 	"started_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"ends_at" timestamp with time zone NOT NULL,
 	"stamina_cost" smallint NOT NULL,
+	"repeat_total" smallint DEFAULT 1 NOT NULL,
+	"repeat_done" smallint DEFAULT 0 NOT NULL,
+	"options" jsonb DEFAULT '{"recovery":"none"}'::jsonb NOT NULL,
+	"stop_reason" varchar(20),
 	"used_time_ticket" boolean DEFAULT false NOT NULL,
 	"result" jsonb,
-	"claimed_at" timestamp with time zone
+	"claimed_at" timestamp with time zone,
+	CONSTRAINT "expeditions_repeat_range" CHECK ("expeditions"."repeat_total" >= 1 and "expeditions"."repeat_done" between 0 and "expeditions"."repeat_total")
 );
 --> statement-breakpoint
 ALTER TABLE "expeditions" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint

@@ -45,6 +45,25 @@ export interface HunterSkills {
   haul: number; // 운반: 원정 한 번에 가져오는 수확량
 }
 
+/** 반복 사냥 옵션 */
+export interface HuntOptions {
+  /**
+   * 스태미너가 부족할 때:
+   * none = 반복 중단, wait_regen = 자연 회복을 기다렸다가 이어서,
+   * premium = 프리미엄 재화로 자동 구매 (premiumCap 한도 안에서만, 일일 구매 제한도 적용)
+   */
+  recovery: 'none' | 'wait_regen' | 'premium';
+  /** recovery = premium일 때 이번 반복에서 쓸 프리미엄 상한 (필수) */
+  premiumCap?: number;
+  /** 사용할 찌/미끼. 다 떨어지면 장비 없이 계속할지 */
+  floatId?: string;
+  baitId?: string;
+  continueWithoutGear?: boolean;
+  /** 이 반복에만 적용할 미니게임 자동 설정 (없으면 players의 기본 설정) */
+  autoMinigame?: boolean;
+  highGradeBiteMode?: 'auto' | 'notify';
+}
+
 /** 원정 일반 수확 결과 (수령 전까지 보관) */
 export interface ExpeditionResult {
   catches: { speciesId: string; count: number }[];

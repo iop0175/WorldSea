@@ -1,6 +1,6 @@
 {
-  "id": "b35b9bf8-6058-40ca-b7f0-a7019832abd5",
-  "prevId": "05631b67-48d3-4c4d-a508-f967cfece55d",
+  "id": "ea9b59cd-a0c7-4432-9907-30ea8bf184d5",
+  "prevId": "1d13a20a-7091-4866-b1af-4de3cda480ce",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -748,6 +748,33 @@
           "primaryKey": false,
           "notNull": true
         },
+        "repeat_total": {
+          "name": "repeat_total",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "repeat_done": {
+          "name": "repeat_done",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "options": {
+          "name": "options",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'{\"recovery\":\"none\"}'::jsonb"
+        },
+        "stop_reason": {
+          "name": "stop_reason",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": false
+        },
         "used_time_ticket": {
           "name": "used_time_ticket",
           "type": "boolean",
@@ -867,7 +894,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "expeditions_repeat_range": {
+          "name": "expeditions_repeat_range",
+          "value": "\"expeditions\".\"repeat_total\" >= 1 and \"expeditions\".\"repeat_done\" between 0 and \"expeditions\".\"repeat_total\""
+        }
+      },
       "isRLSEnabled": true
     },
     "public.fish": {

@@ -397,7 +397,7 @@ export const rareBites = pgTable(
     expiresAt: ts('expires_at').notNull(),
     /** 미니게임 난수 시드: 서버가 입력 기록을 재현·검증할 때 사용 */
     minigameSeed: integer('minigame_seed').notNull(),
-    /** 사용한 장비 (시도 시점에 수량 차감) */
+    /** 사용한 장비 (성공 확정 시 같은 트랜잭션에서 수량 차감, 실패 시 보존) */
     floatId: text('float_id').references(() => items.id),
     baitId: text('bait_id').references(() => items.id),
     fishId: uuid('fish_id').references((): AnyPgColumn => fish.id),

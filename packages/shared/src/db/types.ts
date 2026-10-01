@@ -49,7 +49,12 @@ export interface HunterSkills {
 export interface ExpeditionResult {
   catches: { speciesId: string; count: number }[];
   gold: number;
+  premium?: number;
   exp: number;
+  /** 획득한 찌, 미끼, 성장 아이템 */
+  items?: { id: string; count: number }[];
+  /** 꽝으로 끝난 횟수 */
+  misses?: number;
 }
 
 /** 퀘스트·이벤트 보상 */

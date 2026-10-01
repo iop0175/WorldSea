@@ -10,7 +10,8 @@ CREATE TYPE "public"."fish_origin" AS ENUM('wild', 'farmed');--> statement-break
 CREATE TYPE "public"."fish_status" AS ENUM('holding', 'tank', 'display', 'breeding', 'auction', 'released', 'sold', 'dead');--> statement-breakpoint
 CREATE TYPE "public"."friend_status" AS ENUM('pending', 'accepted');--> statement-breakpoint
 CREATE TYPE "public"."guild_role" AS ENUM('leader', 'officer', 'member');--> statement-breakpoint
-CREATE TYPE "public"."item_kind" AS ENUM('float', 'bait');--> statement-breakpoint
+CREATE TYPE "public"."high_grade_bite_mode" AS ENUM('auto', 'notify');--> statement-breakpoint
+CREATE TYPE "public"."item_kind" AS ENUM('float', 'bait', 'growth');--> statement-breakpoint
 CREATE TYPE "public"."payment_platform" AS ENUM('revenuecat', 'stripe');--> statement-breakpoint
 CREATE TYPE "public"."progress_status" AS ENUM('active', 'completed', 'failed');--> statement-breakpoint
 CREATE TYPE "public"."rarity" AS ENUM('common', 'uncommon', 'rare', 'epic', 'legendary');--> statement-breakpoint
@@ -252,6 +253,8 @@ CREATE TABLE "players" (
 	"vip_tier" smallint DEFAULT 0 NOT NULL,
 	"shop_stage" smallint DEFAULT 1 NOT NULL,
 	"tutorial_step" smallint DEFAULT 0 NOT NULL,
+	"auto_minigame" boolean DEFAULT false NOT NULL,
+	"high_grade_bite_mode" "high_grade_bite_mode" DEFAULT 'notify' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"last_seen_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "players_nickname_unique" UNIQUE("nickname"),
@@ -292,6 +295,7 @@ CREATE TABLE "rare_bites" (
 	"minigame_seed" integer NOT NULL,
 	"float_id" text,
 	"bait_id" text,
+	"is_auto" boolean DEFAULT false NOT NULL,
 	"fish_id" uuid,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"resolved_at" timestamp with time zone

@@ -76,8 +76,10 @@ export const fishStatus = pgEnum('fish_status', [
 export const sex = pgEnum('sex', ['male', 'female']);
 export const tankPurpose = pgEnum('tank_purpose', ['breeding', 'display', 'holding']);
 export const expeditionStatus = pgEnum('expedition_status', ['active', 'completed', 'claimed']);
-/** 낚시 장비 종류: 찌(미니게임 판정 범위/확률 보정), 미끼(어종·등급별 입질/성공 확률 보정) */
-export const itemKind = pgEnum('item_kind', ['float', 'bait']);
+/** 아이템 종류: 찌(판정 보정), 미끼(입질/성공 확률 보정), 성장 아이템(물고기 성장 촉진) */
+export const itemKind = pgEnum('item_kind', ['float', 'bait', 'growth']);
+/** 높은 등급 물고기가 걸렸을 때 자동 모드의 동작: 자동으로 넘김 / 알림을 받고 직접 진행 */
+export const highGradeBiteMode = pgEnum('high_grade_bite_mode', ['auto', 'notify']);
 export const biteStatus = pgEnum('bite_status', ['pending', 'caught', 'escaped', 'expired']);
 export const encounterStatus = pgEnum('encounter_status', ['active', 'finished', 'expired']);
 export const breedingStatus = pgEnum('breeding_status', ['active', 'hatched', 'failed']);
@@ -217,6 +219,10 @@ export const players = pgTable(
     /** 허브 단계 1=동네 브리딩샵 … 4=공공 수족관 */
     shopStage: smallint('shop_stage').notNull().default(1),
     tutorialStep: smallint('tutorial_step').notNull().default(0),
+    /** 입질 미니게임 자동 진행 (켜면 성공 확률이 낮아진다) */
+    autoMinigame: boolean('auto_minigame').notNull().default(false),
+    /** 자동 진행 중 높은 등급이 걸렸을 때: auto=그대로 자동(확률 더 낮음), notify=알림 후 직접 */
+    highGradeBiteMode: highGradeBiteMode('high_grade_bite_mode').notNull().default('notify'),
     createdAt: createdAt(),
     lastSeenAt: ts('last_seen_at').notNull().defaultNow(),
   },
@@ -400,6 +406,8 @@ export const rareBites = pgTable(
     /** 사용한 장비 (성공 확정 시 같은 트랜잭션에서 수량 차감, 실패 시 보존) */
     floatId: text('float_id').references(() => items.id),
     baitId: text('bait_id').references(() => items.id),
+    /** 자동 진행으로 판정했는지 (자동 감점 적용 여부, 분석용) */
+    isAuto: boolean('is_auto').notNull().default(false),
     fishId: uuid('fish_id').references((): AnyPgColumn => fish.id),
     createdAt: createdAt(),
     resolvedAt: ts('resolved_at'),

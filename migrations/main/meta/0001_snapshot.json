@@ -1,6 +1,6 @@
 {
-  "id": "6fa9cb93-f6a6-4a2b-840c-4bfd82807f21",
-  "prevId": "913e7453-0c12-4029-916e-265b9d3897ab",
+  "id": "b35b9bf8-6058-40ca-b7f0-a7019832abd5",
+  "prevId": "05631b67-48d3-4c4d-a508-f967cfece55d",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -2139,6 +2139,21 @@
           "notNull": true,
           "default": 0
         },
+        "auto_minigame": {
+          "name": "auto_minigame",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "high_grade_bite_mode": {
+          "name": "high_grade_bite_mode",
+          "type": "high_grade_bite_mode",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'notify'"
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -2448,6 +2463,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "is_auto": {
+          "name": "is_auto",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
         },
         "fish_id": {
           "name": "fish_id",
@@ -3588,12 +3610,21 @@
         "member"
       ]
     },
+    "public.high_grade_bite_mode": {
+      "name": "high_grade_bite_mode",
+      "schema": "public",
+      "values": [
+        "auto",
+        "notify"
+      ]
+    },
     "public.item_kind": {
       "name": "item_kind",
       "schema": "public",
       "values": [
         "float",
-        "bait"
+        "bait",
+        "growth"
       ]
     },
     "public.payment_platform": {

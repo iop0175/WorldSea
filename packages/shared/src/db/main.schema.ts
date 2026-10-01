@@ -76,6 +76,8 @@ export const fishStatus = pgEnum('fish_status', [
 export const sex = pgEnum('sex', ['male', 'female']);
 export const tankPurpose = pgEnum('tank_purpose', ['breeding', 'display', 'holding']);
 export const expeditionStatus = pgEnum('expedition_status', ['active', 'completed', 'claimed']);
+/** 낚시 장비 종류: 찌(미니게임 판정 범위/확률 보정), 미끼(어종·등급별 입질/성공 확률 보정) */
+export const itemKind = pgEnum('item_kind', ['float', 'bait']);
 export const biteStatus = pgEnum('bite_status', ['pending', 'caught', 'escaped', 'expired']);
 export const encounterStatus = pgEnum('encounter_status', ['active', 'finished', 'expired']);
 export const breedingStatus = pgEnum('breeding_status', ['active', 'hatched', 'failed']);
@@ -288,6 +290,41 @@ export const purchases = pgTable(
 ).enableRLS();
 
 // ---------------------------------------------------------------------------
+// 3-1. 낚시 장비 (찌, 미끼): 등급별로 획득·구매해 포획 확률을 올린다
+// ---------------------------------------------------------------------------
+export const items = pgTable('items', {
+  id: text('id').primaryKey(), // 'float_rare', 'bait_worm_common'
+  nameKo: varchar('name_ko', { length: 40 }).notNull(),
+  kind: itemKind('kind').notNull(),
+  grade: rarity('grade').notNull(),
+  /** 성공 확률 보정 배율 (예: 0.10 = +10%). 정확한 공식은 서버 코드가 판정한다. */
+  chanceBonus: real('chance_bonus').notNull().default(0),
+  /** 미끼 전용: 특정 어종/지역 전용이면 지정, 없으면 범용 */
+  targetSpeciesId: text('target_species_id').references(() => species.id),
+  priceGold: money('price_gold'),
+  pricePremium: integer('price_premium'),
+  sortOrder: smallint('sort_order').notNull().default(0),
+}).enableRLS();
+
+/** 플레이어 보유 장비 수량 */
+export const playerItems = pgTable(
+  'player_items',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    itemId: text('item_id')
+      .notNull()
+      .references(() => items.id),
+    count: integer('count').notNull().default(0),
+  },
+  (t) => [
+    primaryKey({ columns: [t.playerId, t.itemId] }),
+    check('player_items_count_nonneg', sql`${t.count} >= 0`),
+  ],
+).enableRLS();
+
+// ---------------------------------------------------------------------------
 // 4. 원정 (헌터, 원정, 희귀어 입질, 특별 맵)
 // ---------------------------------------------------------------------------
 /** 헌터: 원정을 나가 자동으로 수확하는 캐릭터. 한 명은 동시에 원정 하나만 나갈 수 있다. */
@@ -360,6 +397,9 @@ export const rareBites = pgTable(
     expiresAt: ts('expires_at').notNull(),
     /** 미니게임 난수 시드: 서버가 입력 기록을 재현·검증할 때 사용 */
     minigameSeed: integer('minigame_seed').notNull(),
+    /** 사용한 장비 (시도 시점에 수량 차감) */
+    floatId: text('float_id').references(() => items.id),
+    baitId: text('bait_id').references(() => items.id),
     fishId: uuid('fish_id').references((): AnyPgColumn => fish.id),
     createdAt: createdAt(),
     resolvedAt: ts('resolved_at'),

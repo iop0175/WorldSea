@@ -10,6 +10,7 @@ CREATE TYPE "public"."fish_origin" AS ENUM('wild', 'farmed');--> statement-break
 CREATE TYPE "public"."fish_status" AS ENUM('holding', 'tank', 'display', 'breeding', 'auction', 'released', 'sold', 'dead');--> statement-breakpoint
 CREATE TYPE "public"."friend_status" AS ENUM('pending', 'accepted');--> statement-breakpoint
 CREATE TYPE "public"."guild_role" AS ENUM('leader', 'officer', 'member');--> statement-breakpoint
+CREATE TYPE "public"."item_kind" AS ENUM('float', 'bait');--> statement-breakpoint
 CREATE TYPE "public"."payment_platform" AS ENUM('revenuecat', 'stripe');--> statement-breakpoint
 CREATE TYPE "public"."progress_status" AS ENUM('active', 'completed', 'failed');--> statement-breakpoint
 CREATE TYPE "public"."rarity" AS ENUM('common', 'uncommon', 'rare', 'epic', 'legendary');--> statement-breakpoint
@@ -194,6 +195,19 @@ CREATE TABLE "hunters" (
 );
 --> statement-breakpoint
 ALTER TABLE "hunters" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "items" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name_ko" varchar(40) NOT NULL,
+	"kind" "item_kind" NOT NULL,
+	"grade" "rarity" NOT NULL,
+	"chance_bonus" real DEFAULT 0 NOT NULL,
+	"target_species_id" text,
+	"price_gold" bigint,
+	"price_premium" integer,
+	"sort_order" smallint DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "items" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "market_prices" (
 	"species_id" text PRIMARY KEY NOT NULL,
 	"current_price" integer NOT NULL,
@@ -214,6 +228,15 @@ CREATE TABLE "morph_discoveries" (
 );
 --> statement-breakpoint
 ALTER TABLE "morph_discoveries" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "player_items" (
+	"player_id" uuid NOT NULL,
+	"item_id" text NOT NULL,
+	"count" integer DEFAULT 0 NOT NULL,
+	CONSTRAINT "player_items_player_id_item_id_pk" PRIMARY KEY("player_id","item_id"),
+	CONSTRAINT "player_items_count_nonneg" CHECK ("player_items"."count" >= 0)
+);
+--> statement-breakpoint
+ALTER TABLE "player_items" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "players" (
 	"id" uuid PRIMARY KEY NOT NULL,
 	"nickname" varchar(20) NOT NULL,
@@ -267,6 +290,8 @@ CREATE TABLE "rare_bites" (
 	"status" bite_status DEFAULT 'pending' NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL,
 	"minigame_seed" integer NOT NULL,
+	"float_id" text,
+	"bait_id" text,
 	"fish_id" uuid,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"resolved_at" timestamp with time zone
@@ -420,16 +445,21 @@ ALTER TABLE "guild_quests" ADD CONSTRAINT "guild_quests_guild_id_guilds_id_fk" F
 ALTER TABLE "guild_quests" ADD CONSTRAINT "guild_quests_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "guilds" ADD CONSTRAINT "guilds_leader_id_players_id_fk" FOREIGN KEY ("leader_id") REFERENCES "public"."players"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "hunters" ADD CONSTRAINT "hunters_owner_id_players_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "items" ADD CONSTRAINT "items_target_species_id_species_id_fk" FOREIGN KEY ("target_species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "market_prices" ADD CONSTRAINT "market_prices_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_discoverer_id_players_id_fk" FOREIGN KEY ("discoverer_id") REFERENCES "public"."players"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_fish_id_fish_id_fk" FOREIGN KEY ("fish_id") REFERENCES "public"."fish"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "player_items" ADD CONSTRAINT "player_items_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "player_items" ADD CONSTRAINT "player_items_item_id_items_id_fk" FOREIGN KEY ("item_id") REFERENCES "public"."items"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "players" ADD CONSTRAINT "players_id_users_id_fk" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "purchases" ADD CONSTRAINT "purchases_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "push_tokens" ADD CONSTRAINT "push_tokens_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rare_bites" ADD CONSTRAINT "rare_bites_expedition_id_expeditions_id_fk" FOREIGN KEY ("expedition_id") REFERENCES "public"."expeditions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rare_bites" ADD CONSTRAINT "rare_bites_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rare_bites" ADD CONSTRAINT "rare_bites_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "rare_bites" ADD CONSTRAINT "rare_bites_float_id_items_id_fk" FOREIGN KEY ("float_id") REFERENCES "public"."items"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "rare_bites" ADD CONSTRAINT "rare_bites_bait_id_items_id_fk" FOREIGN KEY ("bait_id") REFERENCES "public"."items"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "rare_bites" ADD CONSTRAINT "rare_bites_fish_id_fish_id_fk" FOREIGN KEY ("fish_id") REFERENCES "public"."fish"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "restoration_contributions" ADD CONSTRAINT "restoration_contributions_event_id_restoration_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."restoration_events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "restoration_contributions" ADD CONSTRAINT "restoration_contributions_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

@@ -1,6 +1,6 @@
 {
-  "id": "dcae4415-dfdc-4f7c-988c-cb4275764ada",
-  "prevId": "e6522495-91e3-4747-a07a-4cd7b67ae11e",
+  "id": "6fa9cb93-f6a6-4a2b-840c-4bfd82807f21",
+  "prevId": "913e7453-0c12-4029-916e-265b9d3897ab",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1706,6 +1706,91 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
+    "public.items": {
+      "name": "items",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name_ko": {
+          "name": "name_ko",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "item_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grade": {
+          "name": "grade",
+          "type": "rarity",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "chance_bonus": {
+          "name": "chance_bonus",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "target_species_id": {
+          "name": "target_species_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price_gold": {
+          "name": "price_gold",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "price_premium": {
+          "name": "price_premium",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "items_target_species_id_species_id_fk": {
+          "name": "items_target_species_id_species_id_fk",
+          "tableFrom": "items",
+          "columnsFrom": [
+            "target_species_id"
+          ],
+          "tableTo": "species",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
     "public.market_prices": {
       "name": "market_prices",
       "schema": "",
@@ -1882,6 +1967,78 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.player_items": {
+      "name": "player_items",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "item_id": {
+          "name": "item_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_items_player_id_players_id_fk": {
+          "name": "player_items_player_id_players_id_fk",
+          "tableFrom": "player_items",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "tableTo": "players",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "player_items_item_id_items_id_fk": {
+          "name": "player_items_item_id_items_id_fk",
+          "tableFrom": "player_items",
+          "columnsFrom": [
+            "item_id"
+          ],
+          "tableTo": "items",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "player_items_player_id_item_id_pk": {
+          "name": "player_items_player_id_item_id_pk",
+          "columns": [
+            "player_id",
+            "item_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "player_items_count_nonneg": {
+          "name": "player_items_count_nonneg",
+          "value": "\"player_items\".\"count\" >= 0"
+        }
+      },
       "isRLSEnabled": true
     },
     "public.players": {
@@ -2280,6 +2437,18 @@
           "primaryKey": false,
           "notNull": true
         },
+        "float_id": {
+          "name": "float_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bait_id": {
+          "name": "bait_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
         "fish_id": {
           "name": "fish_id",
           "type": "uuid",
@@ -2373,6 +2542,32 @@
             "species_id"
           ],
           "tableTo": "species",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "rare_bites_float_id_items_id_fk": {
+          "name": "rare_bites_float_id_items_id_fk",
+          "tableFrom": "rare_bites",
+          "columnsFrom": [
+            "float_id"
+          ],
+          "tableTo": "items",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        },
+        "rare_bites_bait_id_items_id_fk": {
+          "name": "rare_bites_bait_id_items_id_fk",
+          "tableFrom": "rare_bites",
+          "columnsFrom": [
+            "bait_id"
+          ],
+          "tableTo": "items",
           "columnsTo": [
             "id"
           ],
@@ -3391,6 +3586,14 @@
         "leader",
         "officer",
         "member"
+      ]
+    },
+    "public.item_kind": {
+      "name": "item_kind",
+      "schema": "public",
+      "values": [
+        "float",
+        "bait"
       ]
     },
     "public.payment_platform": {

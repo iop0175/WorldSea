@@ -1,5 +1,5 @@
 {
-  "id": "6d907d00-0415-475c-a109-773d63d15e34",
+  "id": "e6522495-91e3-4747-a07a-4cd7b67ae11e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -555,107 +555,6 @@
       },
       "isRLSEnabled": true
     },
-    "public.crew": {
-      "name": "crew",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "owner_id": {
-          "name": "owner_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "ship_id": {
-          "name": "ship_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "level": {
-          "name": "level",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "skills": {
-          "name": "skills",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "crew_owner_idx": {
-          "name": "crew_owner_idx",
-          "columns": [
-            {
-              "expression": "owner_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "crew_owner_id_players_id_fk": {
-          "name": "crew_owner_id_players_id_fk",
-          "tableFrom": "crew",
-          "tableTo": "players",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "crew_ship_id_ships_id_fk": {
-          "name": "crew_ship_id_ships_id_fk",
-          "tableFrom": "crew",
-          "tableTo": "ships",
-          "columnsFrom": [
-            "ship_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": true
-    },
     "public.daily_counters": {
       "name": "daily_counters",
       "schema": "",
@@ -810,8 +709,8 @@
           "primaryKey": false,
           "notNull": true
         },
-        "ship_id": {
-          "name": "ship_id",
+        "hunter_id": {
+          "name": "hunter_id",
           "type": "uuid",
           "primaryKey": false,
           "notNull": true
@@ -907,11 +806,11 @@
           "method": "btree",
           "with": {}
         },
-        "expeditions_one_active_per_ship": {
-          "name": "expeditions_one_active_per_ship",
+        "expeditions_one_active_per_hunter": {
+          "name": "expeditions_one_active_per_hunter",
           "columns": [
             {
-              "expression": "ship_id",
+              "expression": "hunter_id",
               "isExpression": false,
               "asc": true,
               "nulls": "last"
@@ -938,12 +837,12 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "expeditions_ship_id_ships_id_fk": {
-          "name": "expeditions_ship_id_ships_id_fk",
+        "expeditions_hunter_id_hunters_id_fk": {
+          "name": "expeditions_hunter_id_hunters_id_fk",
           "tableFrom": "expeditions",
-          "tableTo": "ships",
+          "tableTo": "hunters",
           "columnsFrom": [
-            "ship_id"
+            "hunter_id"
           ],
           "columnsTo": [
             "id"
@@ -1721,6 +1620,88 @@
           ]
         }
       },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.hunters": {
+      "name": "hunters",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "owner_id": {
+          "name": "owner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "level": {
+          "name": "level",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 1
+        },
+        "skills": {
+          "name": "skills",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "hunters_owner_idx": {
+          "name": "hunters_owner_idx",
+          "columns": [
+            {
+              "expression": "owner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "hunters_owner_id_players_id_fk": {
+          "name": "hunters_owner_id_players_id_fk",
+          "tableFrom": "hunters",
+          "tableTo": "players",
+          "columnsFrom": [
+            "owner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": true
@@ -2664,96 +2645,6 @@
             "id"
           ],
           "onDelete": "no action",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": true
-    },
-    "public.ships": {
-      "name": "ships",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "owner_id": {
-          "name": "owner_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "name": {
-          "name": "name",
-          "type": "varchar(20)",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "level": {
-          "name": "level",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "speed": {
-          "name": "speed",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 1
-        },
-        "capacity": {
-          "name": "capacity",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 10
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "ships_owner_idx": {
-          "name": "ships_owner_idx",
-          "columns": [
-            {
-              "expression": "owner_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "ships_owner_id_players_id_fk": {
-          "name": "ships_owner_id_players_id_fk",
-          "tableFrom": "ships",
-          "tableTo": "players",
-          "columnsFrom": [
-            "owner_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
           "onUpdate": "no action"
         }
       },

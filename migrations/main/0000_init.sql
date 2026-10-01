@@ -71,17 +71,6 @@ CREATE TABLE "breedings" (
 );
 --> statement-breakpoint
 ALTER TABLE "breedings" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
-CREATE TABLE "crew" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"owner_id" uuid NOT NULL,
-	"ship_id" uuid,
-	"name" varchar(20) NOT NULL,
-	"level" smallint DEFAULT 1 NOT NULL,
-	"skills" jsonb NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-ALTER TABLE "crew" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "daily_counters" (
 	"player_id" uuid NOT NULL,
 	"day" date NOT NULL,
@@ -103,7 +92,7 @@ ALTER TABLE "dex_entries" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "expeditions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"player_id" uuid NOT NULL,
-	"ship_id" uuid NOT NULL,
+	"hunter_id" uuid NOT NULL,
 	"region_id" text NOT NULL,
 	"status" "expedition_status" DEFAULT 'active' NOT NULL,
 	"started_at" timestamp with time zone DEFAULT now() NOT NULL,
@@ -195,6 +184,16 @@ CREATE TABLE "guilds" (
 );
 --> statement-breakpoint
 ALTER TABLE "guilds" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "hunters" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"owner_id" uuid NOT NULL,
+	"name" varchar(20) NOT NULL,
+	"level" smallint DEFAULT 1 NOT NULL,
+	"skills" jsonb NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "hunters" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "market_prices" (
 	"species_id" text PRIMARY KEY NOT NULL,
 	"current_price" integer NOT NULL,
@@ -307,17 +306,6 @@ CREATE TABLE "restoration_events" (
 );
 --> statement-breakpoint
 ALTER TABLE "restoration_events" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
-CREATE TABLE "ships" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"owner_id" uuid NOT NULL,
-	"name" varchar(20) NOT NULL,
-	"level" smallint DEFAULT 1 NOT NULL,
-	"speed" smallint DEFAULT 1 NOT NULL,
-	"capacity" smallint DEFAULT 10 NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-ALTER TABLE "ships" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "special_encounters" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"player_id" uuid NOT NULL,
@@ -410,13 +398,11 @@ ALTER TABLE "breedings" ADD CONSTRAINT "breedings_player_id_players_id_fk" FOREI
 ALTER TABLE "breedings" ADD CONSTRAINT "breedings_tank_id_tanks_id_fk" FOREIGN KEY ("tank_id") REFERENCES "public"."tanks"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "breedings" ADD CONSTRAINT "breedings_parent_a_id_fish_id_fk" FOREIGN KEY ("parent_a_id") REFERENCES "public"."fish"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "breedings" ADD CONSTRAINT "breedings_parent_b_id_fish_id_fk" FOREIGN KEY ("parent_b_id") REFERENCES "public"."fish"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "crew" ADD CONSTRAINT "crew_owner_id_players_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "crew" ADD CONSTRAINT "crew_ship_id_ships_id_fk" FOREIGN KEY ("ship_id") REFERENCES "public"."ships"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "daily_counters" ADD CONSTRAINT "daily_counters_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "dex_entries" ADD CONSTRAINT "dex_entries_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "dex_entries" ADD CONSTRAINT "dex_entries_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "expeditions" ADD CONSTRAINT "expeditions_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "expeditions" ADD CONSTRAINT "expeditions_ship_id_ships_id_fk" FOREIGN KEY ("ship_id") REFERENCES "public"."ships"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "expeditions" ADD CONSTRAINT "expeditions_hunter_id_hunters_id_fk" FOREIGN KEY ("hunter_id") REFERENCES "public"."hunters"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "expeditions" ADD CONSTRAINT "expeditions_region_id_regions_id_fk" FOREIGN KEY ("region_id") REFERENCES "public"."regions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "fish" ADD CONSTRAINT "fish_owner_id_players_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."players"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "fish" ADD CONSTRAINT "fish_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -433,6 +419,7 @@ ALTER TABLE "guild_quest_contributions" ADD CONSTRAINT "guild_quest_contribution
 ALTER TABLE "guild_quests" ADD CONSTRAINT "guild_quests_guild_id_guilds_id_fk" FOREIGN KEY ("guild_id") REFERENCES "public"."guilds"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "guild_quests" ADD CONSTRAINT "guild_quests_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "guilds" ADD CONSTRAINT "guilds_leader_id_players_id_fk" FOREIGN KEY ("leader_id") REFERENCES "public"."players"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "hunters" ADD CONSTRAINT "hunters_owner_id_players_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "market_prices" ADD CONSTRAINT "market_prices_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_discoverer_id_players_id_fk" FOREIGN KEY ("discoverer_id") REFERENCES "public"."players"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
@@ -447,7 +434,6 @@ ALTER TABLE "rare_bites" ADD CONSTRAINT "rare_bites_fish_id_fish_id_fk" FOREIGN 
 ALTER TABLE "restoration_contributions" ADD CONSTRAINT "restoration_contributions_event_id_restoration_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."restoration_events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "restoration_contributions" ADD CONSTRAINT "restoration_contributions_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "restoration_events" ADD CONSTRAINT "restoration_events_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "ships" ADD CONSTRAINT "ships_owner_id_players_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "special_encounters" ADD CONSTRAINT "special_encounters_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "special_encounters" ADD CONSTRAINT "special_encounters_expedition_id_expeditions_id_fk" FOREIGN KEY ("expedition_id") REFERENCES "public"."expeditions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "special_encounters" ADD CONSTRAINT "special_encounters_region_id_regions_id_fk" FOREIGN KEY ("region_id") REFERENCES "public"."regions"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
@@ -462,16 +448,16 @@ CREATE INDEX "auctions_active_ends_idx" ON "auctions" USING btree ("ends_at") WH
 CREATE INDEX "auctions_seller_idx" ON "auctions" USING btree ("seller_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "auctions_one_active_per_fish" ON "auctions" USING btree ("fish_id") WHERE "auctions"."status" = 'active';--> statement-breakpoint
 CREATE INDEX "breedings_player_status_idx" ON "breedings" USING btree ("player_id","status");--> statement-breakpoint
-CREATE INDEX "crew_owner_idx" ON "crew" USING btree ("owner_id");--> statement-breakpoint
 CREATE INDEX "expeditions_player_status_idx" ON "expeditions" USING btree ("player_id","status");--> statement-breakpoint
 CREATE INDEX "expeditions_active_ends_idx" ON "expeditions" USING btree ("ends_at") WHERE "expeditions"."status" = 'active';--> statement-breakpoint
-CREATE UNIQUE INDEX "expeditions_one_active_per_ship" ON "expeditions" USING btree ("ship_id") WHERE "expeditions"."status" = 'active';--> statement-breakpoint
+CREATE UNIQUE INDEX "expeditions_one_active_per_hunter" ON "expeditions" USING btree ("hunter_id") WHERE "expeditions"."status" = 'active';--> statement-breakpoint
 CREATE INDEX "fish_owner_status_idx" ON "fish" USING btree ("owner_id","status");--> statement-breakpoint
 CREATE INDEX "fish_tank_idx" ON "fish" USING btree ("tank_id");--> statement-breakpoint
 CREATE INDEX "fish_species_morph_idx" ON "fish" USING btree ("species_id","morph_key");--> statement-breakpoint
 CREATE INDEX "friendships_addressee_idx" ON "friendships" USING btree ("addressee_id");--> statement-breakpoint
 CREATE INDEX "guild_members_guild_idx" ON "guild_members" USING btree ("guild_id");--> statement-breakpoint
 CREATE INDEX "guild_quests_guild_status_idx" ON "guild_quests" USING btree ("guild_id","status");--> statement-breakpoint
+CREATE INDEX "hunters_owner_idx" ON "hunters" USING btree ("owner_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "morph_discoveries_uidx" ON "morph_discoveries" USING btree ("species_id","morph_key");--> statement-breakpoint
 CREATE UNIQUE INDEX "purchases_tx_uidx" ON "purchases" USING btree ("platform","transaction_id");--> statement-breakpoint
 CREATE INDEX "purchases_player_idx" ON "purchases" USING btree ("player_id");--> statement-breakpoint
@@ -480,7 +466,6 @@ CREATE INDEX "rare_bites_player_status_idx" ON "rare_bites" USING btree ("player
 CREATE INDEX "rare_bites_pending_expires_idx" ON "rare_bites" USING btree ("expires_at") WHERE "rare_bites"."status" = 'pending';--> statement-breakpoint
 CREATE INDEX "restoration_contrib_rank_idx" ON "restoration_contributions" USING btree ("event_id","amount");--> statement-breakpoint
 CREATE INDEX "restoration_events_status_idx" ON "restoration_events" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "ships_owner_idx" ON "ships" USING btree ("owner_id");--> statement-breakpoint
 CREATE INDEX "special_encounters_player_idx" ON "special_encounters" USING btree ("player_id","status");--> statement-breakpoint
 CREATE INDEX "species_region_idx" ON "species" USING btree ("region_id");--> statement-breakpoint
 CREATE INDEX "tanks_owner_idx" ON "tanks" USING btree ("owner_id");

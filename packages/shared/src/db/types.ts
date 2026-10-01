@@ -37,11 +37,12 @@ export interface TankEquipment {
   feeder: number; // 사료 자동급여기
 }
 
-/** 선원 스킬 */
-export interface CrewSkills {
-  sailing: number; // 항해: 원정 시간 단축
+/** 헌터 스킬 */
+export interface HunterSkills {
+  speed: number; // 기동: 원정 시간 단축
   detection: number; // 탐지: 희귀어 입질 확률
   angling: number; // 손맛 보조: 미니게임 난이도 완화
+  haul: number; // 운반: 원정 한 번에 가져오는 수확량
 }
 
 /** 원정 일반 수확 결과 (수령 전까지 보관) */

@@ -32,7 +32,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { authUsers } from 'drizzle-orm/supabase';
 import type {
-  CrewSkills,
+  HunterSkills,
   ExpeditionResult,
   Genotype,
   LocusDef,
@@ -288,10 +288,11 @@ export const purchases = pgTable(
 ).enableRLS();
 
 // ---------------------------------------------------------------------------
-// 4. 원정 (배, 선원, 원정, 희귀어 입질, 특별 맵)
+// 4. 원정 (헌터, 원정, 희귀어 입질, 특별 맵)
 // ---------------------------------------------------------------------------
-export const ships = pgTable(
-  'ships',
+/** 헌터: 원정을 나가 자동으로 수확하는 캐릭터. 한 명은 동시에 원정 하나만 나갈 수 있다. */
+export const hunters = pgTable(
+  'hunters',
   {
     id: uuid('id').primaryKey().defaultRandom(),
     ownerId: uuid('owner_id')
@@ -299,27 +300,10 @@ export const ships = pgTable(
       .references(() => players.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 20 }).notNull(),
     level: smallint('level').notNull().default(1),
-    speed: smallint('speed').notNull().default(1),
-    capacity: smallint('capacity').notNull().default(10),
+    skills: jsonb('skills').$type<HunterSkills>().notNull(),
     createdAt: createdAt(),
   },
-  (t) => [index('ships_owner_idx').on(t.ownerId)],
-).enableRLS();
-
-export const crew = pgTable(
-  'crew',
-  {
-    id: uuid('id').primaryKey().defaultRandom(),
-    ownerId: uuid('owner_id')
-      .notNull()
-      .references(() => players.id, { onDelete: 'cascade' }),
-    shipId: uuid('ship_id').references(() => ships.id, { onDelete: 'set null' }),
-    name: varchar('name', { length: 20 }).notNull(),
-    level: smallint('level').notNull().default(1),
-    skills: jsonb('skills').$type<CrewSkills>().notNull(),
-    createdAt: createdAt(),
-  },
-  (t) => [index('crew_owner_idx').on(t.ownerId)],
+  (t) => [index('hunters_owner_idx').on(t.ownerId)],
 ).enableRLS();
 
 export const expeditions = pgTable(
@@ -329,9 +313,9 @@ export const expeditions = pgTable(
     playerId: uuid('player_id')
       .notNull()
       .references(() => players.id, { onDelete: 'cascade' }),
-    shipId: uuid('ship_id')
+    hunterId: uuid('hunter_id')
       .notNull()
-      .references(() => ships.id),
+      .references(() => hunters.id),
     regionId: text('region_id')
       .notNull()
       .references(() => regions.id),
@@ -347,9 +331,9 @@ export const expeditions = pgTable(
   (t) => [
     index('expeditions_player_status_idx').on(t.playerId, t.status),
     index('expeditions_active_ends_idx').on(t.endsAt).where(sql`${t.status} = 'active'`),
-    // 배 한 척은 동시에 원정 하나만
-    uniqueIndex('expeditions_one_active_per_ship')
-      .on(t.shipId)
+    // 헌터 한 명은 동시에 원정 하나만
+    uniqueIndex('expeditions_one_active_per_hunter')
+      .on(t.hunterId)
       .where(sql`${t.status} = 'active'`),
   ],
 ).enableRLS();

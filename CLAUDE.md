@@ -109,6 +109,8 @@
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 
+- docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
+
 ## 명령어 (저장소 루트에서)
 - `pnpm install`
 - `pnpm dev:client` (http://localhost:5173), `pnpm dev:server` (http://localhost:8787)

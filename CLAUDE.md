@@ -104,8 +104,11 @@
 - packages/client (@worldsea/client): Vite + Phaser + React 오버레이 + Zustand
   - 9:16 프레임 안에 Phaser 캔버스(#game, 360x640 픽셀아트 정수 배율, 2026-10-02 180x320에서 상향)와 React UI(#ui)를 겹친다
   - src/store.ts: React·Phaser 공유 상태 (Phaser는 subscribe로 받음). 재화·스태미너는 서버 응답으로만 갱신
-  - src/game/scenes: BootScene(임시 도트 텍스처 생성), HubScene(임시 자리 표시 장면, 2배 확대. docs/ui-main.md 기준 탑다운 장면으로 교체 예정)
-  - src/ui/App.tsx: 상단 재화바 + 서버 상태 표시, 탭별 자리 표시 패널, 하단 탭 5개
+  - src/game/layout.ts: 해상도(360x640), 화면 영역(LAYOUT), 1단계 샵 배치(STAGE1_SPOTS). Phaser와 React가 같은 좌표를 쓴다
+  - src/game/scenes: BootScene(임시 도트 텍스처: 14x8 물고기 레이어 합성, 치어, 사람), HubScene(1단계 탑다운 3/4 임시 장면: 도형 수조·카운터·교배실·치어 수조·문, 헤엄치는 물고기, 통로를 걷는 사람)
+  - src/ui/App.tsx: 메인 UI(상단바 한 줄, 간판 글자·샵 단계 바, 장면 라벨·터치 영역, 양옆 패널, 헌터 띠, 탭바). 좌표는 --px(게임 1px = 100cqw/360) 단위
+  - src/ui/PixelIcon.tsx: 문자열 도트 임시 아이콘 / src/ui/mock.ts: API 연결 전 화면 확인용 임시 데이터
+  - 글꼴: Galmuri(OFL, npm galmuri, 앱 내장). 본문 Galmuri11, 작은 글자 Galmuri9, 숫자 GalmuriMono
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 

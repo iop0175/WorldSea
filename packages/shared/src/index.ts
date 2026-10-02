@@ -6,3 +6,5 @@
 export type { Genotype, HuntOptions, ExpeditionResult, Reward } from './db/types';
 export * from './game/constants';
 export * from './api/types';
+export * from './game/stamina';
+export * from './game/hunters';

@@ -10,10 +10,9 @@ export const MOCK_PLAYER = {
   gold: 12450,
   stamina: 32,
   staminaMax: 60,
-  staminaNext: '04:12',
+  staminaNext: '04:12' as string | null,
   timeTickets: 3,
   unread: 3,
-  shopStage: 1,
   shopStageName: '1단계 동네 샵',
   shopStageProgress: 0.62,
 };
@@ -21,6 +20,7 @@ export const MOCK_PLAYER = {
 export type HunterCard =
   | { kind: 'hunting'; region: string; regionId: string; done: number; total: number; remain: string }
   | { kind: 'complete'; region: string }
+  | { kind: 'idle'; name: string }
   | { kind: 'locked'; condition: string };
 
 export const MOCK_HUNTERS: HunterCard[] = [
@@ -31,3 +31,9 @@ export const MOCK_HUNTERS: HunterCard[] = [
 ];
 
 export const MOCK_BADGES: Partial<Record<string, string>> = { expedition: '1', attend: '1' };
+
+/** 지역 이름 (지역 목록 API가 생기기 전까지 임시) */
+export const REGION_NAME_KO: Record<string, string> = {
+  asia_fresh: '아시아 민물',
+  central_america_fresh: '중미 민물',
+};

@@ -1,0 +1,6 @@
+# 로컬 개발용 (복사해서 .dev.vars 로 저장, 커밋 금지)
+# Supabase DB 직접 연결 문자열 (Project Settings > Database > Connection string, Session pooler 권장)
+DATABASE_URL=postgres://postgres.xxxx:비밀번호@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres
+# 토큰 검증: 새 프로젝트는 SUPABASE_URL 만 (JWKS). 예전 HS256 프로젝트면 SUPABASE_JWT_SECRET 도
+SUPABASE_URL=https://xxxx.supabase.co
+# SUPABASE_JWT_SECRET=

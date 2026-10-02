@@ -1,11 +1,14 @@
-import { useEffect, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties, type FormEvent } from 'react';
 import { BOTTOM_TABS, BOTTOM_TAB_LABEL_KO, type BottomTab } from '@worldsea/shared';
-import { fetchHealth } from '../api';
+import { ApiRequestError, createPlayer, fetchHealth } from '../api';
+import { signInWithEmail, signInWithProvider, signOut } from '../auth/supabase';
+import { refreshMe } from '../session';
+import { toView, type MainView } from './viewModel';
 import { useGameStore } from '../store';
 import { LAYOUT, STAGE1_SPOTS } from '../game/layout';
 import { ICONS, PixelIcon, type PixelArt } from './PixelIcon';
 import { assetUrl, hasAsset, SLICES } from '../game/assets';
-import { MOCK_BADGES, MOCK_HUNTERS, MOCK_PLAYER as P } from './mock';
+import { MOCK_BADGES } from './mock';
 
 /** 게임 좌표(360x640 기준 px)를 화면 CSS 길이로 */
 const g = (n: number) => `calc(var(--px) * ${n})`;
@@ -38,7 +41,7 @@ function Badge({ value }: { value?: string }) {
   return <span className="badge">{value}</span>;
 }
 
-function TopBar() {
+function TopBar({ v: P, onMenu }: { v: MainView; onMenu: () => void }) {
   return (
     <header className="topbar" style={box(0, LAYOUT.topBar.y, 360, LAYOUT.topBar.h)}>
       <button type="button" className="panel profile" aria-label={`프로필, ${P.nickname}, 레벨 ${P.level}`}>
@@ -54,22 +57,22 @@ function TopBar() {
       <button type="button" className="panel res gold" aria-label={`골드 ${P.gold.toLocaleString()}, 충전`}>
         <Icon k="icon/res_gold" fb={ICONS.coin} size={g(12)} /><span className="num">{P.gold.toLocaleString()}</span><span className="plus">+</span>
       </button>
-      <button type="button" className="panel res stamina" aria-label={`스태미너 ${P.stamina}/${P.staminaMax}, ${P.staminaNext} 후 1 회복`}>
+      <button type="button" className="panel res stamina" aria-label={`스태미너 ${P.stamina}/${P.staminaMax}`}>
         <Icon k="icon/res_stamina" fb={ICONS.bolt} size={g(12)} />
-        <span className="stack"><span className="num">{P.stamina}/{P.staminaMax}</span><span className="sub">+1 {P.staminaNext}</span></span>
+        <span className="stack"><span className="num">{P.stamina}/{P.staminaMax}</span><span className="sub">{P.staminaNext ? `+1 ${P.staminaNext}` : 'MAX'}</span></span>
       </button>
       <button type="button" className="panel res ticket" aria-label={`시간 티켓 ${P.timeTickets}장`}>
         <Icon k="icon/res_ticket" fb={ICONS.hourglass} size={g(12)} /><span className="num">{P.timeTickets}</span>
       </button>
-      <button type="button" className="panel menu" aria-label={`메뉴, 새 소식 ${P.unread}개`}>
+      <button type="button" className="panel menu" aria-label={`메뉴, 새 소식 ${P.unread}개`} onClick={onMenu}>
         <Icon k="icon/menu" fb={ICONS.menu} size={g(14)} />
-        <Badge value={String(P.unread)} />
+        <Badge value={P.unread ? String(P.unread) : undefined} />
       </button>
     </header>
   );
 }
 
-function SceneOverlay() {
+function SceneOverlay({ v: P }: { v: MainView }) {
   return (
     <div className="scene-ui">
       {/* 간판 글자 + 샵 단계 */}
@@ -103,7 +106,8 @@ function SceneOverlay() {
   );
 }
 
-function HunterBand() {
+function HunterBand({ v }: { v: MainView }) {
+  const MOCK_HUNTERS = v.hunters;
   const hunting = MOCK_HUNTERS.filter((h) => h.kind === 'hunting').length;
   const done = MOCK_HUNTERS.filter((h) => h.kind === 'complete').length;
   return (
@@ -121,6 +125,12 @@ function HunterBand() {
                 <span className="region">{h.region}</span>
                 <span className="meta"><span>{h.done}/{h.total}</span><span>{h.remain}</span></span>
                 <span className="bar"><span style={{ width: `${(h.done / h.total) * 100}%` }} /></span>
+              </button>
+            );
+          if (h.kind === 'idle')
+            return (
+              <button key={i} type="button" className="card idle" aria-label={`${h.name}, 대기 중, 원정 보내기`}>
+                <span className="region">{h.name}</span><span className="done">대기 중</span>
               </button>
             );
           if (h.kind === 'complete')
@@ -155,8 +165,111 @@ function TabBar() {
   );
 }
 
-export function App() {
+/** 메인 게임 화면 (로그인 후, 또는 미리보기) */
+function MainScreen({ preview }: { preview: boolean }) {
   const activeTab = useGameStore((s) => s.activeTab);
+  const me = useGameStore((s) => s.me);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const v = toView(preview ? null : me);
+
+  // 서버 값 주기적 갱신 (스태미너 등은 서버가 계산)
+  useEffect(() => {
+    if (preview) return;
+    const id = setInterval(() => void refreshMe(), 60_000);
+    return () => clearInterval(id);
+  }, [preview]);
+
+  return (
+    <>
+      <TopBar v={v} onMenu={() => setMenuOpen((o) => !o)} />
+      {activeTab === 'shop' ? <SceneOverlay v={v} /> : (
+        <section className="sheet" style={box(12, 120, 336)} aria-label={TAB_INFO[activeTab].title}>
+          <h2>{TAB_INFO[activeTab].title}</h2>
+          {TAB_INFO[activeTab].lines.map((l) => <p key={l}>{l}</p>)}
+          <p className="soon">준비 중</p>
+        </section>
+      )}
+      <HunterBand v={v} />
+      <TabBar />
+      {preview && <div className="preview-note" style={box(60, 486, 240, 12)}>미리보기 (서버 미연결 · 예시 데이터)</div>}
+      {menuOpen && (
+        <div className="menu-pop" style={box(232, 36, 124)} role="menu">
+          <button type="button" role="menuitem" onClick={() => { setMenuOpen(false); void refreshMe(); }} disabled={preview}>새로고침</button>
+          <button type="button" role="menuitem" onClick={() => { setMenuOpen(false); void signOut(); }} disabled={preview}>로그아웃</button>
+        </div>
+      )}
+    </>
+  );
+}
+
+/** 로그인 화면 (최소 구성) */
+function LoginScreen() {
+  const [email, setEmail] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const social = async (p: 'google' | 'apple') => {
+    setBusy(true);
+    const { error } = await signInWithProvider(p);
+    if (error) { setMsg(error.message); setBusy(false); }
+  };
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    const { error } = await signInWithEmail(email.trim());
+    setBusy(false);
+    setMsg(error ? error.message : '메일함에서 로그인 링크를 눌러 주세요');
+  };
+  return (
+    <section className="gate" style={box(30, 120, 300)} aria-label="로그인">
+      <h1>월드씨</h1>
+      <p className="sub">세계의 바다를 모으는 브리딩샵</p>
+      <button type="button" className="gate-btn" disabled={busy} onClick={() => social('google')}>Google로 시작</button>
+      <button type="button" className="gate-btn" disabled={busy} onClick={() => social('apple')}>Apple로 시작</button>
+      <form onSubmit={submit} className="gate-form">
+        <label htmlFor="email">이메일로 시작 (개발용)</label>
+        <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@example.com" />
+        <button type="submit" className="gate-btn gold" disabled={busy}>로그인 링크 받기</button>
+      </form>
+      {msg && <p className="gate-msg" role="status">{msg}</p>}
+    </section>
+  );
+}
+
+/** 닉네임 정하기 (첫 로그인) */
+function SignupScreen() {
+  const setMe = useGameStore((s) => s.setMe);
+  const [nickname, setNickname] = useState('');
+  const [msg, setMsg] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    setBusy(true);
+    try {
+      setMe(await createPlayer(nickname.trim()));
+    } catch (err) {
+      setMsg(err instanceof ApiRequestError ? err.message : '가입에 실패했습니다');
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <section className="gate" style={box(30, 140, 300)} aria-label="닉네임 정하기">
+      <h1>브리딩샵 주인 등록</h1>
+      <p className="sub">손님들이 부를 이름을 정해 주세요</p>
+      <form onSubmit={submit} className="gate-form">
+        <label htmlFor="nick">닉네임 (2~12자, 한글·영문·숫자)</label>
+        <input id="nick" required minLength={2} maxLength={12} value={nickname} onChange={(e) => setNickname(e.target.value)} />
+        <button type="submit" className="gate-btn gold" disabled={busy}>시작하기</button>
+      </form>
+      {msg && <p className="gate-msg" role="alert">{msg}</p>}
+      <button type="button" className="gate-link" onClick={() => void signOut()}>다른 계정으로 로그인</button>
+    </section>
+  );
+}
+
+export function App() {
+  const phase = useGameStore((s) => s.phase);
+  const errorMessage = useGameStore((s) => s.errorMessage);
   const serverStatus = useGameStore((s) => s.serverStatus);
   const setServerStatus = useGameStore((s) => s.setServerStatus);
 
@@ -174,17 +287,18 @@ export function App() {
   const skinVars = Object.fromEntries(skins.map((k) => [`--${k.split('/')[1]}`, `url(${assetUrl(k)})`])) as CSSProperties;
 
   return (
-    <div className={`hud ${skinClass}`} style={skinVars}>
-      <TopBar />
-      {activeTab === 'shop' ? <SceneOverlay /> : (
-        <section className="sheet" style={box(12, 120, 336)} aria-label={TAB_INFO[activeTab].title}>
-          <h2>{TAB_INFO[activeTab].title}</h2>
-          {TAB_INFO[activeTab].lines.map((l) => <p key={l}>{l}</p>)}
-          <p className="soon">준비 중</p>
+    <div className={`hud phase-${phase} ${skinClass}`} style={skinVars}>
+      {(phase === 'ready' || phase === 'preview') && <MainScreen preview={phase === 'preview'} />}
+      {phase === 'login' && <LoginScreen />}
+      {phase === 'signup' && <SignupScreen />}
+      {phase === 'loading' && <div className="gate-center">불러오는 중…</div>}
+      {phase === 'error' && (
+        <section className="gate" style={box(30, 200, 300)} role="alert">
+          <h1>연결 오류</h1>
+          <p className="sub">{errorMessage}</p>
+          <button type="button" className="gate-btn gold" onClick={() => void refreshMe()}>다시 시도</button>
         </section>
       )}
-      <HunterBand />
-      <TabBar />
       {import.meta.env.DEV && <span className={`server ${serverStatus}`} title={`서버: ${serverStatus}`} />}
     </div>
   );

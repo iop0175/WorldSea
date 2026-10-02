@@ -15,15 +15,19 @@
     "db:migrate:main": "drizzle-kit migrate --config drizzle.main.config.ts",
     "db:migrate:log": "drizzle-kit migrate --config drizzle.log.config.ts",
     "typecheck": "tsc -p tsconfig.json",
-    "verify": "node scripts/verify.mjs"
+    "verify": "node scripts/verify.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.3"
+    "drizzle-orm": "^0.45.3",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@electric-sql/pglite": "^0.5.8",
     "@types/node": "^26.6.3",
     "drizzle-kit": "^0.31.11",
-    "typescript": "^7.0.2"
+    "postgres": "^3.4.9",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.3"
   }
 }

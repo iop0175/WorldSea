@@ -1,25 +1,36 @@
 import { create } from 'zustand';
-import type { BottomTab } from '@worldsea/shared';
+import type { BottomTab, MeResponse } from '@worldsea/shared';
 
 /**
  * React UI와 Phaser 씬이 함께 보는 상태.
  * Phaser 쪽은 useGameStore.subscribe(...)로 변화를 받는다.
- * 서버가 기준이므로 재화·스태미너는 서버 응답으로만 갱신한다 (클라이언트에서 계산해 쓰지 않음).
+ * 재화·스태미너 등 게임 값은 서버 응답(me)으로만 갱신한다 (클라이언트에서 계산해 쓰지 않음).
  */
 export type ServerStatus = 'checking' | 'online' | 'offline';
 
+/** 화면 흐름: 확인 중 → (미리보기 | 로그인 → 닉네임 → 게임) */
+export type Phase = 'loading' | 'preview' | 'login' | 'signup' | 'ready' | 'error';
+
 interface GameState {
+  phase: Phase;
+  me: MeResponse | null;
+  errorMessage: string | null;
   activeTab: BottomTab;
-  shopStage: 1 | 2 | 3 | 4;
   serverStatus: ServerStatus;
+  setPhase: (phase: Phase, errorMessage?: string | null) => void;
+  setMe: (me: MeResponse) => void;
   setTab: (tab: BottomTab) => void;
   setServerStatus: (status: ServerStatus) => void;
 }
 
 export const useGameStore = create<GameState>((set) => ({
+  phase: 'loading',
+  me: null,
+  errorMessage: null,
   activeTab: 'shop',
-  shopStage: 1,
   serverStatus: 'checking',
+  setPhase: (phase, errorMessage = null) => set({ phase, errorMessage }),
+  setMe: (me) => set({ me, phase: 'ready', errorMessage: null }),
   setTab: (activeTab) => set({ activeTab }),
   setServerStatus: (serverStatus) => set({ serverStatus }),
 }));

@@ -98,15 +98,23 @@
   - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션·트리거 검증)
 - packages/server (@worldsea/server): Cloudflare Workers + Hono
-  - src/index.ts: GET /health, GET /ws (실시간 채널, 아직 인증 없음 → 인증 단계에서 JWT 사용자 id로 교체)
+  - src/app.ts: createApp(deps). 공통 CORS·오류 처리, /v1/* 는 Bearer 토큰 검증 후 요청마다 DB 연결. 테스트는 deps로 PGlite DB·로컬 키 검증기를 넣는다
+  - src/auth.ts: Supabase 토큰 검증 (JWKS 비대칭 키 기본, SUPABASE_JWT_SECRET 있으면 HS256). 토큰의 sub만 신뢰
+  - src/db.ts: postgres-js + Drizzle, Hyperdrive(배포) 또는 DATABASE_URL(로컬)
+  - src/routes/players.ts: GET /v1/me(스태미너는 요청 시점 계산), POST /v1/players(가입: 플레이어+첫 헌터, 한 트랜잭션)
+  - /ws?token= : 토큰 검증 후 그 사용자 채널(Durable Object)에 연결
+  - test/api.test.ts: vitest + PGlite(실제 마이그레이션) + 로컬 서명 토큰으로 인증·가입·내 정보 검증
   - src/realtime/player-channel.ts: 플레이어별 Durable Object, WebSocket Hibernation, push() RPC
   - wrangler.jsonc: Hyperdrive 바인딩은 주석 상태(생성 후 id 입력). 비밀 값은 wrangler secret / .dev.vars(커밋 금지)
 - packages/client (@worldsea/client): Vite + Phaser + React 오버레이 + Zustand
   - 9:16 프레임 안에 Phaser 캔버스(#game, 360x640 픽셀아트 정수 배율, 2026-10-02 180x320에서 상향)와 React UI(#ui)를 겹친다
-  - src/store.ts: React·Phaser 공유 상태 (Phaser는 subscribe로 받음). 재화·스태미너는 서버 응답으로만 갱신
+  - src/store.ts: React·Phaser 공유 상태 (Phaser는 subscribe로 받음). phase(loading/preview/login/signup/ready/error)와 me(서버 응답). 재화·스태미너는 서버 응답으로만 갱신
+  - src/auth/supabase.ts: Supabase Auth(로그인·토큰만, DB 직접 접근 금지). 환경 변수 없으면 미리보기 모드
+  - src/session.ts: 로그인 상태 → /v1/me → needs_signup이면 닉네임 화면 / src/api.ts: 토큰을 붙여 Workers API 호출
+  - src/ui/viewModel.ts: 서버 응답(또는 미리보기 mock)을 화면 값으로 변환
   - src/game/layout.ts: 해상도(360x640), 화면 영역(LAYOUT), 1단계 샵 배치(STAGE1_SPOTS). Phaser와 React가 같은 좌표를 쓴다
   - src/game/scenes: BootScene(임시 도트 텍스처: 14x8 물고기 레이어 합성, 치어, 사람), HubScene(1단계 탑다운 3/4 임시 장면: 도형 수조·카운터·교배실·치어 수조·문, 헤엄치는 물고기, 통로를 걷는 사람)
-  - src/ui/App.tsx: 메인 UI(상단바 한 줄, 간판 글자·샵 단계 바, 장면 라벨·터치 영역, 양옆 패널, 헌터 띠, 탭바). 좌표는 --px(게임 1px = 100cqw/360) 단위
+  - src/ui/App.tsx: 로그인·닉네임·오류 화면(최소 구성) + 메인 UI(상단바 한 줄, 간판 글자·샵 단계 바, 장면 라벨·터치 영역, 양옆 패널, 헌터 띠, 탭바). 좌표는 --px(게임 1px = 100cqw/360) 단위
   - src/ui/PixelIcon.tsx: 문자열 도트 임시 아이콘 / src/ui/mock.ts: API 연결 전 화면 확인용 임시 데이터
   - 에셋: src/assets/<폴더>/<이름>.png 를 넣으면 빌드 시 자동 인식(src/game/assets.ts, import.meta.glob)되어 임시 도형·도트 대신 쓰인다. 없는 에셋은 임시 그림 유지. 목록·크기·프롬프트는 docs/assets-main.md
   - scripts/pixelize.py: 생성 도구 이미지를 목표 크기 진짜 픽셀아트로 정리(잘라내기, 축소, 색 수 줄이기, 알파 정리). pillow 필요
@@ -114,6 +122,8 @@
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 
+- docs/api.md: API 설계 v1 (공통 규칙, 오류 코드, 엔드포인트 전체와 구현 상태, WebSocket 메시지)
+- docs/setup-supabase.md: Supabase 프로젝트·로그인·마이그레이션·로컬 실행·배포 설정 순서
 - docs/assets-main.md: 메인 화면(1단계) 에셋 목록 (파일명, 크기, 겹 순서, 9-slice, 생성 프롬프트, 우선순위)
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
 - docs/ui-main.md + docs/reference/main-ui-reference.png: 메인 화면 UI 기준 v2(대장님 제공, 탑다운 3/4 시점, 9:16). 해상도 360x640. 화면 배치·패널·색·아이콘·장면 구성은 이 기준을 따른다. 기준 이미지는 에셋으로 직접 쓰지 않고 진짜 픽셀아트로 새로 그린다. v1(쿼터뷰)은 참고 보관용. 샵 단계별 장면 기준: main-ui-reference.png(1단계), hub-stage2/3/4-reference.png(2~4단계). 컨셉 이미지이며 물고기가 아닌 생물(해파리, 펭귄, 거북 등)은 넣지 않는다.
@@ -122,11 +132,12 @@
 - `pnpm install`
 - `pnpm dev:client` (http://localhost:5173), `pnpm dev:server` (http://localhost:8787)
 - `pnpm typecheck`, `pnpm build`
-- `pnpm verify` (마이그레이션과 가드 트리거 검증)
+- `pnpm verify` (마이그레이션과 가드 트리거 검증), `pnpm -r test` (shared 규칙 함수 + server API 테스트)
 - `pnpm db:gen:main` / `pnpm db:gen:log` (스키마 변경 후 마이그레이션 생성). 아직 배포 전이라 init 재생성 방식으로 관리 중. 배포 후에는 반드시 증분 마이그레이션.
 - 스키마를 바꾸면 verify를 다시 돌린다. 관리자 작업은 트랜잭션 안에서 `SET LOCAL worldsea.bypass_guard = 'on'`.
 
 ## 진행 순서와 남은 일
-완료: 기획(구조), 기술 스택, DB 스키마, 프로젝트 뼈대. 숫자 밸런싱은 남음.
-다음: (1) API 설계(Workers 엔드포인트, WebSocket 메시지) → (2) 인증(Supabase Auth + JWT 검증) → (3) 첫 기능(수색 1회: 시작·진행 계산·수령).
+완료: 기획(구조), 기술 스택, DB 스키마, 프로젝트 뼈대, 메인 화면 UI(임시 그림), API 설계, 인증·가입·내 정보 API. 숫자 밸런싱은 남음.
+다음: (1) Supabase 프로젝트 연결(대장님 작업, docs/setup-supabase.md) → (2) 첫 기능: 지역 목록 + 수색 시작·진행 계산·수령 → (3) 입질 미니게임.
+임시 수치(밸런싱 전): 스태미너 기본 최대 60·300초당 1 회복(shared/game/stamina.ts), 시작 지급 골드 1000·시간 티켓 3(server/routes/players.ts), 헌터 슬롯 VIP 기준 5등급(shared/game/hunters.ts).
 이후 밸런싱 수치: 재화량, 광고 일일 한도, 길드 규모/퀘스트 보상, VIP 티어 포인트/혜택, 경매 허용 레벨, 유료 호스팅 전환 시점, 고대 어종 모프 유전자.

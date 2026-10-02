@@ -291,7 +291,7 @@ export const ORIGINAL: OriginalSeed[] = [
     rarity: 'legendary', tempMin: 18, tempMax: 28, salinity: 'euryhaline', maxSizeCm: 120,
     concept: '시간 원정(고대 지역) 중 극저확률. 잡을 때마다 다른 시대의 특징을 띤다',
   },
-  // 심연의 왕(가상 심해 확장 지역)은 지역이 아직 없어 시드에서 뺀다. 세 번째 오리지널 전설급도 미정.
+  // 심연의 왕과 세 번째 오리지널 전설급은 심해 지역 업데이트 때 추가 (기획 67번)
 ];
 
 export const ALL_SPECIES: SpeciesSeed[] = [...EXTANT, ...FOSSIL, ...ORIGINAL];

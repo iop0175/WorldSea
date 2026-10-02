@@ -230,6 +230,8 @@ export const players = pgTable(
     /** 스테미너 재생을 마지막으로 반영한 시각 */
     staminaUpdatedAt: ts('stamina_updated_at').notNull().defaultNow(),
     timeTickets: smallint('time_tickets').notNull().default(0),
+    /** 보전 포인트: 놓아줌·방류·복원으로 쌓이고 보전 상점 등에서 쓴다 (기획 72번) */
+    conservationPoints: integer('conservation_points').notNull().default(0),
     /** 무료 시간 티켓을 마지막으로 지급한 날짜 */
     ticketsGrantedOn: date('tickets_granted_on'),
     vipPoints: integer('vip_points').notNull().default(0),
@@ -237,6 +239,8 @@ export const players = pgTable(
     vipTier: smallint('vip_tier').notNull().default(0),
     /** 허브 단계 1=동네 브리딩샵 … 4=공공 수족관 */
     shopStage: smallint('shop_stage').notNull().default(1),
+    /** 샵 평판(현재 단계 진행 경험치). 놓아줌 등 보전 활동으로도 오른다 (기획 72번) */
+    shopExp: integer('shop_exp').notNull().default(0),
     tutorialStep: smallint('tutorial_step').notNull().default(0),
     /** 이 등급 이상 물고기만 입질 미니게임, 미만은 바로 포획 (플레이어 선택, 기획 69번) */
     minigameThreshold: rarity('minigame_threshold').notNull().default('rare'),
@@ -256,6 +260,8 @@ export const players = pgTable(
     check('players_premium_nonneg', sql`${t.premium} >= 0`),
     check('players_stamina_nonneg', sql`${t.stamina} >= 0`),
     check('players_tickets_nonneg', sql`${t.timeTickets} >= 0`),
+    check('players_conservation_nonneg', sql`${t.conservationPoints} >= 0`),
+    check('players_shop_exp_nonneg', sql`${t.shopExp} >= 0`),
   ],
 ).enableRLS();
 

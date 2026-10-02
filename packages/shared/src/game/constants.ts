@@ -41,3 +41,28 @@ export const DEFAULT_MINIGAME_THRESHOLD: Rarity = 'rare';
 /** 수색에서 걸린 물고기가 입질 미니게임 대상인지 */
 export const needsMinigame = (fishRarity: Rarity, threshold: Rarity = DEFAULT_MINIGAME_THRESHOLD): boolean =>
   rarityAtLeast(fishRarity, threshold);
+
+/**
+ * "놓아줌" 보상 (기획 71·72번): 잡을 수 없는 어종(쿼터 소진·보호종·0마리)이 걸렸을 때.
+ * 골드는 소액(어종 기준 가격 비율), 보전 포인트와 샵 평판은 등급별 고정. 수치는 밸런싱 전 임시값.
+ */
+export const RELEASE_REWARD_TEMP = {
+  goldRate: 0.1,
+  conservationPoints: { common: 1, uncommon: 2, rare: 4, epic: 8, legendary: 16 } as Record<Rarity, number>,
+  shopExp: { common: 1, uncommon: 2, rare: 3, epic: 5, legendary: 8 } as Record<Rarity, number>,
+};
+
+export interface ReleaseReward {
+  gold: number;
+  conservationPoints: number;
+  shopExp: number;
+}
+
+export function releaseReward(rarity: Rarity, basePrice: number): ReleaseReward {
+  const T = RELEASE_REWARD_TEMP;
+  return {
+    gold: Math.max(1, Math.floor(basePrice * T.goldRate)),
+    conservationPoints: T.conservationPoints[rarity],
+    shopExp: T.shopExp[rarity],
+  };
+}

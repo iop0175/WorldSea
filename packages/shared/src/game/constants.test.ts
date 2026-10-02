@@ -14,3 +14,15 @@ describe('입질 미니게임 대상 (기획 69번)', () => {
     expect(rarityAtLeast('epic', 'epic')).toBe(true);
   });
 });
+
+import { releaseReward } from './constants';
+describe('놓아줌 보상 (기획 72번)', () => {
+  it('골드 소액 + 보전 포인트 + 샵 평판, 등급이 높을수록 많다', () => {
+    const c = releaseReward('common', 100);
+    const l = releaseReward('legendary', 20000);
+    expect(c).toEqual({ gold: 10, conservationPoints: 1, shopExp: 1 });
+    expect(l.gold).toBe(2000);
+    expect(l.conservationPoints).toBeGreaterThan(c.conservationPoints);
+    expect(l.shopExp).toBeGreaterThan(c.shopExp);
+  });
+});

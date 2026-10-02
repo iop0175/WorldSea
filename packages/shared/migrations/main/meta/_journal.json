@@ -36,6 +36,13 @@
       "when": 1790954595945,
       "tag": "0004_minigame_threshold",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1790956895240,
+      "tag": "0005_conservation_points",
+      "breakpoints": true
     }
   ]
 }

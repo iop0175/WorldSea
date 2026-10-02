@@ -1,12 +1,13 @@
 import { PGlite } from '@electric-sql/pglite';
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 const db = new PGlite();
 const run = async (sql) => { for (const s of sql.split('--> statement-breakpoint')) { if (s.trim()) await db.exec(s); } };
 // Supabase 환경 흉내: auth 스키마와 역할
 await db.exec(`create schema auth; create table auth.users (id uuid primary key, email varchar);
   do $$ begin create role anon; create role authenticated; create role service_role; exception when others then null; end $$;`);
-await run(readFileSync(new URL('../migrations/main/0000_init.sql', import.meta.url),'utf8'));
-await run(readFileSync(new URL('../migrations/main/0001_safety_guards.sql', import.meta.url),'utf8'));
+// 메인 마이그레이션을 번호 순서대로 모두 적용
+const mainDir = new URL('../migrations/main/', import.meta.url);
+for (const f of readdirSync(mainDir).filter((n) => n.endsWith('.sql')).sort()) await run(readFileSync(new URL(f, mainDir), 'utf8'));
 console.log('main migrations OK');
 const log = new PGlite();
 await (async()=>{ for (const s of readFileSync(new URL('../migrations/log/0000_init.sql', import.meta.url),'utf8').split('--> statement-breakpoint')) if (s.trim()) await log.exec(s); })();

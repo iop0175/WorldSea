@@ -27,6 +27,15 @@
 SUPABASE_DB_URL="postgres://...(Session pooler 주소)" pnpm --filter @worldsea/shared db:migrate:main
 ```
 - 테이블 32개, 안전장치 트리거, 기본 헌터 외형이 만들어진다. 모든 테이블은 RLS가 켜져 있고 정책이 없어 클라이언트 키로는 읽기·쓰기가 막힌다 (의도된 설계).
+- 이미 적용한 DB에서 다시 실행하면 새 마이그레이션(예: `0002_species_iucn`)만 적용된다. SQL Editor로 직접 넣었다면 새 파일 내용만 SQL Editor에서 실행한다.
+
+## 4-1. 지역·어종 시드
+```
+SUPABASE_DB_URL="postgres://...(Session pooler 주소)" pnpm db:seed
+```
+- 지역 12개, 어종 120종, 어종별 야생 개체수가 들어간다 (수치 근거: `docs/species-population.md`).
+- 여러 번 실행해도 된다. 지역·어종 정보는 최신 값으로 갱신되고, 야생 개체수는 이미 있으면 건드리지 않는다.
+- `pnpm db:seed --dry` 는 DB에 넣지 않고 SQL만 출력한다 (SQL Editor에 붙여 넣어도 된다).
 
 ## 5. 로컬 실행
 서버 `packages/server/.dev.vars` (`.dev.vars.example` 복사, 커밋 금지):

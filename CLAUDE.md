@@ -9,7 +9,7 @@
 - 전 세계가 하나의 온라인 바다를 공유하고, 어종별 야생 개체수는 한정.
 - 희소할수록 비싸다. 야생 개체가 양식 개체보다 비싸고 건강하다.
 - 멘델 유전의 모프(색/무늬) + 연속형 능력치. 근친교배는 건강 저하, 야생 피를 섞으면 회복.
-- 어종 122종 = 실존 107 + 오리지널 15. 지역당 8~10종. 실제 학명/이름 사용.
+- 어종 122종 = 실존 107 + 오리지널 15. (시드에는 120종: 심연의 왕은 지역 미정, 세 번째 오리지널 전설급은 미정) 지역당 8~10종. 실제 학명/이름 사용.
 
 ## 월드 구성 (출시 시 전 지역 포함, 레벨로 단계 개방)
 1. 1단계: 아시아 + 중미 민물
@@ -22,6 +22,7 @@
 - 고정 희귀도: common / uncommon / rare / epic / legendary
 - 동적 보전 상태: stable(≥30%) / vulnerable(<30%, 일일 쿼터) / protected(<10%, 포획 금지) / extinct_wild
 - 멸종은 환경 이벤트로만 발생하고 방류로 복원 가능. 숨은 보유량(hiddenReserve)으로 "전설 목격" 연출.
+- 실제 야생 현황 반영(확정, 2026-10-02): 실존 어종의 IUCN 등급·추세·규모를 조사해 **비율만** 게임 개체수에 반영한다(실제 마릿수는 쓰지 않음). 수용량 = min(실제 규모 기준값, 희귀도 상한) × scale, 시작 수 = 수용량 × IUCN별 시작 비율(LC 100 / NT 75 / VU 45 / EN 25 / CR 12%). 위급(CR)도 보호종이 아닌 취약으로 시작(보호종 시작이면 복원 순환이 막힘). 전체 크기는 POPULATION_TEMP.scale 하나로 조절. 규칙 shared/game/population.ts, 조사표 docs/species-population.md.
 
 ## 게임 시스템
 - 헌터와 수색(사냥): 방치형. "수색"과 "사냥"은 같은 뜻. 헌터가 스태미너를 소모해 수색하면 결과가 랜덤으로 나온다. 결과 종류: 물고기, 재화(골드/프리미엄), 아이템(찌, 미끼, 성장 아이템, 교배 촉진 아이템), 낮은 확률의 꽝. 물고기가 걸리면 입질 미니게임. 수령 전까지 결과 보관.
@@ -96,7 +97,10 @@
   - src/db/log.schema.ts: 로그 DB 6개 테이블(gacha_logs 포함)
   - src/db/types.ts: jsonb 공용 타입
   - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
-  - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션·트리거 검증)
+  - migrations/main/0002_species_iucn.sql: species에 IUCN 등급·연도·실제 규모·추세·메모·출처 열 추가 (Supabase 적용 후라 증분 마이그레이션)
+  - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
+  - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
+  - src/seed/world.ts: 지역 12 + 어종 120(실존 91, 고대 16, 오리지널 13) 원본. src/seed/build.ts: 시드 SQL 생성(지역·어종 upsert, 야생 개체수는 없을 때만). scripts/seed.ts(pnpm db:seed), scripts/species-table.ts(문서 표 재생성)
 - packages/server (@worldsea/server): Cloudflare Workers + Hono
   - src/app.ts: createApp(deps). 공통 CORS·오류 처리, /v1/* 는 Bearer 토큰 검증 후 요청마다 DB 연결. 테스트는 deps로 PGlite DB·로컬 키 검증기를 넣는다
   - src/auth.ts: Supabase 토큰 검증 (JWKS 비대칭 키 기본, SUPABASE_JWT_SECRET 있으면 HS256). 토큰의 sub만 신뢰
@@ -123,6 +127,7 @@
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 
 - docs/api.md: API 설계 v1 (공통 규칙, 오류 코드, 엔드포인트 전체와 구현 상태, WebSocket 메시지)
+- docs/species-population.md: 실존 어종 IUCN 조사표(출처 포함)와 게임 개체수 변환 규칙·결과
 - docs/setup-supabase.md: Supabase 프로젝트·로그인·마이그레이션·로컬 실행·배포 설정 순서
 - docs/assets-main.md: 메인 화면(1단계) 에셋 목록 (파일명, 크기, 겹 순서, 9-slice, 생성 프롬프트, 우선순위)
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
@@ -133,12 +138,14 @@
 - `pnpm dev:client` (http://localhost:5173), `pnpm dev:server` (http://localhost:8787)
 - `pnpm typecheck`, `pnpm build`
 - `pnpm verify` (마이그레이션과 가드 트리거 검증), `pnpm -r test` (shared 규칙 함수 + server API 테스트)
-- `pnpm db:gen:main` / `pnpm db:gen:log` (스키마 변경 후 마이그레이션 생성). 아직 배포 전이라 init 재생성 방식으로 관리 중. 배포 후에는 반드시 증분 마이그레이션.
+- `pnpm db:gen:main` / `pnpm db:gen:log` (스키마 변경 후 마이그레이션 생성). Supabase에 스키마를 적용한 뒤부터는 증분 마이그레이션(0002~)으로 관리한다.
+- `pnpm db:seed` (SUPABASE_DB_URL 필요. 지역·어종 시드. 운영 중 야생 개체수는 초기화하지 않음. `--dry`로 SQL만 출력)
 - 스키마를 바꾸면 verify를 다시 돌린다. 관리자 작업은 트랜잭션 안에서 `SET LOCAL worldsea.bypass_guard = 'on'`.
 
 ## 진행 순서와 남은 일
 완료: 기획(구조), 기술 스택, DB 스키마, 프로젝트 뼈대, 메인 화면 UI(임시 그림), API 설계, 인증·가입·내 정보 API. 숫자 밸런싱은 남음.
 완료: Supabase 메인 DB 연결과 최신 32테이블 스키마 적용, 지역 목록·상세 API.
+완료: 실존 어종 IUCN 조사와 개체수 변환 규칙, 지역·어종 시드(pnpm db:seed).
 다음: (1) 수색 시작·진행 계산·수령 → (2) 입질 미니게임.
-임시 수치(밸런싱 전): 스태미너 기본 최대 60·300초당 1 회복(shared/game/stamina.ts), 시작 지급 골드 1000·시간 티켓 3(server/routes/players.ts), 헌터 슬롯 VIP 기준 5등급(shared/game/hunters.ts).
+임시 수치(밸런싱 전): 지역 해금 레벨 1~40·수색 5~30분·스태미너 1~5(seed/world.ts), 어종 기준 가격 100/300/1000/4000/20000(seed/build.ts), 개체수 규칙 값(game/population.ts), 스태미너 기본 최대 60·300초당 1 회복(shared/game/stamina.ts), 시작 지급 골드 1000·시간 티켓 3(server/routes/players.ts), 헌터 슬롯 VIP 기준 5등급(shared/game/hunters.ts).
 이후 밸런싱 수치: 재화량, 광고 일일 한도, 길드 규모/퀘스트 보상, VIP 티어 포인트/혜택, 경매 허용 레벨, 유료 호스팅 전환 시점, 고대 어종 모프 유전자.

@@ -9,7 +9,8 @@
     "typecheck": "pnpm -r typecheck",
     "verify": "pnpm --filter @worldsea/shared verify",
     "db:gen:main": "pnpm --filter @worldsea/shared db:gen:main",
-    "db:gen:log": "pnpm --filter @worldsea/shared db:gen:log"
+    "db:gen:log": "pnpm --filter @worldsea/shared db:gen:log",
+    "db:seed": "pnpm --filter @worldsea/shared db:seed"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

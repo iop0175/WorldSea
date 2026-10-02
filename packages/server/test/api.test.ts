@@ -1,7 +1,7 @@
 /**
  * API 흐름 테스트: 실제 마이그레이션을 적용한 PGlite DB + 로컬 서명 키로 만든 Supabase 형식 토큰.
  */
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { drizzle } from 'drizzle-orm/pglite';
@@ -26,8 +26,9 @@ beforeAll(async () => {
   pg = new PGlite();
   await pg.exec(`create schema auth; create table auth.users (id uuid primary key, email varchar);
     do $$ begin create role anon; create role authenticated; create role service_role; exception when others then null; end $$;`);
-  for (const f of ['0000_init.sql', '0001_safety_guards.sql']) {
-    const sql = readFileSync(join(import.meta.dirname, '../../shared/migrations/main', f), 'utf8');
+  const mainDir = join(import.meta.dirname, '../../shared/migrations/main');
+  for (const f of readdirSync(mainDir).filter((n) => n.endsWith('.sql')).sort()) {
+    const sql = readFileSync(join(mainDir, f), 'utf8');
     for (const s of sql.split('--> statement-breakpoint')) if (s.trim()) await pg.exec(s);
   }
   await pg.exec(`insert into auth.users(id) values ('${USER_A}'), ('${USER_B}')`);

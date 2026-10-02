@@ -8,3 +8,4 @@ export * from './game/constants';
 export * from './api/types';
 export * from './game/stamina';
 export * from './game/hunters';
+export * from './game/population';

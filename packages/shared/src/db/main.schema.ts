@@ -56,6 +56,11 @@ export const rarity = pgEnum('rarity', ['common', 'uncommon', 'rare', 'epic', 'l
 /** 염분: 민물, 기수, 해수, 광염성(민물·해수 모두) */
 export const salinity = pgEnum('salinity', ['fresh', 'brackish', 'marine', 'euryhaline']);
 /** 보전 상태: 안정, 취약, 보호종, 야생 멸종 */
+/** 실제 IUCN 적색목록 등급 (실존 어종만). 게임 개체수 비율의 근거 */
+export const iucnCategory = pgEnum('iucn_category', ['LC', 'NT', 'VU', 'EN', 'CR', 'EW', 'DD', 'NE']);
+/** 실제 야생 규모 구간 (판단값). game/population.ts 의 수용량 계산에 쓴다 */
+export const populationTier = pgEnum('population_tier', ['very_common', 'common', 'uncommon', 'scarce', 'very_scarce']);
+export const populationTrend = pgEnum('population_trend', ['increasing', 'stable', 'decreasing', 'unknown']);
 export const conservationStatus = pgEnum('conservation_status', [
   'stable',
   'vulnerable',
@@ -150,6 +155,16 @@ export const species = pgTable(
     initialPopulation: integer('initial_population').notNull(),
     /** 자연 회복률 (로지스틱 성장 r, 1일 기준) */
     regenRatePerDay: real('regen_rate_per_day').notNull().default(0.02),
+    // --- 실제 야생 현황 (실존 어종만, 고대·오리지널은 null). docs/species-population.md ---
+    iucnCategory: iucnCategory('iucn_category'),
+    /** IUCN 평가 연도 */
+    iucnYear: smallint('iucn_year'),
+    populationTier: populationTier('population_tier'),
+    populationTrend: populationTrend('population_trend'),
+    /** 알려진 실제 개체수 추정·특이 사항 (기획 참고용, 클라이언트에 보내지 않아도 됨) */
+    realPopulationNote: text('real_population_note'),
+    /** 출처 (FishBase 요약, IUCN 등) */
+    dataSource: text('data_source'),
   },
   (t) => [
     index('species_region_idx').on(t.regionId),

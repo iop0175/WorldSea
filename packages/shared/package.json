@@ -16,7 +16,8 @@
     "db:migrate:log": "drizzle-kit migrate --config drizzle.log.config.ts",
     "typecheck": "tsc -p tsconfig.json",
     "verify": "node scripts/verify.mjs",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.3",
@@ -27,6 +28,7 @@
     "@types/node": "^26.6.3",
     "drizzle-kit": "^0.31.11",
     "postgres": "^3.4.9",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
   }

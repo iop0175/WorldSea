@@ -8,7 +8,8 @@
 
 ## 0. 만드는 법
 
-1. 생성 도구에 **공통 스타일 문구 + 에셋별 문구**를 넣어 객체 하나씩 뽑는다. 크게(목표 크기의 4~8배) 뽑아도 된다.
+1. 이미지 생성 도구의 **입력창(프롬프트)에** "공통 스타일 문구 + 에셋별 문구"를 이어 붙여 넣고 객체 하나씩 뽑는다. 문구는 생성 도구에 주는 지시문이며 **이미지 안에 글자로 들어가는 것이 아니다** (오히려 "글자 넣지 마"가 포함됨). 크게(목표 크기의 4~8배) 뽑아도 된다.
+   - 예 (메인 수조 뒤판): `pixel art game asset, top-down 3/4 view ..., no watermark, large main display aquarium, rock arch, colorful coral, tall seaweed, sand, ceiling lights on the top frame, empty of fish`
 2. 정리 스크립트로 목표 크기의 진짜 픽셀아트로 바꾼다.
    ```
    python packages/client/scripts/pixelize.py 원본.png packages/client/src/assets/obj/tank_main_back.png --size 158x136 --colors 32
@@ -22,7 +23,7 @@
 - 사람: 시트가 있으면 4방향 걷기 애니메이션
 - UI: 아이콘 전부, 9-slice 틀(패널·글로우 패널·금색 버튼·카드 테두리·배지), 헌터 카드 배경
 
-### 공통 스타일 문구 (모든 에셋 앞에 붙임)
+### 공통 스타일 문구 (모든 에셋 프롬프트 앞에 붙임)
 
 > pixel art game asset, top-down 3/4 view (like Stardew Valley), same style as the reference image, cozy aquarium shop, warm lamp lighting from above, dark navy and warm wood palette, crisp pixel edges, no anti-aliasing, single object centered, transparent background, no text, no letters, no watermark
 

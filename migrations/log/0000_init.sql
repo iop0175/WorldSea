@@ -31,6 +31,16 @@ CREATE TABLE "currency_logs" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "gacha_logs" (
+	"id" bigserial PRIMARY KEY NOT NULL,
+	"player_id" uuid NOT NULL,
+	"pool" text NOT NULL,
+	"result_id" text NOT NULL,
+	"grade" text NOT NULL,
+	"premium_spent" integer DEFAULT 0 NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "population_logs" (
 	"id" bigserial PRIMARY KEY NOT NULL,
 	"species_id" text NOT NULL,
@@ -58,6 +68,7 @@ CREATE INDEX "action_logs_player_time_idx" ON "action_logs" USING btree ("player
 CREATE INDEX "catch_logs_player_time_idx" ON "catch_logs" USING btree ("player_id","created_at");--> statement-breakpoint
 CREATE INDEX "catch_logs_species_time_idx" ON "catch_logs" USING btree ("species_id","created_at");--> statement-breakpoint
 CREATE INDEX "currency_logs_player_time_idx" ON "currency_logs" USING btree ("player_id","created_at");--> statement-breakpoint
+CREATE INDEX "gacha_logs_player_time_idx" ON "gacha_logs" USING btree ("player_id","created_at");--> statement-breakpoint
 CREATE INDEX "population_logs_species_time_idx" ON "population_logs" USING btree ("species_id","created_at");--> statement-breakpoint
 CREATE INDEX "trade_logs_seller_time_idx" ON "trade_logs" USING btree ("seller_id","created_at");--> statement-breakpoint
 CREATE INDEX "trade_logs_buyer_time_idx" ON "trade_logs" USING btree ("buyer_id","created_at");--> statement-breakpoint

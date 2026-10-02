@@ -32,7 +32,6 @@ import {
 } from 'drizzle-orm/pg-core';
 import { authUsers } from 'drizzle-orm/supabase';
 import type {
-  HunterSkills,
   HuntOptions,
   ExpeditionResult,
   Genotype,
@@ -77,10 +76,10 @@ export const fishStatus = pgEnum('fish_status', [
 export const sex = pgEnum('sex', ['male', 'female']);
 export const tankPurpose = pgEnum('tank_purpose', ['breeding', 'display', 'holding']);
 export const expeditionStatus = pgEnum('expedition_status', ['active', 'completed', 'claimed']);
-/** 아이템 종류: 찌(판정 보정), 미끼(입질/성공 확률 보정), 성장 아이템(물고기 성장 촉진) */
-export const itemKind = pgEnum('item_kind', ['float', 'bait', 'growth']);
-/** 높은 등급 물고기가 걸렸을 때 자동 모드의 동작: 자동으로 넘김 / 알림을 받고 직접 진행 */
-export const highGradeBiteMode = pgEnum('high_grade_bite_mode', ['auto', 'notify']);
+/** 아이템 종류: 찌(판정 보정), 미끼(성공 확률 보정), 성장(성장 촉진 + 능력치 소폭 상승), 교배 촉진(교배 시간 단축) */
+export const itemKind = pgEnum('item_kind', ['float', 'bait', 'growth', 'breed_boost']);
+/** 높은 등급 입질이 생겼을 때: 자동으로 진행 / 사냥을 정지하고 알림 (플레이어가 직접 진행) */
+export const highGradeBiteMode = pgEnum('high_grade_bite_mode', ['auto', 'pause']);
 export const biteStatus = pgEnum('bite_status', ['pending', 'caught', 'escaped', 'expired']);
 export const encounterStatus = pgEnum('encounter_status', ['active', 'finished', 'expired']);
 export const breedingStatus = pgEnum('breeding_status', ['active', 'hatched', 'failed']);
@@ -115,7 +114,7 @@ export const regions = pgTable('regions', {
   requiresTimeTicket: boolean('requires_time_ticket').notNull().default(false),
   /** 특별 맵 등장 확률 (원정 1회당) */
   specialMapChance: real('special_map_chance').notNull().default(0.01),
-  /** 사냥 1회 기본 시간(초). 고급 지역일수록 길다. 헌터 기동 스킬로 단축 */
+  /** 사냥 1회 시간(초). 고급 지역일수록 길다 */
   huntSeconds: integer('hunt_seconds').notNull().default(300),
   /** 사냥 1회 스태미너 소모량 */
   huntStaminaCost: smallint('hunt_stamina_cost').notNull().default(1),
@@ -226,8 +225,12 @@ export const players = pgTable(
     tutorialStep: smallint('tutorial_step').notNull().default(0),
     /** 입질 미니게임 자동 진행 (켜면 성공 확률이 낮아진다) */
     autoMinigame: boolean('auto_minigame').notNull().default(false),
-    /** 자동 진행 중 높은 등급이 걸렸을 때: auto=그대로 자동(확률 더 낮음), notify=알림 후 직접 */
-    highGradeBiteMode: highGradeBiteMode('high_grade_bite_mode').notNull().default('notify'),
+    /** 높은 등급 입질 시: auto=그대로 자동(확률 더 낮음), pause=사냥 정지 후 알림 */
+    highGradeBiteMode: highGradeBiteMode('high_grade_bite_mode').notNull().default('pause'),
+    /** 이 등급 이상을 '높은 등급'으로 본다 (플레이어 선택) */
+    highGradeThreshold: rarity('high_grade_threshold').notNull().default('epic'),
+    /** 연속 꽝 횟수. 일정 횟수에 도달하면 다음 사냥은 꽝 제외 (천장), 꽝이 아니면 0으로 */
+    missStreak: smallint('miss_streak').notNull().default(0),
     createdAt: createdAt(),
     lastSeenAt: ts('last_seen_at').notNull().defaultNow(),
   },
@@ -310,7 +313,7 @@ export const items = pgTable('items', {
   grade: rarity('grade').notNull(),
   /** 성공 확률 보정 배율 (예: 0.10 = +10%). 정확한 공식은 서버 코드가 판정한다. */
   chanceBonus: real('chance_bonus').notNull().default(0),
-  /** 미끼 전용: 특정 어종/지역 전용이면 지정, 없으면 범용 */
+  /** 전설급 전용 미끼만 지정 (수색 중 낮은 확률로 획득). 나머지는 범용 */
   targetSpeciesId: text('target_species_id').references(() => species.id),
   priceGold: money('price_gold'),
   pricePremium: integer('price_premium'),
@@ -338,7 +341,32 @@ export const playerItems = pgTable(
 // ---------------------------------------------------------------------------
 // 4. 원정 (헌터, 원정, 희귀어 입질, 특별 맵)
 // ---------------------------------------------------------------------------
-/** 헌터: 원정을 나가 자동으로 수확하는 캐릭터. 한 명은 동시에 원정 하나만 나갈 수 있다. */
+/** 헌터 외형(스킨) 카탈로그. 헌터는 스킬이 없고 외형만 바뀐다. 외형은 뽑기로 획득 */
+export const hunterSkins = pgTable('hunter_skins', {
+  id: text('id').primaryKey(), // 'default', 'diver_blue'
+  nameKo: varchar('name_ko', { length: 40 }).notNull(),
+  grade: rarity('grade').notNull(),
+  /** 뽑기 가중치 (확률 공개용 확률표의 원본) */
+  gachaWeight: integer('gacha_weight').notNull().default(0),
+  sortOrder: smallint('sort_order').notNull().default(0),
+}).enableRLS();
+
+/** 플레이어가 보유한 외형 */
+export const playerHunterSkins = pgTable(
+  'player_hunter_skins',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    skinId: text('skin_id')
+      .notNull()
+      .references(() => hunterSkins.id),
+    acquiredAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.playerId, t.skinId] })],
+).enableRLS();
+
+/** 헌터: 수색(사냥)을 나가는 캐릭터. 능력치 없음, 한 명은 동시에 원정 하나 */
 export const hunters = pgTable(
   'hunters',
   {
@@ -347,8 +375,10 @@ export const hunters = pgTable(
       .notNull()
       .references(() => players.id, { onDelete: 'cascade' }),
     name: varchar('name', { length: 20 }).notNull(),
-    level: smallint('level').notNull().default(1),
-    skills: jsonb('skills').$type<HunterSkills>().notNull(),
+    skinId: text('skin_id')
+      .notNull()
+      .default('default')
+      .references(() => hunterSkins.id),
     createdAt: createdAt(),
   },
   (t) => [index('hunters_owner_idx').on(t.ownerId)],
@@ -418,7 +448,7 @@ export const rareBites = pgTable(
     expiresAt: ts('expires_at').notNull(),
     /** 미니게임 난수 시드: 서버가 입력 기록을 재현·검증할 때 사용 */
     minigameSeed: integer('minigame_seed').notNull(),
-    /** 사용한 장비 (성공 확정 시 같은 트랜잭션에서 수량 차감, 실패 시 보존) */
+    /** 사용하기로 선택한 장비. 시도 시점에 차감하며 성공/실패와 무관하게 소모 */
     floatId: text('float_id').references(() => items.id),
     baitId: text('bait_id').references(() => items.id),
     /** 자동 진행으로 판정했는지 (자동 감점 적용 여부, 분석용) */

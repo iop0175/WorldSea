@@ -10,8 +10,8 @@ CREATE TYPE "public"."fish_origin" AS ENUM('wild', 'farmed');--> statement-break
 CREATE TYPE "public"."fish_status" AS ENUM('holding', 'tank', 'display', 'breeding', 'auction', 'released', 'sold', 'dead');--> statement-breakpoint
 CREATE TYPE "public"."friend_status" AS ENUM('pending', 'accepted');--> statement-breakpoint
 CREATE TYPE "public"."guild_role" AS ENUM('leader', 'officer', 'member');--> statement-breakpoint
-CREATE TYPE "public"."high_grade_bite_mode" AS ENUM('auto', 'notify');--> statement-breakpoint
-CREATE TYPE "public"."item_kind" AS ENUM('float', 'bait', 'growth');--> statement-breakpoint
+CREATE TYPE "public"."high_grade_bite_mode" AS ENUM('auto', 'pause');--> statement-breakpoint
+CREATE TYPE "public"."item_kind" AS ENUM('float', 'bait', 'growth', 'breed_boost');--> statement-breakpoint
 CREATE TYPE "public"."payment_platform" AS ENUM('revenuecat', 'stripe');--> statement-breakpoint
 CREATE TYPE "public"."progress_status" AS ENUM('active', 'completed', 'failed');--> statement-breakpoint
 CREATE TYPE "public"."rarity" AS ENUM('common', 'uncommon', 'rare', 'epic', 'legendary');--> statement-breakpoint
@@ -191,12 +191,20 @@ CREATE TABLE "guilds" (
 );
 --> statement-breakpoint
 ALTER TABLE "guilds" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "hunter_skins" (
+	"id" text PRIMARY KEY NOT NULL,
+	"name_ko" varchar(40) NOT NULL,
+	"grade" "rarity" NOT NULL,
+	"gacha_weight" integer DEFAULT 0 NOT NULL,
+	"sort_order" smallint DEFAULT 0 NOT NULL
+);
+--> statement-breakpoint
+ALTER TABLE "hunter_skins" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "hunters" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"owner_id" uuid NOT NULL,
 	"name" varchar(20) NOT NULL,
-	"level" smallint DEFAULT 1 NOT NULL,
-	"skills" jsonb NOT NULL,
+	"skin_id" text DEFAULT 'default' NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
@@ -234,6 +242,14 @@ CREATE TABLE "morph_discoveries" (
 );
 --> statement-breakpoint
 ALTER TABLE "morph_discoveries" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
+CREATE TABLE "player_hunter_skins" (
+	"player_id" uuid NOT NULL,
+	"skin_id" text NOT NULL,
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "player_hunter_skins_player_id_skin_id_pk" PRIMARY KEY("player_id","skin_id")
+);
+--> statement-breakpoint
+ALTER TABLE "player_hunter_skins" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint
 CREATE TABLE "player_items" (
 	"player_id" uuid NOT NULL,
 	"item_id" text NOT NULL,
@@ -259,7 +275,9 @@ CREATE TABLE "players" (
 	"shop_stage" smallint DEFAULT 1 NOT NULL,
 	"tutorial_step" smallint DEFAULT 0 NOT NULL,
 	"auto_minigame" boolean DEFAULT false NOT NULL,
-	"high_grade_bite_mode" "high_grade_bite_mode" DEFAULT 'notify' NOT NULL,
+	"high_grade_bite_mode" "high_grade_bite_mode" DEFAULT 'pause' NOT NULL,
+	"high_grade_threshold" "rarity" DEFAULT 'epic' NOT NULL,
+	"miss_streak" smallint DEFAULT 0 NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"last_seen_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "players_nickname_unique" UNIQUE("nickname"),
@@ -456,11 +474,14 @@ ALTER TABLE "guild_quests" ADD CONSTRAINT "guild_quests_guild_id_guilds_id_fk" F
 ALTER TABLE "guild_quests" ADD CONSTRAINT "guild_quests_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "guilds" ADD CONSTRAINT "guilds_leader_id_players_id_fk" FOREIGN KEY ("leader_id") REFERENCES "public"."players"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "hunters" ADD CONSTRAINT "hunters_owner_id_players_id_fk" FOREIGN KEY ("owner_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "hunters" ADD CONSTRAINT "hunters_skin_id_hunter_skins_id_fk" FOREIGN KEY ("skin_id") REFERENCES "public"."hunter_skins"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "items" ADD CONSTRAINT "items_target_species_id_species_id_fk" FOREIGN KEY ("target_species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "market_prices" ADD CONSTRAINT "market_prices_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_species_id_species_id_fk" FOREIGN KEY ("species_id") REFERENCES "public"."species"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_discoverer_id_players_id_fk" FOREIGN KEY ("discoverer_id") REFERENCES "public"."players"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "morph_discoveries" ADD CONSTRAINT "morph_discoveries_fish_id_fish_id_fk" FOREIGN KEY ("fish_id") REFERENCES "public"."fish"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "player_hunter_skins" ADD CONSTRAINT "player_hunter_skins_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "player_hunter_skins" ADD CONSTRAINT "player_hunter_skins_skin_id_hunter_skins_id_fk" FOREIGN KEY ("skin_id") REFERENCES "public"."hunter_skins"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "player_items" ADD CONSTRAINT "player_items_player_id_players_id_fk" FOREIGN KEY ("player_id") REFERENCES "public"."players"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "player_items" ADD CONSTRAINT "player_items_item_id_items_id_fk" FOREIGN KEY ("item_id") REFERENCES "public"."items"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "players" ADD CONSTRAINT "players_id_users_id_fk" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

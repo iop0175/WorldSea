@@ -1,6 +1,6 @@
 {
-  "id": "c918ebde-574a-4555-bb37-3c8fd9d096a6",
-  "prevId": "e41c1be0-7097-47b6-bb6b-c70daa2ec371",
+  "id": "325529d1-3882-4a3b-985f-0843ba96f92d",
+  "prevId": "0dc3b257-6ed5-4722-bfa8-8645785f5353",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1656,6 +1656,52 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
+    "public.hunter_skins": {
+      "name": "hunter_skins",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name_ko": {
+          "name": "name_ko",
+          "type": "varchar(40)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grade": {
+          "name": "grade",
+          "type": "rarity",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "gacha_weight": {
+          "name": "gacha_weight",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "sort_order": {
+          "name": "sort_order",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
     "public.hunters": {
       "name": "hunters",
       "schema": "",
@@ -1679,18 +1725,12 @@
           "primaryKey": false,
           "notNull": true
         },
-        "level": {
-          "name": "level",
-          "type": "smallint",
+        "skin_id": {
+          "name": "skin_id",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
-          "default": 1
-        },
-        "skills": {
-          "name": "skills",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": true
+          "default": "'default'"
         },
         "created_at": {
           "name": "created_at",
@@ -1730,6 +1770,19 @@
           ],
           "onUpdate": "no action",
           "onDelete": "cascade"
+        },
+        "hunters_skin_id_hunter_skins_id_fk": {
+          "name": "hunters_skin_id_hunter_skins_id_fk",
+          "tableFrom": "hunters",
+          "columnsFrom": [
+            "skin_id"
+          ],
+          "tableTo": "hunter_skins",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -2001,6 +2054,73 @@
       "checkConstraints": {},
       "isRLSEnabled": true
     },
+    "public.player_hunter_skins": {
+      "name": "player_hunter_skins",
+      "schema": "",
+      "columns": {
+        "player_id": {
+          "name": "player_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "skin_id": {
+          "name": "skin_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "player_hunter_skins_player_id_players_id_fk": {
+          "name": "player_hunter_skins_player_id_players_id_fk",
+          "tableFrom": "player_hunter_skins",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "tableTo": "players",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "cascade"
+        },
+        "player_hunter_skins_skin_id_hunter_skins_id_fk": {
+          "name": "player_hunter_skins_skin_id_hunter_skins_id_fk",
+          "tableFrom": "player_hunter_skins",
+          "columnsFrom": [
+            "skin_id"
+          ],
+          "tableTo": "hunter_skins",
+          "columnsTo": [
+            "id"
+          ],
+          "onUpdate": "no action",
+          "onDelete": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "player_hunter_skins_player_id_skin_id_pk": {
+          "name": "player_hunter_skins_player_id_skin_id_pk",
+          "columns": [
+            "player_id",
+            "skin_id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
     "public.player_items": {
       "name": "player_items",
       "schema": "",
@@ -2184,7 +2304,22 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true,
-          "default": "'notify'"
+          "default": "'pause'"
+        },
+        "high_grade_threshold": {
+          "name": "high_grade_threshold",
+          "type": "rarity",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'epic'"
+        },
+        "miss_streak": {
+          "name": "miss_streak",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
         },
         "created_at": {
           "name": "created_at",
@@ -3661,7 +3796,7 @@
       "schema": "public",
       "values": [
         "auto",
-        "notify"
+        "pause"
       ]
     },
     "public.item_kind": {
@@ -3670,7 +3805,8 @@
       "values": [
         "float",
         "bait",
-        "growth"
+        "growth",
+        "breed_boost"
       ]
     },
     "public.payment_platform": {

@@ -69,3 +69,9 @@ $$;
 CREATE TRIGGER auctions_guard_auctionable
   BEFORE INSERT ON auctions
   FOR EACH ROW EXECUTE FUNCTION guard_auctionable_fish();
+--> statement-breakpoint
+
+-- 4) 기본 헌터 외형 (hunters.skin_id 기본값이 참조)
+INSERT INTO hunter_skins (id, name_ko, grade, gacha_weight, sort_order)
+VALUES ('default', '기본 헌터', 'common', 0, 0)
+ON CONFLICT (id) DO NOTHING;

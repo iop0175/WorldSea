@@ -120,3 +120,19 @@ export const actionLogs = pgTable(
   },
   (t) => [index('action_logs_player_time_idx').on(t.playerId, t.createdAt)],
 );
+
+/** 뽑기 기록 (확률 공개 검증, 고객 문의 대응) */
+export const gachaLogs = pgTable(
+  'gacha_logs',
+  {
+    id: bigserial('id', { mode: 'number' }).primaryKey(),
+    playerId: uuid('player_id').notNull(),
+    /** 'hunter_skin' 등 */
+    pool: text('pool').notNull(),
+    resultId: text('result_id').notNull(),
+    grade: text('grade').notNull(),
+    premiumSpent: integer('premium_spent').notNull().default(0),
+    createdAt: createdAt(),
+  },
+  (t) => [index('gacha_logs_player_time_idx').on(t.playerId, t.createdAt)],
+);

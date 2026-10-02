@@ -37,14 +37,6 @@ export interface TankEquipment {
   feeder: number; // 사료 자동급여기
 }
 
-/** 헌터 스킬 */
-export interface HunterSkills {
-  speed: number; // 기동: 원정 시간 단축
-  detection: number; // 탐지: 희귀어 입질 확률
-  angling: number; // 손맛 보조: 미니게임 난이도 완화
-  haul: number; // 운반: 원정 한 번에 가져오는 수확량
-}
-
 /** 반복 사냥 옵션 */
 export interface HuntOptions {
   /**
@@ -55,13 +47,13 @@ export interface HuntOptions {
   recovery: 'none' | 'wait_regen' | 'premium';
   /** recovery = premium일 때 이번 반복에서 쓸 프리미엄 상한 (필수) */
   premiumCap?: number;
-  /** 사용할 찌/미끼. 다 떨어지면 장비 없이 계속할지 */
+  /** 사용할 찌/미끼 (선택 시 성공·실패 무관하게 시도마다 소모). 다 떨어지면 장비 없이 계속할지 */
   floatId?: string;
   baitId?: string;
   continueWithoutGear?: boolean;
   /** 이 반복에만 적용할 미니게임 자동 설정 (없으면 players의 기본 설정) */
   autoMinigame?: boolean;
-  highGradeBiteMode?: 'auto' | 'notify';
+  highGradeBiteMode?: 'auto' | 'pause';
 }
 
 /** 원정 일반 수확 결과 (수령 전까지 보관) */

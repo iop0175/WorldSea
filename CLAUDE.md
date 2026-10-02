@@ -18,6 +18,7 @@
 4. 4단계: 고대(데본기, 백악기). 시간 티켓으로 입장.
 - 특별 지역: 원정 중 드물게 특별 맵 발생, 기회 5번, 특별 개체(오리지널) 수집.
 - 오리지널 전설급 노출(확정, 65번): 지역 상세 목록에는 "??? (전설)" 실루엣으로 자리만 보이고 이름·학명·개체수 비율은 숨긴다.
+- 특별 개체 노출(확정, 66번): 처음엔 "??? (특별 맵)" 실루엣, 서버에서 누군가 처음 잡으면 모두에게 공개(species_discoveries). 실루엣은 목록 끝(특별 개체 → 전설급 순)에 두어 이름순 위치로 정체를 추측하지 못하게 한다.
 
 ## 등급
 - 고정 희귀도: common / uncommon / rare / epic / legendary
@@ -94,11 +95,12 @@
   - src/index.ts: 공용 타입·상수 진입점 (클라이언트는 여기만 가져온다. DB 스키마는 번들에 넣지 않는다)
   - src/game/constants.ts: 확정 규칙 상수(등급, 하단 탭, 헌터 슬롯 최대, 반복 최대, 상점 최고 등급, 입질 제한 시간)
   - src/api/types.ts: API 응답 타입
-  - src/db/main.schema.ts: 메인 DB 32개 테이블 (서버 전용, '@worldsea/shared/db/main')
+  - src/db/main.schema.ts: 메인 DB 33개 테이블 (서버 전용, '@worldsea/shared/db/main')
   - src/db/log.schema.ts: 로그 DB 6개 테이블(gacha_logs 포함)
   - src/db/types.ts: jsonb 공용 타입
   - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
   - migrations/main/0002_species_iucn.sql: species에 IUCN 등급·연도·실제 규모·추세·메모·출처 열 추가 (Supabase 적용 후라 증분 마이그레이션)
+  - migrations/main/0003_species_discoveries.sql: 어종별 서버 최초 포획 기록 (특별 개체 공개 기준)
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
   - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
   - src/seed/world.ts: 지역 12 + 어종 120(실존 91, 고대 16, 오리지널 13) 원본. src/seed/build.ts: 시드 SQL 생성(지역·어종 upsert, 야생 개체수는 없을 때만). scripts/seed.ts(pnpm db:seed), scripts/species-table.ts(문서 표 재생성)

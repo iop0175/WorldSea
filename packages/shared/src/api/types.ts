@@ -88,6 +88,11 @@ export interface RegionView {
 }
 
 export interface RegionSpeciesView {
+  /**
+   * false면 실루엣("???"): id는 자리 표시용(unknown_N), 이름·학명·개체수 비율은 비공개.
+   * 오리지널 전설급은 항상 실루엣(65번), 특별 개체는 서버에서 누군가 처음 잡기 전까지 실루엣(66번).
+   */
+  revealed: boolean;
   id: string;
   nameKo: string;
   scientificName: string | null;

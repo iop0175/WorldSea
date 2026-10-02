@@ -1,7 +1,7 @@
 import { Hono, type Context } from 'hono';
-import { asc, eq } from 'drizzle-orm';
-import type { RegionDetailResponse, RegionsResponse, RegionView } from '@worldsea/shared';
-import { players, regions, species, wildPopulations } from '@worldsea/shared/db/main';
+import { asc, desc, eq } from 'drizzle-orm';
+import type { RegionDetailResponse, RegionSpeciesView, RegionsResponse, RegionView } from '@worldsea/shared';
+import { players, regions, species, speciesDiscoveries, wildPopulations } from '@worldsea/shared/db/main';
 import type { AppEnv } from '../app';
 import { HttpError } from '../errors';
 
@@ -31,6 +31,18 @@ function toRegionView(
 export function populationPercent(count: number, initial: number): number {
   if (initial <= 0) return 0;
   return Math.round((count / initial) * 100);
+}
+
+/**
+ * 지역 목록 공개 규칙
+ * - 실존·고대 어종: 항상 공개
+ * - 오리지널 전설급(특별 맵 전용 아님): 항상 실루엣 (65번)
+ * - 지역별 특별 개체: 서버에서 누군가 처음 잡으면 모두에게 공개 (66번)
+ */
+export function isRevealed(row: { isOriginal: boolean; isSpecialMapOnly: boolean; discovered: string | null }): boolean {
+  if (!row.isOriginal) return true;
+  if (!row.isSpecialMapOnly) return false;
+  return row.discovered !== null;
 }
 
 async function requirePlayer(c: Context<AppEnv>) {
@@ -70,29 +82,50 @@ regionRoutes.get('/regions/:id', async (c) => {
       initialPopulation: species.initialPopulation,
       populationCount: wildPopulations.count,
       conservationStatus: wildPopulations.status,
+      discovered: speciesDiscoveries.speciesId,
     })
     .from(species)
     .leftJoin(wildPopulations, eq(wildPopulations.speciesId, species.id))
+    .leftJoin(speciesDiscoveries, eq(speciesDiscoveries.speciesId, species.id))
     .where(eq(species.regionId, region.id))
-    .orderBy(asc(species.nameKo));
+    // 실루엣이 이름순으로 섞이면 정체가 추측되므로 오리지널은 목록 끝에 둔다
+    .orderBy(asc(species.isOriginal), desc(species.isSpecialMapOnly), asc(species.nameKo));
 
   return c.json<RegionDetailResponse>({
     serverTime: new Date().toISOString(),
     region: toRegionView(region, player),
-    species: rows.map((row) => ({
-      id: row.id,
-      nameKo: row.nameKo,
-      scientificName: row.scientificName,
-      rarity: row.rarity,
-      isOriginal: row.isOriginal,
-      isSpecialMapOnly: row.isSpecialMapOnly,
-      breedable: row.breedable,
-      auctionable: row.auctionable,
-      // 정확한 개체수·예약분·숨은 보유량은 내보내지 않는다 (마지막 몇 마리 노리기 방지). 초기 대비 비율과 상태만.
-      conservation:
-        row.populationCount === null || row.conservationStatus === null
-          ? null
-          : { percent: populationPercent(row.populationCount, row.initialPopulation), status: row.conservationStatus },
-    })),
+    species: rows.map((row, index): RegionSpeciesView => {
+      if (!isRevealed(row)) {
+        // 실루엣: 어떤 어종인지 알 수 있는 값(id·이름·학명·개체수)은 보내지 않는다
+        return {
+          revealed: false,
+          id: `unknown_${index}`,
+          nameKo: '???',
+          scientificName: null,
+          rarity: row.rarity,
+          isOriginal: true,
+          isSpecialMapOnly: row.isSpecialMapOnly,
+          breedable: row.breedable,
+          auctionable: row.auctionable,
+          conservation: null,
+        };
+      }
+      return {
+        revealed: true,
+        id: row.id,
+        nameKo: row.nameKo,
+        scientificName: row.scientificName,
+        rarity: row.rarity,
+        isOriginal: row.isOriginal,
+        isSpecialMapOnly: row.isSpecialMapOnly,
+        breedable: row.breedable,
+        auctionable: row.auctionable,
+        // 정확한 개체수·예약분·숨은 보유량은 내보내지 않는다 (마지막 몇 마리 노리기 방지). 초기 대비 비율과 상태만.
+        conservation:
+          row.populationCount === null || row.conservationStatus === null
+            ? null
+            : { percent: populationPercent(row.populationCount, row.initialPopulation), status: row.conservationStatus },
+      };
+    }),
   });
 });

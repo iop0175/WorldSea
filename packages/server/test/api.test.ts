@@ -159,6 +159,34 @@ describe('지역 API', () => {
     await pg.exec(`delete from wild_populations where species_id='betta_splendens'; delete from species where id='betta_splendens';`);
   });
 
+  it('지역 상세: 오리지널 전설급은 항상 실루엣, 특별 개체는 서버 최초 포획 후 공개', async () => {
+    await pg.exec(`
+      insert into species(id,name_ko,region_id,rarity,is_original,is_special_map_only,breedable,temp_min,temp_max,salinity,max_size_cm,base_price,initial_population) values
+        ('orig_moonscale','월광비늘어','asia_fresh','epic',true,true,false,20,26,'fresh',8,4000,60),
+        ('orig_legend_test','전설테스트','asia_fresh','legendary',true,false,false,20,26,'fresh',50,20000,5);
+      insert into wild_populations(species_id,count) values ('orig_moonscale',60),('orig_legend_test',5);
+    `);
+    type View = { revealed: boolean; id: string; nameKo: string; rarity: string; conservation: unknown };
+    const get = async () => ((await (await call('/v1/regions/asia_fresh', await sign(USER_A))).json()) as { species: View[] }).species;
+
+    let list = await get();
+    expect(list.every((s) => !s.revealed && s.nameKo === '???' && s.conservation === null)).toBe(true);
+    expect(JSON.stringify(list)).not.toMatch(/orig_|월광|전설테스트/);
+    // 특별 개체가 전설급보다 앞에 온다
+    expect(list.map((s) => s.rarity)).toEqual(['epic', 'legendary']);
+
+    await pg.exec(`insert into species_discoveries(species_id, discoverer_id) values ('orig_moonscale', '${USER_A}')`);
+    list = await get();
+    expect(list[0]).toMatchObject({ revealed: true, id: 'orig_moonscale', nameKo: '월광비늘어' });
+    expect(list[1]).toMatchObject({ revealed: false, nameKo: '???' });
+
+    // 전설급은 누가 잡아도 실루엣 유지
+    await pg.exec(`insert into species_discoveries(species_id) values ('orig_legend_test')`);
+    expect((await get())[1]).toMatchObject({ revealed: false, nameKo: '???' });
+
+    await pg.exec(`delete from species_discoveries; delete from wild_populations where species_id like 'orig_%'; delete from species where id like 'orig_%';`);
+  });
+
   it('지역 상세와 해당 지역 어종 배열을 반환한다', async () => {
     const response = await call('/v1/regions/asia_fresh', await sign(USER_A));
     expect(response.status).toBe(200);

@@ -652,6 +652,18 @@ export const dexEntries = pgTable(
   (t) => [primaryKey({ columns: [t.playerId, t.speciesId, t.morphKey] })],
 ).enableRLS();
 
+/**
+ * 서버 최초 포획(어종): 어종마다 한 줄. 특별 개체(오리지널)는 이 줄이 생기면 지역 목록에 이름이 공개된다 (기획 66번).
+ * 포획 트랜잭션에서 insert ... on conflict do nothing.
+ */
+export const speciesDiscoveries = pgTable('species_discoveries', {
+  speciesId: text('species_id')
+    .primaryKey()
+    .references(() => species.id),
+  discovererId: uuid('discoverer_id').references(() => players.id, { onDelete: 'set null' }),
+  discoveredAt: ts('discovered_at').notNull().defaultNow(),
+}).enableRLS();
+
 /** 세계 최초 모프: (어종, 모프 키)마다 서버 전체에서 한 줄만 존재 */
 export const morphDiscoveries = pgTable(
   'morph_discoveries',

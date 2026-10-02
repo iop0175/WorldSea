@@ -87,22 +87,37 @@
 6. 희귀어 입질은 예약(reserved) 방식으로 "마지막 한 마리" 경쟁 상태를 막는다.
 7. 로그 DB와 메인 DB는 트랜잭션으로 묶지 않는다. FK도 걸지 않는다.
 
-## 현재 저장소 구성
-- packages/shared/src/db/main.schema.ts: 메인 DB 32개 테이블 (Drizzle)
-- packages/shared/src/db/log.schema.ts: 로그 DB 6개 테이블(gacha_logs 포함)
-- packages/shared/src/db/types.ts: jsonb 공용 타입
-- migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
-- migrations/log/0000_init.sql
-- scripts/verify.mjs: PGlite로 마이그레이션과 트리거 검증
+## 현재 저장소 구성 (pnpm 모노레포)
+- packages/shared (@worldsea/shared): 클라이언트·서버 공용
+  - src/index.ts: 공용 타입·상수 진입점 (클라이언트는 여기만 가져온다. DB 스키마는 번들에 넣지 않는다)
+  - src/game/constants.ts: 확정 규칙 상수(등급, 하단 탭, 헌터 슬롯 최대, 반복 최대, 상점 최고 등급, 입질 제한 시간)
+  - src/api/types.ts: API 응답 타입
+  - src/db/main.schema.ts: 메인 DB 32개 테이블 (서버 전용, '@worldsea/shared/db/main')
+  - src/db/log.schema.ts: 로그 DB 6개 테이블(gacha_logs 포함)
+  - src/db/types.ts: jsonb 공용 타입
+  - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
+  - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션·트리거 검증)
+- packages/server (@worldsea/server): Cloudflare Workers + Hono
+  - src/index.ts: GET /health, GET /ws (실시간 채널, 아직 인증 없음 → 인증 단계에서 JWT 사용자 id로 교체)
+  - src/realtime/player-channel.ts: 플레이어별 Durable Object, WebSocket Hibernation, push() RPC
+  - wrangler.jsonc: Hyperdrive 바인딩은 주석 상태(생성 후 id 입력). 비밀 값은 wrangler secret / .dev.vars(커밋 금지)
+- packages/client (@worldsea/client): Vite + Phaser + React 오버레이 + Zustand
+  - 9:16 프레임 안에 Phaser 캔버스(#game, 180x320 픽셀아트 정수 배율)와 React UI(#ui)를 겹친다
+  - src/store.ts: React·Phaser 공유 상태 (Phaser는 subscribe로 받음). 재화·스태미너는 서버 응답으로만 갱신
+  - src/game/scenes: BootScene(임시 도트 텍스처 생성), HubScene(브리딩샵 1단계, 수조와 헤엄치는 물고기)
+  - src/ui/App.tsx: 상단 재화바 + 서버 상태 표시, 탭별 자리 표시 패널, 하단 탭 5개
+  - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
+  - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 
-## 명령어
-- `npm install`
-- `npm run typecheck`
-- `npm run verify` (마이그레이션과 가드 트리거 검증)
-- `npm run db:gen:main` / `db:gen:log` (스키마 변경 후 마이그레이션 생성)
+## 명령어 (저장소 루트에서)
+- `pnpm install`
+- `pnpm dev:client` (http://localhost:5173), `pnpm dev:server` (http://localhost:8787)
+- `pnpm typecheck`, `pnpm build`
+- `pnpm verify` (마이그레이션과 가드 트리거 검증)
+- `pnpm db:gen:main` / `pnpm db:gen:log` (스키마 변경 후 마이그레이션 생성). 아직 배포 전이라 init 재생성 방식으로 관리 중. 배포 후에는 반드시 증분 마이그레이션.
 - 스키마를 바꾸면 verify를 다시 돌린다. 관리자 작업은 트랜잭션 안에서 `SET LOCAL worldsea.bypass_guard = 'on'`.
 
 ## 진행 순서와 남은 일
-완료: 기획(구조), 기술 스택, DB 스키마. 숫자 밸런싱만 남음.
-다음: (1) 프로젝트 뼈대(pnpm 모노레포, Phaser+React 클라이언트, Workers 서버, shared 패키지로 스키마 이동) → (2) API 설계(Workers 엔드포인트, WebSocket 메시지).
+완료: 기획(구조), 기술 스택, DB 스키마, 프로젝트 뼈대. 숫자 밸런싱은 남음.
+다음: (1) API 설계(Workers 엔드포인트, WebSocket 메시지) → (2) 인증(Supabase Auth + JWT 검증) → (3) 첫 기능(수색 1회: 시작·진행 계산·수령).
 이후 밸런싱 수치: 재화량, 광고 일일 한도, 길드 규모/퀘스트 보상, VIP 티어 포인트/혜택, 경매 허용 레벨, 유료 호스팅 전환 시점, 고대 어종 모프 유전자.

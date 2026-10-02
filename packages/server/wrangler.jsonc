@@ -1,0 +1,21 @@
+{
+  // 월드씨 게임 서버 (Cloudflare Workers)
+  "name": "worldsea-server",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // 희귀어 입질·경매 실시간 푸시 (WebSocket Hibernation)
+  "durable_objects": {
+    "bindings": [{ "name": "PLAYER_CHANNEL", "class_name": "PlayerChannel" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["PlayerChannel"] }],
+
+  // 메인 DB(Supabase) 연결. Hyperdrive 생성 후 id를 넣고 주석을 푼다.
+  //   npx wrangler hyperdrive create worldsea-main --connection-string="postgres://..."
+  // "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<HYPERDRIVE_ID>" }],
+
+  // 비밀 값은 wrangler secret put 으로 넣는다 (.dev.vars는 로컬 전용, 커밋 금지)
+  //   SUPABASE_JWT_SECRET, NEON_LOG_DB_URL
+  "vars": { "ENVIRONMENT": "development" }
+}

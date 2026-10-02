@@ -1,0 +1,29 @@
+{
+  "name": "@worldsea/shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./db/main": "./src/db/main.schema.ts",
+    "./db/log": "./src/db/log.schema.ts",
+    "./db/types": "./src/db/types.ts"
+  },
+  "scripts": {
+    "db:gen:main": "drizzle-kit generate --config drizzle.main.config.ts",
+    "db:gen:log": "drizzle-kit generate --config drizzle.log.config.ts",
+    "db:migrate:main": "drizzle-kit migrate --config drizzle.main.config.ts",
+    "db:migrate:log": "drizzle-kit migrate --config drizzle.log.config.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "verify": "node scripts/verify.mjs"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.3"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.8",
+    "@types/node": "^26.6.3",
+    "drizzle-kit": "^0.31.11",
+    "typescript": "^7.0.2"
+  }
+}

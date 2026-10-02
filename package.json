@@ -1,21 +1,20 @@
 {
-  "name": "worldsea-db",
-  "version": "1.0.0",
-  "scripts": {
-    "db:gen:main": "drizzle-kit generate --config drizzle.main.config.ts",
-    "db:gen:log": "drizzle-kit generate --config drizzle.log.config.ts",
-    "db:migrate:main": "drizzle-kit migrate --config drizzle.main.config.ts",
-    "db:migrate:log": "drizzle-kit migrate --config drizzle.log.config.ts",
-    "typecheck": "tsc -p tsconfig.json",
-    "verify": "node scripts/verify.mjs"
-  },
-  "dependencies": {
-    "@electric-sql/pglite": "^0.5.8",
-    "@types/node": "^26.6.3",
-    "drizzle-kit": "^0.31.11",
-    "drizzle-orm": "^0.45.3",
-    "typescript": "^7.0.2"
-  },
+  "name": "worldsea",
   "private": true,
-  "type": "module"
+  "packageManager": "pnpm@10.28.0",
+  "scripts": {
+    "dev:client": "pnpm --filter @worldsea/client dev",
+    "dev:server": "pnpm --filter @worldsea/server dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "verify": "pnpm --filter @worldsea/shared verify",
+    "db:gen:main": "pnpm --filter @worldsea/shared db:gen:main",
+    "db:gen:log": "pnpm --filter @worldsea/shared db:gen:log"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "workerd"
+    ]
+  }
 }

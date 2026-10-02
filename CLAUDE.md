@@ -110,6 +110,7 @@
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
+- docs/ui-main.md + docs/reference/main-ui-reference.jpg: 메인 화면 UI 기준(대장님 제공 이미지). 화면 배치·패널·색·아이콘은 이 기준을 따르고, 샵 장면은 탑다운 3/4 시점으로 바꾼다. 기준 이미지를 에셋으로 직접 쓰지 않는다.
 
 ## 명령어 (저장소 루트에서)
 - `pnpm install`

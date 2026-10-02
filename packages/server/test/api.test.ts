@@ -138,6 +138,26 @@ describe('지역 API', () => {
     expect(body.regions[1]).toMatchObject({ unlocked: false, huntSeconds: 600 });
   });
 
+  it('지역은 레벨로만 열린다 (샵 단계와 무관)', async () => {
+    await pg.exec(`update players set level = 10, shop_stage = 1 where id = '${USER_A}'`);
+    const body = (await (await call('/v1/regions', await sign(USER_A))).json()) as { regions: { id: string; unlocked: boolean }[] };
+    expect(body.regions.find((r) => r.id === 'pacific')?.unlocked).toBe(true);
+    await pg.exec(`update players set level = 1 where id = '${USER_A}'`);
+  });
+
+  it('지역 상세: 어종의 야생 개체수는 비율과 상태만 공개한다', async () => {
+    await pg.exec(`
+      insert into species(id,name_ko,region_id,rarity,temp_min,temp_max,salinity,max_size_cm,base_price,initial_population)
+        values ('betta_splendens','베타','asia_fresh','common',24,30,'fresh',7,100,1000) on conflict do nothing;
+      insert into wild_populations(species_id,count,hidden_reserve,reserved) values ('betta_splendens',400,40,3) on conflict do nothing;
+    `);
+    const body = (await (await call('/v1/regions/asia_fresh', await sign(USER_A))).json()) as { species: { id: string; conservation: Record<string, unknown> | null }[] };
+    const betta = body.species.find((x) => x.id === 'betta_splendens')!;
+    expect(betta.conservation).toEqual({ percent: 40, status: 'stable' });
+    expect(JSON.stringify(body)).not.toMatch(/reserved|hidden|"count"/i);
+    await pg.exec(`delete from wild_populations where species_id='betta_splendens'; delete from species where id='betta_splendens';`);
+  });
+
   it('지역 상세와 해당 지역 어종 배열을 반환한다', async () => {
     const response = await call('/v1/regions/asia_fresh', await sign(USER_A));
     expect(response.status).toBe(200);

@@ -96,9 +96,9 @@ export interface RegionSpeciesView {
   isSpecialMapOnly: boolean;
   breedable: boolean;
   auctionable: boolean;
+  /** 야생 개체수: 정확한 수는 공개하지 않고 초기 대비 비율(%)과 보전 상태만 */
   conservation: null | {
-    count: number;
-    reserved: number;
+    percent: number;
     status: 'stable' | 'vulnerable' | 'protected' | 'extinct_wild';
   };
 }

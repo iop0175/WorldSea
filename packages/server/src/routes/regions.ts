@@ -9,7 +9,7 @@ export const regionRoutes = new Hono<AppEnv>();
 
 function toRegionView(
   region: typeof regions.$inferSelect,
-  player: Pick<typeof players.$inferSelect, 'level' | 'shopStage'>,
+  player: Pick<typeof players.$inferSelect, 'level'>,
 ): RegionView {
   return {
     id: region.id,
@@ -21,13 +21,21 @@ function toRegionView(
     specialMapChance: region.specialMapChance,
     huntSeconds: region.huntSeconds,
     huntStaminaCost: region.huntStaminaCost,
-    unlocked: player.level >= region.requiredLevel && player.shopStage >= region.unlockStage,
+    // 지역은 레벨로만 열린다. unlockStage는 월드 개방 단계(민물→해역→고대)이지 샵 단계가 아니다.
+    // 고대 지역의 시간 티켓은 수색 시작 때 검사한다.
+    unlocked: player.level >= region.requiredLevel,
   };
+}
+
+/** 초기 개체수 대비 현재 비율(%, 정수). 방류로 100을 넘을 수 있다 */
+export function populationPercent(count: number, initial: number): number {
+  if (initial <= 0) return 0;
+  return Math.round((count / initial) * 100);
 }
 
 async function requirePlayer(c: Context<AppEnv>) {
   const [player] = await c.var.db
-    .select({ level: players.level, shopStage: players.shopStage })
+    .select({ level: players.level })
     .from(players)
     .where(eq(players.id, c.var.user.id));
 
@@ -59,8 +67,8 @@ regionRoutes.get('/regions/:id', async (c) => {
       isSpecialMapOnly: species.isSpecialMapOnly,
       breedable: species.breedable,
       auctionable: species.auctionable,
+      initialPopulation: species.initialPopulation,
       populationCount: wildPopulations.count,
-      populationReserved: wildPopulations.reserved,
       conservationStatus: wildPopulations.status,
     })
     .from(species)
@@ -80,10 +88,11 @@ regionRoutes.get('/regions/:id', async (c) => {
       isSpecialMapOnly: row.isSpecialMapOnly,
       breedable: row.breedable,
       auctionable: row.auctionable,
+      // 정확한 개체수·예약분·숨은 보유량은 내보내지 않는다 (마지막 몇 마리 노리기 방지). 초기 대비 비율과 상태만.
       conservation:
-        row.populationCount === null || row.populationReserved === null || row.conservationStatus === null
+        row.populationCount === null || row.conservationStatus === null
           ? null
-          : { count: row.populationCount, reserved: row.populationReserved, status: row.conservationStatus },
+          : { percent: populationPercent(row.populationCount, row.initialPopulation), status: row.conservationStatus },
     })),
   });
 });

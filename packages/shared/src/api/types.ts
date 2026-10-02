@@ -70,3 +70,46 @@ export interface MeResponse {
   /** 헌터 슬롯 수 (레벨·구독·VIP로 계산) */
   hunterSlots: number;
 }
+
+export type RegionKind = 'freshwater' | 'sea' | 'ancient';
+
+/** 지역 목록에 표시하는 서버 계산 값. 해금 여부는 플레이어 진행도에 따라 달라진다. */
+export interface RegionView {
+  id: string;
+  nameKo: string;
+  kind: RegionKind;
+  unlockStage: number;
+  requiredLevel: number;
+  requiresTimeTicket: boolean;
+  specialMapChance: number;
+  huntSeconds: number;
+  huntStaminaCost: number;
+  unlocked: boolean;
+}
+
+export interface RegionSpeciesView {
+  id: string;
+  nameKo: string;
+  scientificName: string | null;
+  rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+  isOriginal: boolean;
+  isSpecialMapOnly: boolean;
+  breedable: boolean;
+  auctionable: boolean;
+  conservation: null | {
+    count: number;
+    reserved: number;
+    status: 'stable' | 'vulnerable' | 'protected' | 'extinct_wild';
+  };
+}
+
+export interface RegionsResponse {
+  serverTime: string;
+  regions: RegionView[];
+}
+
+export interface RegionDetailResponse {
+  serverTime: string;
+  region: RegionView;
+  species: RegionSpeciesView[];
+}

@@ -110,3 +110,47 @@ describe('가입과 내 정보', () => {
     expect(((await r.json()) as { error: { code: string } }).error.code).toBe('needs_signup');
   });
 });
+
+describe('지역 API', () => {
+  beforeAll(async () => {
+    await pg.exec(`
+      insert into regions
+        (id, name_ko, kind, unlock_stage, required_level, requires_time_ticket,
+         special_map_chance, hunt_seconds, hunt_stamina_cost, sort_order)
+      values
+        ('asia_fresh', '아시아 민물', 'freshwater', 1, 1, false, 0.01, 300, 1, 1),
+        ('pacific', '태평양', 'sea', 2, 10, false, 0.02, 600, 2, 2)
+      on conflict (id) do nothing
+    `);
+  });
+
+  it('플레이어 진행도에 맞춰 지역 목록과 해금 여부를 반환한다', async () => {
+    const response = await call('/v1/regions', await sign(USER_A));
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      serverTime: string;
+      regions: { id: string; unlocked: boolean; huntSeconds: number }[];
+    };
+
+    expect(body.serverTime).toBeTruthy();
+    expect(body.regions.map((region) => region.id)).toEqual(['asia_fresh', 'pacific']);
+    expect(body.regions[0]).toMatchObject({ unlocked: true, huntSeconds: 300 });
+    expect(body.regions[1]).toMatchObject({ unlocked: false, huntSeconds: 600 });
+  });
+
+  it('지역 상세와 해당 지역 어종 배열을 반환한다', async () => {
+    const response = await call('/v1/regions/asia_fresh', await sign(USER_A));
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as { region: { id: string; nameKo: string }; species: unknown[] };
+    expect(body.region).toMatchObject({ id: 'asia_fresh', nameKo: '아시아 민물' });
+    expect(body.species).toEqual([]);
+  });
+
+  it('없는 지역은 404, 미가입 사용자는 needs_signup을 반환한다', async () => {
+    expect((await call('/v1/regions/unknown', await sign(USER_A))).status).toBe(404);
+
+    const response = await call('/v1/regions', await sign(USER_B));
+    expect(response.status).toBe(404);
+    expect(((await response.json()) as { error: { code: string } }).error.code).toBe('needs_signup');
+  });
+});

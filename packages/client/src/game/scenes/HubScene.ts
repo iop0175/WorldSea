@@ -1,12 +1,17 @@
 import Phaser from 'phaser';
 import { useGameStore } from '../../store';
-import { GAME_HEIGHT, GAME_WIDTH } from '../start';
 import { PAL } from '../palette';
 
 /**
  * 허브: 작은 동네 브리딩샵 (shopStage 1). 단계가 오르면 공공 수족관으로 커진다.
  * 위쪽 상단바(TOP_UI)와 아래쪽 탭바는 React가 그린다.
  */
+/**
+ * 임시 허브: 180x320 기준으로 그린 자리 표시 장면을 카메라 2배 확대로 보여 준다.
+ * docs/ui-main.md(탑다운 3/4, 360x640) 기준 장면으로 교체 예정.
+ */
+const GAME_WIDTH = 180;
+const GAME_HEIGHT = 320;
 const TOP_UI = 24;
 
 export class HubScene extends Phaser.Scene {
@@ -18,6 +23,7 @@ export class HubScene extends Phaser.Scene {
   }
 
   create() {
+    this.cameras.main.setZoom(2).centerOn(GAME_WIDTH / 2, GAME_HEIGHT / 2);
     const floorY = 200;
     const g = this.add.graphics();
 

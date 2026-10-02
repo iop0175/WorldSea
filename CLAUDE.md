@@ -102,15 +102,15 @@
   - src/realtime/player-channel.ts: 플레이어별 Durable Object, WebSocket Hibernation, push() RPC
   - wrangler.jsonc: Hyperdrive 바인딩은 주석 상태(생성 후 id 입력). 비밀 값은 wrangler secret / .dev.vars(커밋 금지)
 - packages/client (@worldsea/client): Vite + Phaser + React 오버레이 + Zustand
-  - 9:16 프레임 안에 Phaser 캔버스(#game, 180x320 픽셀아트 정수 배율)와 React UI(#ui)를 겹친다
+  - 9:16 프레임 안에 Phaser 캔버스(#game, 360x640 픽셀아트 정수 배율, 2026-10-02 180x320에서 상향)와 React UI(#ui)를 겹친다
   - src/store.ts: React·Phaser 공유 상태 (Phaser는 subscribe로 받음). 재화·스태미너는 서버 응답으로만 갱신
-  - src/game/scenes: BootScene(임시 도트 텍스처 생성), HubScene(브리딩샵 1단계, 수조와 헤엄치는 물고기)
+  - src/game/scenes: BootScene(임시 도트 텍스처 생성), HubScene(임시 자리 표시 장면, 2배 확대. docs/ui-main.md 기준 탑다운 장면으로 교체 예정)
   - src/ui/App.tsx: 상단 재화바 + 서버 상태 표시, 탭별 자리 표시 패널, 하단 탭 5개
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
-- docs/ui-main.md + docs/reference/main-ui-reference.jpg: 메인 화면 UI 기준(대장님 제공 이미지). 화면 배치·패널·색·아이콘은 이 기준을 따르고, 샵 장면은 탑다운 3/4 시점으로 바꾼다. 기준 이미지를 에셋으로 직접 쓰지 않는다.
+- docs/ui-main.md + docs/reference/main-ui-reference.png: 메인 화면 UI 기준 v2(대장님 제공, 탑다운 3/4 시점, 9:16). 해상도 360x640. 화면 배치·패널·색·아이콘·장면 구성은 이 기준을 따른다. 기준 이미지는 에셋으로 직접 쓰지 않고 진짜 픽셀아트로 새로 그린다. v1(쿼터뷰)은 참고 보관용.
 
 ## 명령어 (저장소 루트에서)
 - `pnpm install`

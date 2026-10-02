@@ -40,6 +40,7 @@
   - 꽝 천장(확정): 꽝이 연속 N번 나오면 다음 수색은 꽝 제외(players.missStreak). N은 미정.
   - 미정: 지역별 수색 시간·스태미너 수치, 200회가 되는 VIP 등급, 꽝 확률과 천장 N, 결과 확률표, VIP 몇 등급부터 4번째 슬롯인지, 2번째 슬롯 정확한 레벨(10 전후), 최대 레벨 값, 외형 뽑기 가격과 등급별 확률.
 - 희귀어 손맛 미니게임: 푸시 알림, 기본 제한 30분, 놓치면 물고기는 바다로 복귀.
+  - 대상 등급(확정, 69번): 기준 등급 이상 물고기만 입질 미니게임, 미만은 바로 포획되어 결과에 쌓인다. 기준은 플레이어가 고른다(players.minigameThreshold, 기본 rare). 높은 등급 입질 기준(highGradeThreshold)보다 높게 설정할 수 없다(Workers 검사): 높은 등급 물고기가 미니게임 없이 잡히는 것을 막기 위함. 판정 함수 shared/game/constants.ts needsMinigame.
   - 방식(확정): 확률형 + 포켓몬GO 채집 느낌. 넓게 펼쳐진 판정 영역에서 가운데에 가까울수록 성공 확률이 오른다. 반응 속도형이 아니라 위치/타이밍 선택형.
   - 장비 사용(확정, 이전 "성공 시에만 소모" 규칙을 대체): 찌·미끼는 사용 여부를 플레이어가 선택한다. 사용을 선택하면 성공·실패와 무관하게 시도할 때마다 소모. 일반 맵과 특별 맵(5번 기회) 모두 같은 규칙. 사용 장비는 rare_bites에 기록하고 시도 시점에 차감.
   - 장비 등급(확정): 5등급(common/uncommon/rare/epic/legendary). 낮은 등급이 주로 나오고 높은 등급은 낮은 확률.
@@ -102,6 +103,7 @@
   - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
   - migrations/main/0002_species_iucn.sql: species에 IUCN 등급·연도·실제 규모·추세·메모·출처 열 추가 (Supabase 적용 후라 증분 마이그레이션)
   - migrations/main/0003_species_discoveries.sql: 어종별 서버 최초 포획 기록 (특별 개체 공개 기준)
+  - migrations/main/0004_minigame_threshold.sql: players.minigame_threshold (입질 미니게임 기준 등급)
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
   - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
   - src/seed/world.ts: 지역 12 + 어종 120(실존 91, 고대 16, 오리지널 13) 원본. src/seed/build.ts: 시드 SQL 생성(지역·어종 upsert, 야생 개체수는 없을 때만). scripts/seed.ts(pnpm db:seed), scripts/species-table.ts(문서 표 재생성)

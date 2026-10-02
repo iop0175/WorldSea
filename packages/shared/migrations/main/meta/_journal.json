@@ -29,6 +29,13 @@
       "when": 1790951658134,
       "tag": "0003_species_discoveries",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790954595945,
+      "tag": "0004_minigame_threshold",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,1 @@
+ALTER TABLE "players" ADD COLUMN "minigame_threshold" "rarity" DEFAULT 'rare' NOT NULL;

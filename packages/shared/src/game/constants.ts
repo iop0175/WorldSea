@@ -32,3 +32,12 @@ export const REPEAT_MAX_PREMIUM = 200;
 export const SHOP_MAX_ITEM_GRADE: Rarity = 'rare';
 /** 입질 미니게임 기본 제한 시간(초) */
 export const RARE_BITE_TIMEOUT_SEC = 30 * 60;
+
+/** 등급 순서 비교: a가 b 이상이면 true */
+export const rarityAtLeast = (a: Rarity, b: Rarity): boolean => RARITIES.indexOf(a) >= RARITIES.indexOf(b);
+
+/** 입질 미니게임 기준 등급 기본값 (기획 69번: 플레이어가 바꿀 수 있음). 미만 등급은 바로 포획 */
+export const DEFAULT_MINIGAME_THRESHOLD: Rarity = 'rare';
+/** 수색에서 걸린 물고기가 입질 미니게임 대상인지 */
+export const needsMinigame = (fishRarity: Rarity, threshold: Rarity = DEFAULT_MINIGAME_THRESHOLD): boolean =>
+  rarityAtLeast(fishRarity, threshold);

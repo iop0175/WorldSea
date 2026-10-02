@@ -238,6 +238,8 @@ export const players = pgTable(
     /** 허브 단계 1=동네 브리딩샵 … 4=공공 수족관 */
     shopStage: smallint('shop_stage').notNull().default(1),
     tutorialStep: smallint('tutorial_step').notNull().default(0),
+    /** 이 등급 이상 물고기만 입질 미니게임, 미만은 바로 포획 (플레이어 선택, 기획 69번) */
+    minigameThreshold: rarity('minigame_threshold').notNull().default('rare'),
     /** 입질 미니게임 자동 진행 (켜면 성공 확률이 낮아진다) */
     autoMinigame: boolean('auto_minigame').notNull().default(false),
     /** 높은 등급 입질 시: auto=그대로 자동(확률 더 낮음), pause=사냥 정지 후 알림 */

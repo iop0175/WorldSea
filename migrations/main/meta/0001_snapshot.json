@@ -1,6 +1,6 @@
 {
-  "id": "325529d1-3882-4a3b-985f-0843ba96f92d",
-  "prevId": "0dc3b257-6ed5-4722-bfa8-8645785f5353",
+  "id": "5902254d-3681-46b9-9ee7-12565a2d9688",
+  "prevId": "24798357-e875-44bf-a51d-3e037eea1cde",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1873,7 +1873,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "items_shop_grade_limit": {
+          "name": "items_shop_grade_limit",
+          "value": "\"items\".\"grade\" not in ('epic', 'legendary') or (\"items\".\"price_gold\" is null and \"items\".\"price_premium\" is null)"
+        }
+      },
       "isRLSEnabled": true
     },
     "public.market_prices": {

@@ -218,7 +218,8 @@ CREATE TABLE "items" (
 	"target_species_id" text,
 	"price_gold" bigint,
 	"price_premium" integer,
-	"sort_order" smallint DEFAULT 0 NOT NULL
+	"sort_order" smallint DEFAULT 0 NOT NULL,
+	CONSTRAINT "items_shop_grade_limit" CHECK ("items"."grade" not in ('epic', 'legendary') or ("items"."price_gold" is null and "items"."price_premium" is null))
 );
 --> statement-breakpoint
 ALTER TABLE "items" ENABLE ROW LEVEL SECURITY;--> statement-breakpoint

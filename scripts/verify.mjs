@@ -66,3 +66,8 @@ console.log('기본 외형 헌터 생성 OK');
 await db.exec(`insert into regions(id,name_ko,kind,unlock_stage,required_level) values ('test_r','테스트','freshwater',1,1) on conflict do nothing`);
 const h = (await db.query(`select id from hunters where owner_id='${uid}' limit 1`)).rows[0].id;
 await expectFail('반복 201회', `insert into expeditions(player_id,hunter_id,region_id,ends_at,stamina_cost,repeat_total) values ('${uid}','${h}','test_r',now(),1,201)`);
+
+// 상점 판매 등급 제한
+await db.exec(`insert into items(id,name_ko,kind,grade,price_gold) values ('float_rare','희귀 찌','float','rare',1000)`);
+console.log('rare 찌 상점 등록 OK');
+await expectFail('epic 찌 상점 판매', `insert into items(id,name_ko,kind,grade,price_gold) values ('float_epic','영웅 찌','float','epic',5000)`);

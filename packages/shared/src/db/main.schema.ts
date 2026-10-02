@@ -306,7 +306,9 @@ export const purchases = pgTable(
 // ---------------------------------------------------------------------------
 // 3-1. 낚시 장비 (찌, 미끼): 등급별로 획득·구매해 포획 확률을 올린다
 // ---------------------------------------------------------------------------
-export const items = pgTable('items', {
+export const items = pgTable(
+  'items',
+  {
   id: text('id').primaryKey(), // 'float_rare', 'bait_worm_common'
   nameKo: varchar('name_ko', { length: 40 }).notNull(),
   kind: itemKind('kind').notNull(),
@@ -318,7 +320,15 @@ export const items = pgTable('items', {
   priceGold: money('price_gold'),
   pricePremium: integer('price_premium'),
   sortOrder: smallint('sort_order').notNull().default(0),
-}).enableRLS();
+  },
+  (t) => [
+    // 상점 판매는 3등급(rare)까지만. epic/legendary는 수색·조합·보상으로만 얻는다
+    check(
+      'items_shop_grade_limit',
+      sql`${t.grade} not in ('epic', 'legendary') or (${t.priceGold} is null and ${t.pricePremium} is null)`,
+    ),
+  ],
+).enableRLS();
 
 /** 플레이어 보유 장비 수량 */
 export const playerItems = pgTable(

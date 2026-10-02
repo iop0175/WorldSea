@@ -108,10 +108,13 @@
   - src/game/scenes: BootScene(임시 도트 텍스처: 14x8 물고기 레이어 합성, 치어, 사람), HubScene(1단계 탑다운 3/4 임시 장면: 도형 수조·카운터·교배실·치어 수조·문, 헤엄치는 물고기, 통로를 걷는 사람)
   - src/ui/App.tsx: 메인 UI(상단바 한 줄, 간판 글자·샵 단계 바, 장면 라벨·터치 영역, 양옆 패널, 헌터 띠, 탭바). 좌표는 --px(게임 1px = 100cqw/360) 단위
   - src/ui/PixelIcon.tsx: 문자열 도트 임시 아이콘 / src/ui/mock.ts: API 연결 전 화면 확인용 임시 데이터
+  - 에셋: src/assets/<폴더>/<이름>.png 를 넣으면 빌드 시 자동 인식(src/game/assets.ts, import.meta.glob)되어 임시 도형·도트 대신 쓰인다. 없는 에셋은 임시 그림 유지. 목록·크기·프롬프트는 docs/assets-main.md
+  - scripts/pixelize.py: 생성 도구 이미지를 목표 크기 진짜 픽셀아트로 정리(잘라내기, 축소, 색 수 줄이기, 알파 정리). pillow 필요
   - 글꼴: Galmuri(OFL, npm galmuri, 앱 내장). 본문 Galmuri11, 작은 글자 Galmuri9, 숫자 GalmuriMono
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
 
+- docs/assets-main.md: 메인 화면(1단계) 에셋 목록 (파일명, 크기, 겹 순서, 9-slice, 생성 프롬프트, 우선순위)
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
 - docs/ui-main.md + docs/reference/main-ui-reference.png: 메인 화면 UI 기준 v2(대장님 제공, 탑다운 3/4 시점, 9:16). 해상도 360x640. 화면 배치·패널·색·아이콘·장면 구성은 이 기준을 따른다. 기준 이미지는 에셋으로 직접 쓰지 않고 진짜 픽셀아트로 새로 그린다. v1(쿼터뷰)은 참고 보관용. 샵 단계별 장면 기준: main-ui-reference.png(1단계), hub-stage2/3/4-reference.png(2~4단계). 컨셉 이미지이며 물고기가 아닌 생물(해파리, 펭귄, 거북 등)은 넣지 않는다.
 

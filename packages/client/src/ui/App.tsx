@@ -3,7 +3,8 @@ import { BOTTOM_TABS, BOTTOM_TAB_LABEL_KO, type BottomTab } from '@worldsea/shar
 import { fetchHealth } from '../api';
 import { useGameStore } from '../store';
 import { LAYOUT, STAGE1_SPOTS } from '../game/layout';
-import { ICONS, PixelIcon } from './PixelIcon';
+import { ICONS, PixelIcon, type PixelArt } from './PixelIcon';
+import { assetUrl, hasAsset, SLICES } from '../game/assets';
 import { MOCK_BADGES, MOCK_HUNTERS, MOCK_PLAYER as P } from './mock';
 
 /** 게임 좌표(360x640 기준 px)를 화면 CSS 길이로 */
@@ -19,6 +20,19 @@ const TAB_INFO: Record<Exclude<BottomTab, 'shop'>, { title: string; lines: strin
   store: { title: '상점', lines: ['찌·미끼(3등급까지), 헌터 외형', '구독과 VIP'] },
 };
 
+/** 에셋(icon/...)이 있으면 이미지, 없으면 임시 도트 아이콘 */
+function Icon({ k, fb, size }: { k: string; fb: PixelArt; size: string }) {
+  const url = assetUrl(k);
+  if (url) return <img src={url} alt="" style={{ width: size, height: size, imageRendering: 'pixelated', flex: 'none' }} />;
+  return <PixelIcon art={fb} size={size} />;
+}
+
+/** 카드 배경 이미지 (있을 때만) */
+const bgImage = (key: string): CSSProperties | undefined => {
+  const url = assetUrl(key);
+  return url ? { backgroundImage: `url(${url})`, backgroundSize: '100% 100%', imageRendering: 'pixelated' } : undefined;
+};
+
 function Badge({ value }: { value?: string }) {
   if (!value) return null;
   return <span className="badge">{value}</span>;
@@ -28,27 +42,27 @@ function TopBar() {
   return (
     <header className="topbar" style={box(0, LAYOUT.topBar.y, 360, LAYOUT.topBar.h)}>
       <button type="button" className="panel profile" aria-label={`프로필, ${P.nickname}, 레벨 ${P.level}`}>
-        <span className="avatar"><PixelIcon art={ICONS.face} size={g(24)} /></span>
+        <span className="avatar"><Icon k="icon/avatar_default" fb={ICONS.face} size={g(24)} /></span>
         <span className="profile-text">
           <span className="name">{P.nickname} <b>LV.{P.level}</b></span>
           <span className="bar"><span style={{ width: `${P.expRatio * 100}%` }} /></span>
         </span>
       </button>
       <button type="button" className="panel res premium" aria-label={`프리미엄 ${P.premium}, 충전`}>
-        <PixelIcon art={ICONS.gem} size={g(12)} /><span className="num">{P.premium}</span><span className="plus">+</span>
+        <Icon k="icon/res_premium" fb={ICONS.gem} size={g(12)} /><span className="num">{P.premium}</span><span className="plus">+</span>
       </button>
       <button type="button" className="panel res gold" aria-label={`골드 ${P.gold.toLocaleString()}, 충전`}>
-        <PixelIcon art={ICONS.coin} size={g(12)} /><span className="num">{P.gold.toLocaleString()}</span><span className="plus">+</span>
+        <Icon k="icon/res_gold" fb={ICONS.coin} size={g(12)} /><span className="num">{P.gold.toLocaleString()}</span><span className="plus">+</span>
       </button>
       <button type="button" className="panel res stamina" aria-label={`스태미너 ${P.stamina}/${P.staminaMax}, ${P.staminaNext} 후 1 회복`}>
-        <PixelIcon art={ICONS.bolt} size={g(12)} />
+        <Icon k="icon/res_stamina" fb={ICONS.bolt} size={g(12)} />
         <span className="stack"><span className="num">{P.stamina}/{P.staminaMax}</span><span className="sub">+1 {P.staminaNext}</span></span>
       </button>
       <button type="button" className="panel res ticket" aria-label={`시간 티켓 ${P.timeTickets}장`}>
-        <PixelIcon art={ICONS.hourglass} size={g(12)} /><span className="num">{P.timeTickets}</span>
+        <Icon k="icon/res_ticket" fb={ICONS.hourglass} size={g(12)} /><span className="num">{P.timeTickets}</span>
       </button>
       <button type="button" className="panel menu" aria-label={`메뉴, 새 소식 ${P.unread}개`}>
-        <PixelIcon art={ICONS.menu} size={g(14)} />
+        <Icon k="icon/menu" fb={ICONS.menu} size={g(14)} />
         <Badge value={String(P.unread)} />
       </button>
     </header>
@@ -78,12 +92,12 @@ function SceneOverlay() {
 
       {/* 양옆 패널 */}
       <nav className="side left" style={box(0, 90, 40)} aria-label="빠른 메뉴 왼쪽">
-        <button type="button" aria-label="출석"><PixelIcon art={ICONS.attend} size={g(22)} /><span>출석</span><Badge value={MOCK_BADGES.attend} /></button>
-        <button type="button" aria-label="복원 이벤트"><PixelIcon art={ICONS.restore} size={g(22)} /><span>복원</span></button>
+        <button type="button" aria-label="출석"><Icon k="icon/side_attend" fb={ICONS.attend} size={g(22)} /><span>출석</span><Badge value={MOCK_BADGES.attend} /></button>
+        <button type="button" aria-label="복원 이벤트"><Icon k="icon/side_restore" fb={ICONS.restore} size={g(22)} /><span>복원</span></button>
       </nav>
       <nav className="side right" style={box(320, 90, 40)} aria-label="빠른 메뉴 오른쪽">
-        <button type="button" aria-label="가방"><PixelIcon art={ICONS.bag} size={g(22)} /><span>가방</span></button>
-        <button type="button" aria-label="친구"><PixelIcon art={ICONS.friends} size={g(22)} /><span>친구</span></button>
+        <button type="button" aria-label="가방"><Icon k="icon/side_bag" fb={ICONS.bag} size={g(22)} /><span>가방</span></button>
+        <button type="button" aria-label="친구"><Icon k="icon/side_friends" fb={ICONS.friends} size={g(22)} /><span>친구</span></button>
       </nav>
     </div>
   );
@@ -103,7 +117,7 @@ function HunterBand() {
         {MOCK_HUNTERS.map((h, i) => {
           if (h.kind === 'hunting')
             return (
-              <button key={i} type="button" className="card hunting" aria-label={`헌터 ${i + 1}, ${h.region}, ${h.done}/${h.total}, ${h.remain} 남음`}>
+              <button key={i} type="button" className="card hunting" style={bgImage(`ui/region/${h.regionId}`)} aria-label={`헌터 ${i + 1}, ${h.region}, ${h.done}/${h.total}, ${h.remain} 남음`}>
                 <span className="region">{h.region}</span>
                 <span className="meta"><span>{h.done}/{h.total}</span><span>{h.remain}</span></span>
                 <span className="bar"><span style={{ width: `${(h.done / h.total) * 100}%` }} /></span>
@@ -111,13 +125,13 @@ function HunterBand() {
             );
           if (h.kind === 'complete')
             return (
-              <button key={i} type="button" className="card complete" aria-label={`헌터 ${i + 1}, ${h.region}, 완료, 수령 가능`}>
+              <button key={i} type="button" className="card complete" style={bgImage('ui/card_complete_bg')} aria-label={`헌터 ${i + 1}, ${h.region}, 완료, 수령 가능`}>
                 <span className="region">{h.region}</span><span className="done">완료 · 수령</span>
               </button>
             );
           return (
-            <button key={i} type="button" className="card locked" aria-label={`헌터 슬롯 ${i + 1}, ${h.condition}`}>
-              <PixelIcon art={ICONS.lock} size={g(14)} /><span>{h.condition}</span>
+            <button key={i} type="button" className="card locked" style={bgImage('ui/card_locked_bg')} aria-label={`헌터 슬롯 ${i + 1}, ${h.condition}`}>
+              <Icon k="icon/lock" fb={ICONS.lock} size={g(14)} /><span>{h.condition}</span>
             </button>
           );
         })}
@@ -133,7 +147,7 @@ function TabBar() {
     <nav className="tabbar" style={box(0, LAYOUT.tabBar.y, 360, LAYOUT.tabBar.h)} aria-label="주 메뉴">
       {BOTTOM_TABS.map((tab) => (
         <button key={tab} type="button" className={tab === activeTab ? 'active' : ''} aria-pressed={tab === activeTab} onClick={() => setTab(tab)}>
-          <span className="icon"><PixelIcon art={ICONS[tab]} size={g(30)} /><Badge value={MOCK_BADGES[tab]} /></span>
+          <span className="icon"><Icon k={`icon/tab_${tab}`} fb={ICONS[tab]} size={g(30)} /><Badge value={MOCK_BADGES[tab]} /></span>
           <span className="label">{BOTTOM_TAB_LABEL_KO[tab]}</span>
         </button>
       ))}
@@ -154,8 +168,13 @@ export function App() {
     return () => ctrl.abort();
   }, [setServerStatus]);
 
+  // UI 틀 에셋(9-slice)이 있으면 skin-<이름> 클래스와 CSS 변수로 적용
+  const skins = Object.keys(SLICES).filter(hasAsset);
+  const skinClass = skins.map((k) => `skin-${k.split('/')[1]}`).join(' ');
+  const skinVars = Object.fromEntries(skins.map((k) => [`--${k.split('/')[1]}`, `url(${assetUrl(k)})`])) as CSSProperties;
+
   return (
-    <div className="hud">
+    <div className={`hud ${skinClass}`} style={skinVars}>
       <TopBar />
       {activeTab === 'shop' ? <SceneOverlay /> : (
         <section className="sheet" style={box(12, 120, 336)} aria-label={TAB_INFO[activeTab].title}>

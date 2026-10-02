@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { ASSET_URLS, SHEETS } from '../assets';
 
 /**
  * 에셋이 아직 없으므로 임시 도트 텍스처를 코드로 만든다.
@@ -23,6 +24,15 @@ export const FISH_KEYS = ['fish_betta', 'fish_guppy', 'fish_tetra', 'fish_koi', 
 export class BootScene extends Phaser.Scene {
   constructor() {
     super('boot');
+  }
+
+  /** src/assets 에 있는 PNG만 불러온다 (없는 것은 아래 임시 텍스처나 도형으로 대신) */
+  preload() {
+    for (const [key, url] of Object.entries(ASSET_URLS)) {
+      const sheet = SHEETS[key];
+      if (sheet) this.load.spritesheet(key, url, sheet);
+      else this.load.image(key, url);
+    }
   }
 
   create() {

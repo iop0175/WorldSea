@@ -2,10 +2,14 @@ import Phaser from 'phaser';
 import { useGameStore } from '../../store';
 import { GAME_HEIGHT, GAME_WIDTH, LAYOUT, STAGE1_SPOTS as S } from '../layout';
 import { FISH_KEYS } from './BootScene';
+import { hasAsset } from '../assets';
+
+type Rect = { x: number; y: number; w: number; h: number };
 
 /**
  * 샵 허브 1단계 (탑다운 3/4 시점, 360x640). docs/ui-main.md 4장 배치 기준.
- * 실제 픽셀아트 에셋이 나오기 전까지 도형으로 그린 임시 장면이다. 위치·크기는 STAGE1_SPOTS를 따른다.
+ * src/assets 에 에셋(docs/assets-main.md)이 있으면 이미지를 쓰고, 없으면 도형으로 그린 임시 장면을 쓴다.
+ * 위치·크기는 STAGE1_SPOTS를 따른다.
  * 글자(간판, 라벨)는 React UI 레이어가 그린다.
  */
 const C = {
@@ -32,30 +36,37 @@ export class HubScene extends Phaser.Scene {
 
   create() {
     const g = this.add.graphics().setDepth(0);
-    this.drawRoom(g);
-    this.drawBackWall(g);
+    g.fillStyle(C.void).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+    if (hasAsset('bg/hub_stage1')) {
+      this.add.image(0, LAYOUT.scene.y, 'bg/hub_stage1').setOrigin(0).setDepth(0);
+    } else {
+      this.drawRoom(g);
+      this.drawBackWall(g);
+    }
+    this.placeDecor(g);
 
     // 수조들
-    this.drawTank(g, S.wallTankA, 4, 3);
-    this.drawTank(g, S.wallTankB, 4, 3);
-    this.drawPainting(g, 168, 94, 26, 20);
-    this.drawTank(g, S.longTank, 8, 4);
-    this.drawTank(g, S.tallTank, 8, 5);
-    this.drawTank(g, S.mainTank, 10, 7, true);
-    this.drawBreeding(g);
-    this.drawFryTank(g, S.fryA);
-    this.drawFryTank(g, S.fryB);
+    this.tank(g, 'tank_wall', S.wallTankA, 4, 3);
+    this.tank(g, 'tank_wall', S.wallTankB, 4, 3);
+    this.tank(g, 'tank_long', S.longTank, 8, 4);
+    this.tank(g, 'tank_tall', S.tallTank, 8, 5);
+    this.tank(g, 'tank_main', S.mainTank, 10, 7, true);
+    this.breeding(g);
+    this.fryTank(g, S.fryA);
+    this.fryTank(g, S.fryB);
 
-    this.drawCounter(g);
-    this.drawDoors(g);
-    this.drawPlants(g);
+    if (hasAsset('obj/counter')) this.obj('obj/counter', S.counter.x, S.counter.y);
+    else this.drawCounter(g);
+    if (hasAsset('obj/door_double')) this.obj('obj/door_double', S.market.x - 6, S.market.y - 8);
+    else this.drawDoors(g);
+    if (hasAsset('obj/mat')) this.obj('obj/mat', 242, 438);
 
     // 사람 (y 기준 깊이 정렬)
-    this.addPerson('npc_staff', S.counter.x + 56, S.counter.y + 6);
+    this.addPerson('staff', 'npc_staff', S.counter.x + 56, S.counter.y + 6);
     // 통로: 왼쪽 세로 통로 x86, 위 가로 통로 y214, 아래 가로 통로 y380, 입구 통로 x206
-    this.walker('player', [[140, 212], [86, 212], [86, 380], [196, 380], [86, 380], [86, 212]]);
-    this.walker('npc_guest_a', [[290, 476], [206, 476], [206, 380], [86, 380], [86, 214], [330, 214], [330, 350], [330, 214], [86, 214], [86, 380], [206, 380], [206, 476]]);
-    this.walker('npc_guest_b', [[56, 300], [56, 378], [180, 378], [56, 378]]);
+    this.walker('player', 'player', [[140, 212], [86, 212], [86, 380], [196, 380], [86, 380], [86, 212]]);
+    this.walker('guest_a', 'npc_guest_a', [[290, 476], [206, 476], [206, 380], [86, 380], [86, 214], [330, 214], [330, 350], [330, 214], [86, 214], [86, 380], [206, 380], [206, 476]]);
+    this.walker('guest_b', 'npc_guest_b', [[56, 300], [56, 378], [180, 378], [56, 378]]);
 
     // 다른 탭을 열면 장면을 어둡게
     this.dim = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.5).setOrigin(0).setDepth(10000).setVisible(false);
@@ -249,21 +260,91 @@ export class HubScene extends Phaser.Scene {
     swim();
   }
 
-  private addPerson(key: string, x: number, y: number) {
-    return this.add.image(x, y, key).setOrigin(0.5, 1).setDepth(y);
+  /** 왼쪽 위 기준으로 객체 이미지를 놓는다 */
+  private obj(key: string, x: number, y: number, depth = 0.5) {
+    return this.add.image(x, y, key).setOrigin(0).setDepth(depth);
+  }
+
+  /** 액자·벽등·화분·간판: 에셋이 있으면 이미지, 없으면 도형 (도형 벽에 이미 그려진 것은 건너뜀) */
+  private placeDecor(g: Phaser.GameObjects.Graphics) {
+    if (hasAsset('obj/sign_board')) this.obj('obj/sign_board', 105, 42);
+    if (hasAsset('obj/painting_a')) { this.obj('obj/painting_a', 24, 54); this.obj('obj/painting_a', 306, 54); }
+    if (hasAsset('obj/painting_b')) this.obj('obj/painting_b', 167, 93);
+    else this.drawPainting(g, 168, 94, 26, 20);
+    if (hasAsset('obj/lamp_wall')) [[70, 56], [96, 74], [264, 74], [290, 56]].forEach(([x, y]) => this.obj('obj/lamp_wall', x, y));
+    const plants: [number, number][] = [[22, 128], [208, 128], [206, 196], [222, 368], [326, 368], [200, 392], [316, 300]];
+    if (hasAsset('obj/plant_a')) plants.forEach(([x, y], i) => this.obj(i % 2 && hasAsset('obj/plant_b') ? 'obj/plant_b' : 'obj/plant_a', x - 3, y - 4, y));
+    else this.drawPlants(g);
+  }
+
+  /** 수조: 에셋이 있으면 뒤판 → 물고기 → 앞판, 없으면 도형 */
+  private tank(g: Phaser.GameObjects.Graphics, key: string, r: Rect, topFace: number, fishCount: number, big = false) {
+    if (!hasAsset(`obj/${key}_back`)) return this.drawTank(g, r, topFace, fishCount, big);
+    this.obj(`obj/${key}_back`, r.x, r.y);
+    const top = r.y + Math.round(r.h * 0.22);
+    const bottom = r.y + Math.round(r.h * 0.72);
+    for (let i = 0; i < fishCount; i++) this.swimFish(FISH_KEYS[(i + r.x) % FISH_KEYS.length], r.x + 4, top, r.w - 8, bottom - top);
+    if (hasAsset(`obj/${key}_front`)) this.obj(`obj/${key}_front`, r.x, r.y, 2);
+  }
+
+  private breeding(g: Phaser.GameObjects.Graphics) {
+    const r = S.breeding;
+    if (hasAsset('obj/breeding_back')) {
+      this.obj('obj/breeding_back', r.x, r.y);
+      this.add.image(r.x + r.w / 2 - 4, r.y + 34, 'fish_betta').setDepth(1);
+      this.add.image(r.x + r.w / 2 + 5, r.y + 38, 'fish_betta').setFlipX(true).setDepth(1);
+      this.add.image(r.x + r.w / 2 - 3, r.y + 92, 'fish_guppy').setDepth(1);
+      this.add.image(r.x + r.w / 2 + 6, r.y + 96, 'fish_guppy').setFlipX(true).setDepth(1);
+      if (hasAsset('obj/breeding_front')) this.obj('obj/breeding_front', r.x, r.y, 2);
+    } else this.drawBreeding(g);
+  }
+
+  private fryTank(g: Phaser.GameObjects.Graphics, r: Rect) {
+    if (!hasAsset('obj/tank_fry_back')) return this.drawFryTank(g, r);
+    this.obj('obj/tank_fry_back', r.x, r.y);
+    for (let i = 0; i < 6; i++) this.swimFish(i % 2 ? 'fry_a' : 'fry_b', r.x + 8, r.y + 10, r.w - 16, r.h - 40);
+    if (hasAsset('obj/tank_fry_front')) this.obj('obj/tank_fry_front', r.x, r.y, 2);
+  }
+
+  /** 사람: chr/ 시트가 있으면 4방향 걷기 애니메이션, 없으면 임시 도트 */
+  private personKey(name: string) {
+    const sheet = `chr/${name}`;
+    if (!hasAsset(sheet)) return null;
+    (['down', 'left', 'right', 'up'] as const).forEach((dir, row) => {
+      const key = `${sheet}_${dir}`;
+      if (!this.anims.exists(key))
+        this.anims.create({ key, frames: this.anims.generateFrameNumbers(sheet, { start: row * 3, end: row * 3 + 2 }), frameRate: 6, repeat: -1 });
+    });
+    return sheet;
+  }
+
+  private addPerson(name: string, fallback: string, x: number, y: number) {
+    const sheet = this.personKey(name);
+    const p = sheet ? this.add.sprite(x, y, sheet, 0) : this.add.sprite(x, y, fallback);
+    return p.setOrigin(0.5, 1).setDepth(y);
   }
 
   /** 정해진 지점을 순서대로 걸어 다니는 사람 */
-  private walker(key: string, points: [number, number][]) {
-    const p = this.addPerson(key, points[0][0], points[0][1]);
+  private walker(name: string, fallback: string, points: [number, number][]) {
+    const p = this.addPerson(name, fallback, points[0][0], points[0][1]);
+    const sheet = this.personKey(name);
     let i = 0;
     const step = () => {
       i = (i + 1) % points.length;
       const [tx, ty] = points[i];
-      const dist = Phaser.Math.Distance.Between(p.x, p.y, tx, ty);
+      const dx = tx - p.x;
+      const dy = ty - p.y;
+      const dist = Math.hypot(dx, dy);
+      const delay = Phaser.Math.Between(400, 1800);
       this.tweens.add({
-        targets: p, x: tx, y: ty, duration: dist * 45, delay: Phaser.Math.Between(400, 1800),
-        onUpdate: () => p.setDepth(p.y), onComplete: step,
+        targets: p, x: tx, y: ty, duration: dist * 45, delay,
+        onStart: () => {
+          if (!sheet) return;
+          const dir = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 'left' : 'right') : dy < 0 ? 'up' : 'down';
+          p.play(`${sheet}_${dir}`);
+        },
+        onUpdate: () => p.setDepth(p.y),
+        onComplete: () => { if (sheet) p.stop().setFrame(0); step(); },
       });
     };
     step();

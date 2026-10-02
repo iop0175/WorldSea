@@ -19,12 +19,12 @@ export const MOCK_PLAYER = {
 };
 
 export type HunterCard =
-  | { kind: 'hunting'; region: string; done: number; total: number; remain: string }
+  | { kind: 'hunting'; region: string; regionId: string; done: number; total: number; remain: string }
   | { kind: 'complete'; region: string }
   | { kind: 'locked'; condition: string };
 
 export const MOCK_HUNTERS: HunterCard[] = [
-  { kind: 'hunting', region: '아시아 민물', done: 37, total: 100, remain: '02:41' },
+  { kind: 'hunting', region: '아시아 민물', regionId: 'asia_fresh', done: 37, total: 100, remain: '02:41' },
   { kind: 'complete', region: '중미 민물' },
   { kind: 'locked', condition: 'LV.10 해금' },
   { kind: 'locked', condition: '구독 해금' },

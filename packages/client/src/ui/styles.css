@@ -202,3 +202,21 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .server { left: calc(var(--px) * 4); bottom: calc(var(--px) * 146); width: calc(var(--px) * 5); height: calc(var(--px) * 5); background: #888; }
 .server.online { background: var(--stamina); }
 .server.offline { background: var(--badge); }
+
+/* 9-slice UI 틀 에셋 (src/assets/ui/*.png 이 있을 때만 적용, 모서리 두께는 game/assets.ts SLICES) */
+.skin-panel_dark .panel, .skin-panel_dark .spot .label, .skin-panel_dark .stage-bar {
+  border: 0 solid transparent; box-shadow: none; background: transparent;
+  border-image: var(--panel_dark) 6 fill / calc(var(--px) * 6) stretch; image-rendering: pixelated;
+}
+.skin-panel_glow .side {
+  border: 0 solid transparent; box-shadow: none; background: transparent; border-radius: 0 !important;
+  border-image: var(--panel_glow) 10 fill / calc(var(--px) * 10) stretch; image-rendering: pixelated;
+}
+.skin-btn_gold .claim, .skin-btn_gold .tabbar button.active {
+  border: 0 solid transparent; box-shadow: none; background: transparent;
+  border-image: var(--btn_gold) 5 fill / calc(var(--px) * 5) stretch; image-rendering: pixelated;
+}
+.skin-card_frame .card.hunting { box-shadow: none; border: 0 solid transparent; border-image: var(--card_frame) 8 / calc(var(--px) * 8) stretch; image-rendering: pixelated; }
+.skin-card_frame_gold .card.complete { box-shadow: none; border: 0 solid transparent; border-image: var(--card_frame_gold) 8 / calc(var(--px) * 8) stretch; image-rendering: pixelated; }
+.skin-card_frame_locked .card.locked { box-shadow: none; border: 0 solid transparent; border-image: var(--card_frame_locked) 8 / calc(var(--px) * 8) stretch; image-rendering: pixelated; }
+.skin-badge .badge { box-shadow: none; background: transparent; border: 0 solid transparent; border-image: var(--badge) 3 fill / calc(var(--px) * 3) stretch; image-rendering: pixelated; }

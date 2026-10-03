@@ -23,7 +23,7 @@
 
 ## 등급
 - 고정 희귀도: common / uncommon / rare / epic / legendary
-- 동적 보전 상태: stable(≥30%) / vulnerable(<30%, 일일 쿼터) / protected(<10%, 포획 금지) / extinct_wild
+- 동적 보전 상태: stable(≥30%) / vulnerable(<30%, 플레이어별 일일 한도, 74번) / protected(<10%, 포획 금지) / extinct_wild
 - 멸종은 환경 이벤트로만 발생하고 방류로 복원 가능. 숨은 보유량(hiddenReserve)으로 "전설 목격" 연출.
 - 실제 야생 현황 반영(확정, 2026-10-02): 실존 어종의 IUCN 등급·추세·규모를 조사해 **비율만** 게임 개체수에 반영한다(실제 마릿수는 쓰지 않음). 수용량 = min(실제 규모 기준값, 희귀도 상한) × scale, 시작 수 = 수용량 × IUCN별 시작 비율(LC 100 / NT 75 / VU 45 / EN 25 / CR 12%). 위급(CR)도 보호종이 아닌 취약으로 시작(보호종 시작이면 복원 순환이 막힘). 전체 크기는 POPULATION_TEMP.scale 하나로 조절. 규칙 shared/game/population.ts, 조사표 docs/species-population.md.
 
@@ -40,6 +40,7 @@
   - 포획 시점(확정, 70번): 바로 포획되는 물고기는 그 수색 회차가 끝나는 시각에 야생 개체수를 줄이고 같은 트랜잭션에서 플레이어 소유(수령 대기)로 만든다. 수령을 늦춰도 사라지지 않는다. 회차 계산은 다음 요청 시점에 지나간 회차를 시각 순서대로 한꺼번에 처리한다(틱 루프 없음).
   - 잡을 수 없는 어종이 걸렸을 때(확정, 71번): 취약 어종의 일일 쿼터 소진·보호종·야생 0마리면 "놓아줌"으로 처리하고 작은 보상을 준다. 야생 개체수는 줄지 않는다. 꽝이 아니므로 꽝 천장(missStreak)에는 넣지 않는다.
   - 놓아줌 보상(확정, 72번): 골드 소액(어종 기준 가격의 일부) + 보전 포인트(players.conservationPoints, 새 재화: 놓아줌·방류·복원으로 쌓이고 보전 상점·길드 복원 등에 사용, 쓸 곳은 추후 설계) + 샵 평판(players.shopExp, 샵 단계 진행도). 임시 수치 shared/game/constants.ts RELEASE_REWARD_TEMP.
+  - 취약 어종 일일 한도(확정, 74번): 플레이어마다 따로 세고(species_daily_catches), 한도는 개체수 비율이 보호종 기준(10%)에 가까울수록 줄어든다(임시: 20~30% 하루 3, 15~20% 2, 10~15% 1). 한도를 넘으면 놓아줌(71번). 함수 shared/game/population.ts vulnerableDailyLimit.
   - 어종 결정(확정, 73번): 물고기 결과는 지역별 등급 확률로 등급을 먼저 뽑고, 그 지역·등급 안의 어종 중 같은 확률로 하나를 고른다. 특별 개체(특별 맵 전용)와 오리지널 전설급은 일반 뽑기에서 제외(각자 등장 경로). 그 지역에 해당 등급 어종이 없으면 그 등급은 빼고 나머지 비율로 다시 계산한다. 확률표는 고정이라 그대로 공개할 수 있다. 고급 지역일수록 높은 등급 확률이 오른다(수치는 밸런싱).
   - 꽝 천장(확정): 꽝이 연속 N번 나오면 다음 수색은 꽝 제외(players.missStreak). N은 미정.
   - 미정: 지역별 수색 시간·스태미너 수치, 200회가 되는 VIP 등급, 꽝 확률과 천장 N, 결과 확률표, VIP 몇 등급부터 4번째 슬롯인지, 2번째 슬롯 정확한 레벨(10 전후), 최대 레벨 값, 외형 뽑기 가격과 등급별 확률.
@@ -101,7 +102,7 @@
   - src/index.ts: 공용 타입·상수 진입점 (클라이언트는 여기만 가져온다. DB 스키마는 번들에 넣지 않는다)
   - src/game/constants.ts: 확정 규칙 상수(등급, 하단 탭, 헌터 슬롯 최대, 반복 최대, 상점 최고 등급, 입질 제한 시간)
   - src/api/types.ts: API 응답 타입
-  - src/db/main.schema.ts: 메인 DB 33개 테이블 (서버 전용, '@worldsea/shared/db/main')
+  - src/db/main.schema.ts: 메인 DB 34개 테이블 (서버 전용, '@worldsea/shared/db/main')
   - src/db/log.schema.ts: 로그 DB 6개 테이블(gacha_logs 포함)
   - src/db/types.ts: jsonb 공용 타입
   - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
@@ -109,6 +110,7 @@
   - migrations/main/0003_species_discoveries.sql: 어종별 서버 최초 포획 기록 (특별 개체 공개 기준)
   - migrations/main/0004_minigame_threshold.sql: players.minigame_threshold (입질 미니게임 기준 등급)
   - migrations/main/0005_conservation_points.sql: players.conservation_points(보전 포인트), players.shop_exp(샵 평판)
+  - migrations/main/0006_species_daily_catches.sql: 취약 어종 플레이어별 일일 포획 수
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
   - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
   - src/seed/world.ts: 지역 12 + 어종 120(실존 91, 고대 16, 오리지널 13) 원본. src/seed/build.ts: 시드 SQL 생성(지역·어종 upsert, 야생 개체수는 없을 때만). scripts/seed.ts(pnpm db:seed), scripts/species-table.ts(문서 표 재생성)

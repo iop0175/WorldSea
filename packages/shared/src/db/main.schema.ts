@@ -265,6 +265,24 @@ export const players = pgTable(
   ],
 ).enableRLS();
 
+/**
+ * 취약 어종 일일 포획 수 (플레이어 × 날짜 × 어종). 한도는 개체수 비율에 따라 줄어든다 (기획 74번, shared/game/population.ts vulnerableDailyLimit).
+ */
+export const speciesDailyCatches = pgTable(
+  'species_daily_catches',
+  {
+    playerId: uuid('player_id')
+      .notNull()
+      .references(() => players.id, { onDelete: 'cascade' }),
+    day: date('day').notNull(),
+    speciesId: text('species_id')
+      .notNull()
+      .references(() => species.id),
+    count: smallint('count').notNull().default(0),
+  },
+  (t) => [primaryKey({ columns: [t.playerId, t.day, t.speciesId] }), check('species_daily_catches_nonneg', sql`${t.count} >= 0`)],
+).enableRLS();
+
 /** 일일 제한 카운터 (광고 보상, 구매 상한, 고대 입장, 출석) */
 export const dailyCounters = pgTable(
   'daily_counters',

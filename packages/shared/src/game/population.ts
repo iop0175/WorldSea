@@ -93,3 +93,19 @@ export function gamePopulation(input: PopulationInput, scale: number = POPULATIO
     regenRatePerDay: Math.round(r * 10000) / 10000,
   };
 }
+
+/**
+ * 취약 어종의 플레이어별 하루 포획 한도 (기획 74번). 보호종 기준(10%)에 가까울수록 줄어든다.
+ * 안정(30% 이상)은 한도 없음(null), 보호종(10% 미만)은 0. 수치는 밸런싱 전 임시값.
+ */
+export const VULNERABLE_LIMIT_TEMP: { minPercent: number; limit: number }[] = [
+  { minPercent: 20, limit: 3 },
+  { minPercent: 15, limit: 2 },
+  { minPercent: 10, limit: 1 },
+];
+
+export function vulnerableDailyLimit(percent: number): number | null {
+  if (percent >= 30) return null;
+  for (const step of VULNERABLE_LIMIT_TEMP) if (percent >= step.minPercent) return step.limit;
+  return 0;
+}

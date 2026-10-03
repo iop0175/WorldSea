@@ -46,3 +46,14 @@ describe('gamePopulation', () => {
     expect(gamePopulation({ origin: 'extant', rarity: 'common', iucn: 'LC', tier: 'common' }, 0.5).capacity).toBe(10_000);
   });
 });
+
+import { vulnerableDailyLimit } from './population';
+describe('취약 어종 일일 한도 (기획 74번)', () => {
+  it('보호종 기준에 가까울수록 줄어든다', () => {
+    expect(vulnerableDailyLimit(45)).toBeNull();
+    expect(vulnerableDailyLimit(29)).toBe(3);
+    expect(vulnerableDailyLimit(17)).toBe(2);
+    expect(vulnerableDailyLimit(12)).toBe(1);
+    expect(vulnerableDailyLimit(9)).toBe(0);
+  });
+});

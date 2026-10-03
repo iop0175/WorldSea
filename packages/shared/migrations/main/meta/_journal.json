@@ -43,6 +43,13 @@
       "when": 1790956895240,
       "tag": "0005_conservation_points",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790991411180,
+      "tag": "0006_species_daily_catches",
+      "breakpoints": true
     }
   ]
 }

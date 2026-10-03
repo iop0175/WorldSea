@@ -77,3 +77,10 @@ export const gameDay = (at: Date): string => at.toISOString().slice(0, 10);
 /** 다음 초기화 시각 */
 export const nextDailyReset = (at: Date): Date =>
   new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), at.getUTCDate() + 1, DAILY_RESET_UTC_HOUR));
+
+/**
+ * 입질 시도 횟수 (기획 78번): 입질 하나에 기본 3번. 실패할 때마다 성공 확률이 조금 내려간다.
+ * 특별 맵은 별도 규칙(기회 5번). 하락 폭은 밸런싱 전 임시값이며 실제 판정 공식은 서버에만 둔다.
+ */
+export const BITE_MAX_ATTEMPTS = 3;
+export const SPECIAL_MAP_ATTEMPTS = 5;

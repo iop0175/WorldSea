@@ -48,13 +48,14 @@
 - 희귀어 손맛 미니게임: 푸시 알림, 기본 제한 30분, 놓치면 물고기는 바다로 복귀.
   - 대상 등급(확정, 69번): 기준 등급 이상 물고기만 입질 미니게임, 미만은 바로 포획되어 결과에 쌓인다. 기준은 플레이어가 고른다(players.minigameThreshold, 기본 rare). 높은 등급 입질 기준(highGradeThreshold)보다 높게 설정할 수 없다(Workers 검사): 높은 등급 물고기가 미니게임 없이 잡히는 것을 막기 위함. 판정 함수 shared/game/constants.ts needsMinigame.
   - 방식(확정): 확률형 + 포켓몬GO 채집 느낌. 넓게 펼쳐진 판정 영역에서 가운데에 가까울수록 성공 확률이 오른다. 반응 속도형이 아니라 위치/타이밍 선택형.
-  - 장비 사용(확정, 이전 "성공 시에만 소모" 규칙을 대체): 찌·미끼는 사용 여부를 플레이어가 선택한다. 사용을 선택하면 성공·실패와 무관하게 시도할 때마다 소모. 일반 맵과 특별 맵(5번 기회) 모두 같은 규칙. 사용 장비는 rare_bites에 기록하고 시도 시점에 차감.
+  - 장비 사용(확정, 이전 "성공 시에만 소모" 규칙을 대체): 찌·미끼는 사용 여부를 플레이어가 선택한다. 사용을 선택하면 성공·실패와 무관하게 시도할 때마다 소모. 일반 맵과 특별 맵(5번 기회) 모두 같은 규칙. 사용 장비는 시도마다 bite_attempts에 기록하고 시도 시점에 차감.
   - 장비 등급(확정): 5등급(common/uncommon/rare/epic/legendary). 낮은 등급이 주로 나오고 높은 등급은 낮은 확률.
   - 장비 획득(확정): 수색 드랍, 조합, 상점 구매(3등급 rare까지, DB CHECK items_shop_grade_limit), 길드 보상, 출석 보상.
   - 조합(확정): 같은 아이템 N개를 합쳐 한 등급 위 아이템 1개(예: 일반 찌 5개 → 고급 찌 1개). 전설급 전용 미끼는 조합으로 만들 수 없다(수색에서만). N은 미정.
   - 미끼 종류(확정): 범용 미끼 + 전설급 전용 미끼. 전용 미끼는 전설급 어종에만 있고(items.targetSpeciesId), 수색 중 낮은 확률로만 얻는다.
   - 자동 진행(확정): 입질 미니게임을 자동으로 넘기는 옵션(players.autoMinigame). 자동은 직접 할 때보다 성공 확률이 조금 낮고, 높은 등급 물고기는 더 많이 낮아진다. 판정에 쓰는 rare_bites.isAuto 기록.
   - 높은 등급 입질(확정): 기준 등급은 플레이어가 고른다(players.highGradeThreshold, 기본 epic). 높은 등급 입질이 생기면 `auto`(자동 진행, 확률 더 낮음) 또는 `pause`(반복 수색 정지 후 알림, 직접 진행) 중 플레이어가 선택(players.highGradeBiteMode, 기본 pause).
+  - 시도 횟수(확정, 78번): 입질 하나에 기본 3번(BITE_MAX_ATTEMPTS). 실패할 때마다 성공 확률이 조금 내려간다(하락 폭 미정). 찌·미끼는 시도마다 고르고 시도마다 소모. 시도 기록은 bite_attempts, 횟수는 rare_bites.attemptsUsed. 특별 맵은 별도로 기회 5번.
   - 자리 비움 처리(확정, 77번): 높은 등급이 아닌 미니게임 입질은 반복 수색을 멈추지 않는다. 30분 안에 직접 하지 않으면 만료 시점에 자동 진행 확률로 한 번 판정한다(놓치면 바다로). 높은 등급 입질은 아래 pause/auto 규칙을 따른다.
   - pause 중 야생 개체 처리(기본값, 변경 가능): 예약(reserved)은 입질 시점에 하고 30분 제한도 그대로 둔다. 공유 바다의 물고기를 무기한 묶어 두지 않기 위함. 만료되면 물고기는 바다로 돌아가고 반복은 정지 상태로 남는다.
   - 서버 판정: 클라이언트는 위치 입력만 보내고, 서버가 시드(minigameSeed)·어종 등급·찌/미끼 보정·자동 여부로 결과를 계산한다. 확률 공식은 서버 코드에만 둔다.
@@ -106,7 +107,7 @@
   - src/index.ts: 공용 타입·상수 진입점 (클라이언트는 여기만 가져온다. DB 스키마는 번들에 넣지 않는다)
   - src/game/constants.ts: 확정 규칙 상수(등급, 하단 탭, 헌터 슬롯 최대, 반복 최대, 상점 최고 등급, 입질 제한 시간)
   - src/api/types.ts: API 응답 타입
-  - src/db/main.schema.ts: 메인 DB 34개 테이블 (서버 전용, '@worldsea/shared/db/main')
+  - src/db/main.schema.ts: 메인 DB 35개 테이블 (서버 전용, '@worldsea/shared/db/main')
   - src/db/log.schema.ts: 로그 DB 6개 테이블(gacha_logs 포함)
   - src/db/types.ts: jsonb 공용 타입
   - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)
@@ -115,6 +116,7 @@
   - migrations/main/0004_minigame_threshold.sql: players.minigame_threshold (입질 미니게임 기준 등급)
   - migrations/main/0005_conservation_points.sql: players.conservation_points(보전 포인트), players.shop_exp(샵 평판)
   - migrations/main/0006_species_daily_catches.sql: 취약 어종 플레이어별 일일 포획 수
+  - migrations/main/0007_bite_gear_drop.sql, 0008_bite_attempts.sql: 입질 장비를 시도별 기록(bite_attempts)으로 옮김, rare_bites.attempts_used
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
   - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
   - src/seed/world.ts: 지역 12 + 어종 120(실존 91, 고대 16, 오리지널 13) 원본. src/seed/build.ts: 시드 SQL 생성(지역·어종 upsert, 야생 개체수는 없을 때만). scripts/seed.ts(pnpm db:seed), scripts/species-table.ts(문서 표 재생성)

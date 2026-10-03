@@ -499,9 +499,8 @@ export const rareBites = pgTable(
     expiresAt: ts('expires_at').notNull(),
     /** 미니게임 난수 시드: 서버가 입력 기록을 재현·검증할 때 사용 */
     minigameSeed: integer('minigame_seed').notNull(),
-    /** 사용하기로 선택한 장비. 시도 시점에 차감하며 성공/실패와 무관하게 소모 */
-    floatId: text('float_id').references(() => items.id),
-    baitId: text('bait_id').references(() => items.id),
+    /** 사용한 시도 횟수. 기본 최대 3번 (기획 78번), 시도별 장비·결과는 bite_attempts */
+    attemptsUsed: smallint('attempts_used').notNull().default(0),
     /** 자동 진행으로 판정했는지 (자동 감점 적용 여부, 분석용) */
     isAuto: boolean('is_auto').notNull().default(false),
     fishId: uuid('fish_id').references((): AnyPgColumn => fish.id),
@@ -513,7 +512,31 @@ export const rareBites = pgTable(
     index('rare_bites_pending_expires_idx')
       .on(t.expiresAt)
       .where(sql`${t.status} = 'pending'`),
+    check('rare_bites_attempts_range', sql`${t.attemptsUsed} between 0 and 10`),
   ],
+).enableRLS();
+
+/**
+ * 입질 시도 기록 (기획 78번): 입질 하나에 여러 번 시도. 장비는 시도마다 선택하고 시도 시점에 차감(성공·실패 무관).
+ * 판정은 서버가 시드·등급·장비·시도 순번·자동 여부로 계산한다.
+ */
+export const biteAttempts = pgTable(
+  'bite_attempts',
+  {
+    biteId: uuid('bite_id')
+      .notNull()
+      .references(() => rareBites.id, { onDelete: 'cascade' }),
+    /** 1부터 */
+    attemptNo: smallint('attempt_no').notNull(),
+    floatId: text('float_id').references(() => items.id),
+    baitId: text('bait_id').references(() => items.id),
+    /** 클라이언트가 보낸 위치 (0=가운데, 1=가장자리). 자동이면 null */
+    position: real('position'),
+    isAuto: boolean('is_auto').notNull().default(false),
+    success: boolean('success').notNull(),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.biteId, t.attemptNo] })],
 ).enableRLS();
 
 /** 특별 맵 조우: 등장 시 포획 기회 5번 */

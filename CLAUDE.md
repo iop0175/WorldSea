@@ -169,6 +169,8 @@
 완료: 기획(구조), 기술 스택, DB 스키마, 프로젝트 뼈대, 메인 화면 UI(임시 그림), API 설계, 인증·가입·내 정보 API. 숫자 밸런싱은 남음.
 완료: Supabase 메인 DB 연결과 최신 32테이블 스키마 적용, 지역 목록·상세 API.
 완료: 실존 어종 IUCN 조사와 개체수 변환 규칙, 지역·어종 시드(pnpm db:seed).
-다음: (1) 수색 시작·진행 계산·수령 → (2) 입질 미니게임.
+완료: 수색·입질 미니게임 구조 결정(64~82번, 위 각 항목에 반영). 남은 것은 확률·수치뿐이며 임시값으로 구현 후 밸런싱.
+다음: (1) 수색 시작·진행 계산·수령 → (2) 입질 미니게임. (대장님이 직접 구현 진행, 2026-10-03)
+수색 구현 시 참고할 결정: 대상 등급 69, 포획 시점 70, 놓아줌 71·72, 어종 결정 73, 취약 한도 74, 하루 기준 75, 보관 76, 자리 비움 77, 시도 78, 조작 79, 확률 표시 80, 등급 난이도 81, 특별 맵 82. 준비된 규칙 함수: needsMinigame·releaseReward·gameDay·nextDailyReset·BITE_MAX_ATTEMPTS(shared/game/constants.ts), vulnerableDailyLimit·statusFromPercent(shared/game/population.ts), computeStamina(shared/game/stamina.ts), hunterSlots(shared/game/hunters.ts).
 임시 수치(밸런싱 전): 지역 해금 레벨 1~40·수색 5~30분·스태미너 1~5(seed/world.ts), 어종 기준 가격 100/300/1000/4000/20000(seed/build.ts), 개체수 규칙 값(game/population.ts), 스태미너 기본 최대 60·300초당 1 회복(shared/game/stamina.ts), 시작 지급 골드 1000·시간 티켓 3(server/routes/players.ts), 헌터 슬롯 VIP 기준 5등급(shared/game/hunters.ts).
 이후 밸런싱 수치: 재화량, 광고 일일 한도, 길드 규모/퀘스트 보상, VIP 티어 포인트/혜택, 경매 허용 레벨, 유료 호스팅 전환 시점, 고대 어종 모프 유전자.

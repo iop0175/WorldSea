@@ -66,3 +66,14 @@ export function releaseReward(rarity: Rarity, basePrice: number): ReleaseReward 
     shopExp: T.shopExp[rarity],
   };
 }
+
+/**
+ * 하루 기준 (기획 75번): 세계 표준시(UTC) 자정에 초기화 = 한국 시간 오전 9시.
+ * 일일 한도·출석·광고·무료 시간 티켓·스태미너 구매 횟수가 모두 이 날짜를 쓴다. 서버 시각으로만 계산한다.
+ */
+export const DAILY_RESET_UTC_HOUR = 0;
+/** 게임 날짜 'YYYY-MM-DD' (UTC) */
+export const gameDay = (at: Date): string => at.toISOString().slice(0, 10);
+/** 다음 초기화 시각 */
+export const nextDailyReset = (at: Date): Date =>
+  new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), at.getUTCDate() + 1, DAILY_RESET_UTC_HOUR));

@@ -26,3 +26,14 @@ describe('놓아줌 보상 (기획 72번)', () => {
     expect(l.shopExp).toBeGreaterThan(c.shopExp);
   });
 });
+
+import { gameDay, nextDailyReset } from './constants';
+describe('하루 기준 (기획 75번: UTC 자정 = 한국 오전 9시)', () => {
+  it('한국 오전 8시 59분은 전날, 9시는 새 날', () => {
+    expect(gameDay(new Date('2026-10-03T08:59:00+09:00'))).toBe('2026-10-02');
+    expect(gameDay(new Date('2026-10-03T09:00:00+09:00'))).toBe('2026-10-03');
+  });
+  it('다음 초기화 시각', () => {
+    expect(nextDailyReset(new Date('2026-10-03T10:00:00+09:00')).toISOString()).toBe('2026-10-04T00:00:00.000Z');
+  });
+});

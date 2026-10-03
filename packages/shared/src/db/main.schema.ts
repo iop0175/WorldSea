@@ -290,7 +290,7 @@ export const dailyCounters = pgTable(
     playerId: uuid('player_id')
       .notNull()
       .references(() => players.id, { onDelete: 'cascade' }),
-    /** 서버 기준 날짜 (KST 자정 리셋 등은 Workers에서 계산) */
+    /** 게임 날짜 (UTC 자정 초기화 = 한국 오전 9시, 기획 75번. shared gameDay) */
     day: date('day').notNull(),
     kind: dailyCounterKind('kind').notNull(),
     count: smallint('count').notNull().default(0),

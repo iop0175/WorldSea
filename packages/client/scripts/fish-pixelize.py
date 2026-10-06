@@ -6,7 +6,7 @@
   python packages/client/scripts/fish-pixelize.py 생성.png 결과.png --size s   # 작은 그림 16x10 (참고용, 손 정리 필요)
 
 하는 일
-1. 배경 제거: 투명 배경이면 그대로, 어두운 배경(빛 번짐 포함)·밝은 배경은 자동으로 잘라낸다
+1. 배경 제거: 투명 배경이면 그대로, 어두운 배경(빛 번짐 포함)·밝은 배경(가짜 투명 격자 포함)은 자동으로 잘라낸다
 2. 물고기만 잘라 목표 크기(1px 여백)에 맞춰 줄인다. 줄이기 전에 살짝 흐리게 해서 잔무늬(지느러미 줄 등)가 점 잡음이 되지 않게 한다
 3. 몸 안쪽은 회색 4단계(#fff #ccc #999 #666), 바깥 윤곽 1px은 가장 어두운 회색(#333)으로 칠한다
 4. 결과는 한 프레임짜리 통 그림. 이후 Aseprite 등에서 겹(body / fin_back / fin_front / pattern / line)으로 나누고,
@@ -55,9 +55,14 @@ def cut_mask(img: Image.Image, core: float, line: float) -> np.ndarray:
         near = nd.binary_dilation(fish, iterations=max(4, int(10 * scale)))
         mask = fish | (near & (lum < line))
     else:
-        # 밝은 배경: 배경보다 충분히 어두운 곳
-        mask = nd.binary_opening(lum < bg - 25, iterations=2)
-        mask = keep_large(mask)
+        # 밝은 배경(흰색, 가짜 투명 격자 포함): 테두리에서 이어지는 밝은 칸을 배경으로 채워 나간다.
+        # 물고기는 진한 윤곽선으로 둘러싸여 있어 안쪽 밝은 곳까지 번지지 않는다.
+        floor = float(np.percentile(border, 1)) - 15
+        bright = lum > floor
+        lab, _ = nd.label(bright)
+        edge_labels = np.unique(np.concatenate([lab[0], lab[-1], lab[:, 0], lab[:, -1]]))
+        bg_mask = np.isin(lab, edge_labels[edge_labels > 0])
+        mask = keep_large(nd.binary_opening(~bg_mask, iterations=2))
     mask = nd.binary_fill_holes(mask)
     return nd.binary_opening(mask, iterations=1)
 

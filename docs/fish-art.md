@@ -63,9 +63,13 @@
 ## 5. 작업 순서 (생성 도구 → 정리 → 겹 나누기)
 
 1. **기본 그림 생성**: 어종별 프롬프트(6장)로 야생형 물고기를 회색조로 생성한다. 생성 이미지 안의 글자는 쓰지 않는다.
-2. **정리**: `python packages/client/scripts/pixelize.py 생성.png 정리.png --size 48x32 --align center --gray`
-   - `--gray`가 밝기를 늘려 회색 5단계로 강제 변환한다.
-3. **겹 나누기** (Aseprite 등): 정리한 그림을 겹 규칙(3장)대로 `body` / `pattern` / `fin_back` / `fin_front` / `line`으로 나눈다.
+2. **정리**: `python packages/client/scripts/fish-pixelize.py 생성.png 정리.png` (작은 그림 참고용은 `--size s`)
+   - 배경 자동 제거(투명·어두운 배경과 빛 번짐·밝은 배경), 물고기만 잘라 48×32에 맞춤, 잔무늬 흐림, 몸 안쪽 회색 4단계 + 바깥 윤곽 1px `#333`.
+   - `--cutout 잘라낸.png`를 붙이면 배경만 뺀 원본 크기 그림도 저장한다(겹 나누기 참고용).
+   - 일반 정리 도구 `pixelize.py --gray`도 쓸 수 있지만 물고기는 이 도구가 결과가 좋다.
+3. **겹 나누기** (Aseprite 등): 정리한 48×32 그림을 겹 규칙(3장)대로 `body` / `pattern` / `fin_back` / `fin_front` / `line`으로 나눈다. 픽셀 단위 선택이라 작은 그림에서 나누는 편이 쉽다.
+   - 지느러미가 몸에 붙은 부분은 각 겹 가장자리에 `#333` 윤곽을 한 줄 넣으면 색이 달라도 경계가 또렷하다.
+   - 생성 결과가 의도한 모프와 다르면(예: 플라캇을 시켰는데 긴 지느러미) 그 모프의 겹으로 쓰면 된다.
 4. **꼬리 2프레임**: 꼬리가 든 겹만 두 번째 프레임을 그리고 `fish-strip.py`로 붙인다.
 5. **모프 겹**: 모프 프롬프트(같은 포즈 + 모프 설명)로 다시 생성 → 정리 → 해당 겹만 잘라 `<겹>.<모프 id>.png`로 저장한다. 몸과 위치가 맞는지 미리보기에서 확인한다.
 6. **작은 그림**: 큰 그림을 보고 16×10으로 손으로 찍는다. 겹 나누기·프레임 규칙은 같다.
@@ -81,9 +85,10 @@
 
 #### 베타 · `betta_splendens`
 
-- 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single betta fish (Siamese fighting fish) (Betta splendens), short plakat fins, slender body, upturned mouth, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
+- 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single betta fish (Siamese fighting fish) (Betta splendens), plakat type with very short rounded fins and a short round tail, not long-finned, slender muscular body, upturned mouth, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 레드 · 블루 · 화이트
-- 필수 파일: `body`, `line`, `pattern.marble`, `pattern.butterfly`, `fin_back.veil`, `fin_front.veil`, `fin_back.halfmoon`, `fin_front.halfmoon` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `pattern.marble`, `pattern.butterfly`, `fin_back.veil`, `fin_back.halfmoon`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`, `fin_front.veil`, `fin_front.halfmoon`
   - 마블 → pattern 겹: 같은 포즈로 `irregular blotchy marble patches`
   - 버터플라이 → pattern 겹: 같은 포즈로 `clear band at the outer edge of fins`
   - 베일 → 지느러미 겹(fin_back·fin_front): 같은 포즈로 `long flowing veil tail drooping down`
@@ -93,25 +98,29 @@
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single dwarf gourami (Trichogaster lalius), oval laterally compressed body, thread-like pelvic feelers, diagonal stripes, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 블루 · 레드 · 파우더블루
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 하렌퀸 라스보라 · `trigonostigma_heteromorpha`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single harlequin rasbora (Trigonostigma heteromorpha), small deep-bodied fish with a black triangular wedge patch on the rear half, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 골드 · 알비노
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 체리바브 · `puntius_titteya`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single cherry barb (Puntius titteya), small torpedo body, dark lateral stripe, tiny barbels, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 레드 · 골드
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 금붕어 · `carassius_auratus`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single goldfish (Carassius auratus), common goldfish, chunky body, single short tail, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 레드 · 캘리코 · 블랙
-- 필수 파일: `body`, `line`, `fin_back.comet`, `fin_front.comet`, `fin_back.fantail`, `fin_front.fantail`, `fin_back.veil`, `fin_front.veil` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `fin_back.comet`, `fin_back.fantail`, `fin_back.veil`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`, `fin_front.comet`, `fin_front.fantail`, `fin_front.veil`
   - 코멧 → 지느러미 겹(fin_back·fin_front): 같은 포즈로 `long deeply forked single tail`
   - 팬테일 → 지느러미 겹(fin_back·fin_front): 같은 포즈로 `short double split tail fanned out`
   - 베일 → 지느러미 겹(fin_back·fin_front): 같은 포즈로 `very long flowing double veil tail`
@@ -119,19 +128,22 @@
 #### 펄 구라미 · `trichopodus_leerii`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single pearl gourami (Trichopodus leerii), oval compressed body, thread-like pelvic feelers, covered in tiny pearl dots, dark zigzag line, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
-- 필수 파일: `body`, `line`, `pattern.reduced` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `pattern.reduced`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
   - 스팟 감소 → pattern 겹: 같은 포즈로 `fewer, larger pearl dots`
 
 #### 클라운 로치 · `chromobotia_macracanthus`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single clown loach (Chromobotia macracanthus), elongated body, down-turned mouth with barbels, three thick vertical bands, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 오렌지 · 옅은 오렌지 · 진한 오렌지
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 쉬리 · `coreoleuciscus_splendidus`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single Korean splendid dace (Coreoleuciscus splendidus), slender stream minnow, horizontal band along the side, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
-- 필수 파일: `body`, `line`, `pattern.faint`, `pattern.bold` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `pattern.faint`, `pattern.bold`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
   - 흐린 띠 → pattern 겹: 같은 포즈로 `thin faded band`
   - 선명한 띠 → pattern 겹: 같은 포즈로 `thick vivid band`
 
@@ -139,7 +151,8 @@
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single koi carp (Cyprinus rubrofuscus), large carp body, barbels, full scales, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 홍백 · 삼색 · 황금
-- 필수 파일: `body`, `line`, `pattern.spotted`, `scale.doitsu` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `pattern.spotted`, `scale.doitsu`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
   - 반점 → pattern 겹: 같은 포즈로 `large irregular patches over the back`
   - 도이츠 → scale 겹: 같은 포즈로 `scaleless skin with a single row of big scales along the back`
 
@@ -147,7 +160,8 @@
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single Asian arowana (Scleropages formosus), long sword-shaped body, large metallic scales, upturned mouth with chin barbels, fins set far back, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 그린 · 레드 · 골드
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 
 ### 중미 민물
@@ -156,14 +170,16 @@
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single green swordtail (Xiphophorus hellerii), slim livebearer, long sword extension on the lower tail, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 그린 · 레드 · 블랙
-- 필수 파일: `body`, `line`, `fin_back.hifin`, `fin_front.hifin` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `fin_back.hifin`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`, `fin_front.hifin`
   - 하이핀 → 지느러미 겹(fin_back·fin_front): 같은 포즈로 `tall sail-like dorsal fin`
 
 #### 플래티 · `xiphophorus_maculatus`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single southern platy (Xiphophorus maculatus), small stocky livebearer, rounded tail, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 레드 · 블루 · 선셋
-- 필수 파일: `body`, `line`, `pattern.mickey`, `pattern.tuxedo` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `pattern.mickey`, `pattern.tuxedo`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
   - 미키마우스 → pattern 겹: 같은 포즈로 `three-dot mickey mouse mark at the tail base`
   - 턱시도 → pattern 겹: 같은 포즈로 `dark rear half of the body`
 
@@ -171,44 +187,51 @@
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single molly (Poecilia sphenops), stocky livebearer, rounded tail, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 블랙 · 달마시안 · 골드
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 컨빅 시클리드 · `amatitlania_nigrofasciata`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single convict cichlid (Amatitlania nigrofasciata), compact cichlid with 8 dark vertical bars, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 핑크 알비노
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 파이어마우스 시클리드 · `thorichthys_meeki`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single firemouth cichlid (Thorichthys meeki), cichlid with a bright throat, dark spot on the gill cover, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 진한 붉은 목
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 레드 데빌 시클리드 · `amphilophus_labiatus`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single red devil cichlid (Amphilophus labiatus), heavy cichlid with thick lips and a slight nuchal hump, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 오렌지 · 화이트
-- 필수 파일: `body`, `line` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
 
 #### 멕시코 테트라 · `astyanax_mexicanus`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single Mexican tetra (Astyanax mexicanus), small silvery tetra with an adipose fin, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
 - 색 모프(그림 없음, 팔레트): 야생 · 알비노
-- 필수 파일: `body`, `line`, `line.blind` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `line.blind`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
   - 동굴형 무안형 → 눈 겹(line): 같은 포즈로 `cave form without eyes, skin over the eye sockets`
 
 #### 재규어 시클리드 · `parachromis_managuensis`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single jaguar cichlid (Parachromis managuensis), large predatory cichlid, big mouth, dark spots all over, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
-- 필수 파일: `body`, `line`, `pattern.dense`, `pattern.sparse` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `pattern.dense`, `pattern.sparse`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
   - 빽빽한 반점 → pattern 겹: 같은 포즈로 `many small dense spots`
   - 듬성한 반점 → pattern 겹: 같은 포즈로 `few scattered spots`
 
 #### 트로피컬 가 · `atractosteus_tropicus`
 
 - 기본(야생형) 프롬프트: `pixel art sprite, side view, head facing left, single tropical gar (Atractosteus tropicus), very long cylindrical body, long toothy snout, rear-set dorsal fin, spotted, grayscale only, flat shading with 5 gray tones from white to very dark gray, no color, dark outline, plain transparent background, centered, full body visible, no text, no watermark`
-- 필수 파일: `body`, `line`, `pattern.dense`, `pattern.faint` (+ 선택 `fin_back`, `fin_front`, `pattern`)
+- 필수 파일: `body`, `line`, `pattern.dense`, `pattern.faint`
+- 선택 파일: `fin_back`, `pattern`, `fin_front`
   - 진한 점박이 → pattern 겹: 같은 포즈로 `heavy dark spotting`
   - 흐린 점박이 → pattern 겹: 같은 포즈로 `faint sparse spots`
 

@@ -33,7 +33,7 @@
 
 - 제작 방식(확정, 88번): 생성 도구로 큰 그림(48×32)을 먼저 만들고 pixelize.py로 정리한다(회색 명암 단계 강제·겹 분리 기능을 추가 예정). 작은 그림(16×10)은 자동 축소하지 않고 손으로 다듬는다. 어종별 생성 프롬프트와 겹 규격 문서는 Claude가 만든다. 규모: 120종 × 2벌 × 2프레임 + 모프 겹 ≈ 1,000~1,500장.
 
-- 준비물(확정, 89번): 1단계 지역 19종부터. 규격 문서 docs/fish-art.md(파일 위치·크기·프레임·겹·회색 5단계·작업 순서·어종별 프롬프트), 모프 정의 shared/game/morphs.ts(19종, 임시 우열: 야생형 우성), 합성 규칙 shared/game/fishArt.ts, 합성 코드 client/src/game/fishCompose.ts, 미리보기 페이지 client/fish-preview.html(개발 서버 전용, 빌드에 넣지 않음), pixelize.py --gray, fish-strip.py. 시드가 morphs.ts의 좌위를 species.gene_loci에 넣는다.
+- 준비물(확정, 89번): 1단계 지역 19종부터. 규격 문서 docs/fish-art.md(파일 위치·크기·프레임·겹·회색 5단계·작업 순서·어종별 프롬프트), 모프 정의 shared/game/morphs.ts(19종, 임시 우열: 야생형 우성), 합성 규칙 shared/game/fishArt.ts, 합성 코드 client/src/game/fishCompose.ts, 미리보기 페이지 client/fish-preview.html(개발 서버 전용, 빌드에 넣지 않음), pixelize.py --gray, fish-pixelize.py(물고기 전용 정리: 배경 자동 제거·흐림·회색 4단계+윤곽 #333), fish-strip.py. 시드가 morphs.ts의 좌위를 species.gene_loci에 넣는다.
 
 ## 등급
 - 고정 희귀도: common / uncommon / rare / epic / legendary
@@ -158,8 +158,9 @@
   - src/ui/App.tsx: 로그인·닉네임·오류 화면(최소 구성) + 메인 UI(상단바 한 줄, 간판 글자·샵 단계 바, 장면 라벨·터치 영역, 양옆 패널, 헌터 띠, 탭바). 좌표는 --px(게임 1px = 100cqw/360) 단위
   - src/ui/PixelIcon.tsx: 문자열 도트 임시 아이콘 / src/ui/mock.ts: API 연결 전 화면 확인용 임시 데이터
   - 에셋: src/assets/<폴더>/<이름>.png 를 넣으면 빌드 시 자동 인식(src/game/assets.ts, import.meta.glob)되어 임시 도형·도트 대신 쓰인다. 없는 에셋은 임시 그림 유지. 목록·크기·프롬프트는 docs/assets-main.md
+  - scripts/fish-pixelize.py: 생성 물고기 그림 → 겹 규격 도트(48x32/16x10). numpy·scipy 필요
   - scripts/pixelize.py: 생성 도구 이미지를 목표 크기 진짜 픽셀아트로 정리(잘라내기, 축소, 색 수 줄이기, 알파 정리, --gray는 물고기용 회색 5단계). pillow 필요. scripts/fish-strip.py: 물고기 겹 2프레임 붙이기
-  - 물고기: src/assets/fish/<어종>/<s|l>/<겹>[.<모프>].png, 합성 src/game/fishCompose.ts, 미리보기 fish-preview.html + src/preview/ (http://localhost:5173/fish-preview.html). 규격 docs/fish-art.md
+  - 물고기: src/assets/fish/<어종>/<s|l>/<겹>[.<모프>].png (첫 그림: 베타 큰 그림 body·line·fin_front·fin_back.halfmoon, 2026-10-06. 플라캇 기본 fin_back과 작은 그림은 아직), 합성 src/game/fishCompose.ts, 미리보기 fish-preview.html + src/preview/ (http://localhost:5173/fish-preview.html). 규격 docs/fish-art.md
   - 글꼴: Galmuri(OFL, npm galmuri, 앱 내장). 본문 Galmuri11, 작은 글자 Galmuri9, 숫자 GalmuriMono
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함

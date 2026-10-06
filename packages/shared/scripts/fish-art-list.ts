@@ -10,7 +10,7 @@ import { ALL_SPECIES, REGIONS } from '../src/seed/world';
 /** 생성 프롬프트용 영어 이름과 생김새 (야생형 기준) */
 const NOTES: Record<string, { en: string; look: string; morph?: Record<string, string> }> = {
   betta_splendens: {
-    en: 'betta fish (Siamese fighting fish)', look: 'short plakat fins, slender body, upturned mouth',
+    en: 'betta fish (Siamese fighting fish)', look: 'plakat type with very short rounded fins and a short round tail, not long-finned, slender muscular body, upturned mouth',
     morph: { veil: 'long flowing veil tail drooping down', halfmoon: 'huge round tail spread in a 180 degree half circle', marble: 'irregular blotchy marble patches', butterfly: 'clear band at the outer edge of fins' },
   },
   trichogaster_lalius: { en: 'dwarf gourami', look: 'oval laterally compressed body, thread-like pelvic feelers, diagonal stripes' },
@@ -54,8 +54,10 @@ for (const region of REGIONS) {
     if (n) console.log(`- 기본(야생형) 프롬프트: \`${prompt(n.en, s.scientificName, n.look)}\``);
     const colorLocus = m.loci.find((l) => l.id === m.colorLocus);
     if (colorLocus) console.log(`- 색 모프(그림 없음, 팔레트): ${colorLocus.alleles.map((a) => a.nameKo).join(' · ')}`);
-    const files = expectedFishFiles(m).filter((f) => f.required || f.allele);
-    console.log(`- 필수 파일: ${files.map((f) => `\`${f.name}\``).join(', ')} (+ 선택 \`fin_back\`, \`fin_front\`, \`pattern\`)`);
+    const all = expectedFishFiles(m);
+    const files = all.filter((f) => f.required || f.allele);
+    console.log(`- 필수 파일: ${all.filter((f) => f.required).map((f) => `\`${f.name}\``).join(', ')}`);
+    console.log(`- 선택 파일: ${all.filter((f) => !f.required).map((f) => `\`${f.name}\``).join(', ')}`);
     const variants = files.filter((f) => f.allele && f.slot !== 'fin_front');
     for (const f of variants) {
       const extra = n?.morph?.[f.allele!.id];

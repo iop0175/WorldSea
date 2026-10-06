@@ -79,7 +79,12 @@ export function ramp(base: string): string[] {
   const [h, s, l] = hexToHsl(base);
   const steps = [0.3, 0.15, 0, -0.15, -0.28];
   const shifts = [-8, -4, 0, 6, 12];
-  return steps.map((dl, i) => hslToHex((h + shifts[i]! + 360) % 360, Math.min(1, s * (i === 0 ? 0.85 : 1)), Math.max(0.04, Math.min(0.97, l + dl))));
+  return steps.map((dl, i) => {
+    let li = Math.max(0.04, Math.min(0.97, l + dl));
+    // 가장 어두운 단계는 윤곽선이라 밝은 색 물고기(화이트 등)도 충분히 어둡게
+    if (i === 4) li = Math.min(li, 0.32);
+    return hslToHex((h + shifts[i]! + 360) % 360, Math.min(1, s * (i === 0 ? 0.85 : 1)), li);
+  });
 }
 
 /** 몸·지느러미·무늬 기준색으로 팔레트 */
@@ -214,7 +219,7 @@ export interface FishFileSpec {
  * 어종 하나에 필요한 겹 파일. 크기(s/l)마다 같은 목록을 그린다.
  * - 필수: body(몸 실루엣, 몸에 붙은 꼬리 포함), line(눈·윤곽선)
  * - 선택 기본: fin_back, fin_front (야생형 지느러미가 몸과 따로 움직이면), pattern (야생형 무늬가 있으면)
- * - 모프: 야생형이 아닌 대립유전자마다 그 좌위가 바꾸는 겹 파일
+ * - 모프: 야생형이 아닌 대립유전자마다 그 좌위가 바꾸는 겹 파일 (지느러미 모프의 fin_front는 선택)
  */
 export function expectedFishFiles(morphs: SpeciesMorphs | undefined): FishFileSpec[] {
   const files: FishFileSpec[] = [
@@ -228,7 +233,9 @@ export function expectedFishFiles(morphs: SpeciesMorphs | undefined): FishFileSp
     for (const a of l.alleles) {
       if (a.id === l.wildTypeAlleleId) continue;
       for (const slot of LAYER_SLOTS[l.layer] ?? []) {
-        files.push({ name: `${slot}.${a.id}`, slot, required: true, allele: { locusId: l.id, id: a.id, nameKo: a.nameKo } });
+        // 지느러미 모프의 앞쪽 지느러미(가슴·배)는 대개 기본과 같아서 없으면 기본 fin_front를 쓴다
+        const required = !(l.layer === 'fin' && slot === 'fin_front');
+        files.push({ name: `${slot}.${a.id}`, slot, required, allele: { locusId: l.id, id: a.id, nameKo: a.nameKo } });
       }
     }
   }

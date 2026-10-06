@@ -56,8 +56,8 @@ describe('물고기 그림 규칙 (디자인 결정 84~88번)', () => {
 
 import { expectedFishFiles } from './fishArt';
 describe('그려야 할 파일 목록', () => {
-  it('베타: 필수 body·line + 지느러미 모프(앞뒤) + 무늬 모프, 색 모프는 그림 없음', () => {
+  it('베타: 필수 body·line + 지느러미 모프(fin_back) + 무늬 모프, 색 모프는 그림 없음', () => {
     const names = expectedFishFiles(betta).filter((f) => f.required).map((f) => f.name);
-    expect(names).toEqual(['body', 'line', 'pattern.marble', 'pattern.butterfly', 'fin_back.veil', 'fin_front.veil', 'fin_back.halfmoon', 'fin_front.halfmoon']);
+    expect(names).toEqual(['body', 'line', 'pattern.marble', 'pattern.butterfly', 'fin_back.veil', 'fin_back.halfmoon']);
   });
 });

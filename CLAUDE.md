@@ -25,13 +25,15 @@
 ## 물고기 그림 (디자인 결정)
 - 크기 체계(확정, 84번): 두 벌로 그린다. 작은 그림(약 16×10px)은 수조·샵 장면, 큰 그림(약 48×32px)은 개체 상세·도감·경매. 둘 다 같은 유전자 규칙으로 레이어 합성한다. 줄여 쓰지 않는다(도트가 뭉개짐).
 
-- 겹 구조(확정, 85번): 어종마다 몸 실루엣(명암만 있는 회색 그림) 1장 + 그 어종의 모프 겹(기획서 '모프 유전자 예시' 기준, 예: 베타 지느러미 베일·하프문·플라캇, 무늬 솔리드·마블·버터플라이). 겹 순서 고정: 뒷지느러미 → 몸 → 무늬 → 앞지느러미 → 눈·윤곽선. 몸 모양 계열 공유는 하지 않는다(어종 개성 유지). 유전자 좌위의 layer(body/pattern/fin/scale/form)와 assetKey가 겹 파일을 가리킨다(db/types.ts LocusDef).
+- 겹 구조(확정, 85번): 어종마다 몸 실루엣(명암만 있는 회색 그림) 1장 + 그 어종의 모프 겹(기획서 '모프 유전자 예시' 기준, 예: 베타 지느러미 베일·하프문·플라캇, 무늬 솔리드·마블·버터플라이). 겹 순서 고정: fin_back → body → scale → pattern → fin_front → line(눈·고정색). 윤곽선은 body의 가장 어두운 회색으로, 야생형 무늬도 pattern 겹에 따로 그린다. 몸 모양 계열 공유는 하지 않는다(어종 개성 유지). 유전자 좌위의 layer(body/pattern/fin/scale/form)와 assetKey가 겹 파일을 가리킨다(db/types.ts LocusDef).
 
 - 색 처리(확정, 86번): 팔레트 교체. 몸·무늬 겹은 정해진 회색 명암 단계(4~5단계)로만 그리고, 게임에서 유전자가 정한 색 팔레트(색 4~5개)로 바꿔 칠한다. 색 모프 추가 = 팔레트 추가(그림 작업 없음). 겹 파일은 이 회색 단계 외의 색을 쓰지 않는다(눈·윤곽선 겹은 예외로 고정색).
 
 - 움직임(확정, 87번): 꼬리 흔들기 2프레임(꼬리가 있는 겹만 2장: 몸 꼬리부·꼬리지느러미). 위아래 떠다니기·좌우 방향 전환(뒤집기)·속도 변화는 코드로 연출한다. 작은 그림·큰 그림 모두 2프레임.
 
 - 제작 방식(확정, 88번): 생성 도구로 큰 그림(48×32)을 먼저 만들고 pixelize.py로 정리한다(회색 명암 단계 강제·겹 분리 기능을 추가 예정). 작은 그림(16×10)은 자동 축소하지 않고 손으로 다듬는다. 어종별 생성 프롬프트와 겹 규격 문서는 Claude가 만든다. 규모: 120종 × 2벌 × 2프레임 + 모프 겹 ≈ 1,000~1,500장.
+
+- 준비물(확정, 89번): 1단계 지역 19종부터. 규격 문서 docs/fish-art.md(파일 위치·크기·프레임·겹·회색 5단계·작업 순서·어종별 프롬프트), 모프 정의 shared/game/morphs.ts(19종, 임시 우열: 야생형 우성), 합성 규칙 shared/game/fishArt.ts, 합성 코드 client/src/game/fishCompose.ts, 미리보기 페이지 client/fish-preview.html(개발 서버 전용, 빌드에 넣지 않음), pixelize.py --gray, fish-strip.py. 시드가 morphs.ts의 좌위를 species.gene_loci에 넣는다.
 
 ## 등급
 - 고정 희귀도: common / uncommon / rare / epic / legendary
@@ -134,6 +136,7 @@
   - migrations/main/0007_bite_gear_drop.sql, 0008_bite_attempts.sql: 입질 장비를 시도별 기록(bite_attempts)으로 옮김, rare_bites.attempts_used
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
   - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
+  - src/game/fishArt.ts: 물고기 그림 규격 상수·팔레트(ramp)·유전→표현형·모프 키·합성 계획(fishLayerPlan)·그려야 할 파일 목록 / src/game/morphs.ts: 어종별 유전자 좌위와 색 팔레트(1단계 19종) / scripts/fish-art-list.ts: docs/fish-art.md 어종별 작업 목록 재생성
   - src/seed/world.ts: 지역 12 + 어종 120(실존 91, 고대 16, 오리지널 13) 원본. src/seed/build.ts: 시드 SQL 생성(지역·어종 upsert, 야생 개체수는 없을 때만). scripts/seed.ts(pnpm db:seed), scripts/species-table.ts(문서 표 재생성)
 - packages/server (@worldsea/server): Cloudflare Workers + Hono
   - src/app.ts: createApp(deps). 공통 CORS·오류 처리, /v1/* 는 Bearer 토큰 검증 후 요청마다 DB 연결. 테스트는 deps로 PGlite DB·로컬 키 검증기를 넣는다
@@ -155,7 +158,8 @@
   - src/ui/App.tsx: 로그인·닉네임·오류 화면(최소 구성) + 메인 UI(상단바 한 줄, 간판 글자·샵 단계 바, 장면 라벨·터치 영역, 양옆 패널, 헌터 띠, 탭바). 좌표는 --px(게임 1px = 100cqw/360) 단위
   - src/ui/PixelIcon.tsx: 문자열 도트 임시 아이콘 / src/ui/mock.ts: API 연결 전 화면 확인용 임시 데이터
   - 에셋: src/assets/<폴더>/<이름>.png 를 넣으면 빌드 시 자동 인식(src/game/assets.ts, import.meta.glob)되어 임시 도형·도트 대신 쓰인다. 없는 에셋은 임시 그림 유지. 목록·크기·프롬프트는 docs/assets-main.md
-  - scripts/pixelize.py: 생성 도구 이미지를 목표 크기 진짜 픽셀아트로 정리(잘라내기, 축소, 색 수 줄이기, 알파 정리). pillow 필요
+  - scripts/pixelize.py: 생성 도구 이미지를 목표 크기 진짜 픽셀아트로 정리(잘라내기, 축소, 색 수 줄이기, 알파 정리, --gray는 물고기용 회색 5단계). pillow 필요. scripts/fish-strip.py: 물고기 겹 2프레임 붙이기
+  - 물고기: src/assets/fish/<어종>/<s|l>/<겹>[.<모프>].png, 합성 src/game/fishCompose.ts, 미리보기 fish-preview.html + src/preview/ (http://localhost:5173/fish-preview.html). 규격 docs/fish-art.md
   - 글꼴: Galmuri(OFL, npm galmuri, 앱 내장). 본문 Galmuri11, 작은 글자 Galmuri9, 숫자 GalmuriMono
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함
@@ -163,6 +167,7 @@
 - docs/api.md: API 설계 v1 (공통 규칙, 오류 코드, 엔드포인트 전체와 구현 상태, WebSocket 메시지)
 - docs/species-population.md: 실존 어종 IUCN 조사표(출처 포함)와 게임 개체수 변환 규칙·결과
 - docs/setup-supabase.md: Supabase 프로젝트·로그인·마이그레이션·로컬 실행·배포 설정 순서
+- docs/fish-art.md: 물고기 그림 규격(84~89번)과 1단계 19종 작업 목록
 - docs/assets-main.md: 메인 화면(1단계) 에셋 목록 (파일명, 크기, 겹 순서, 9-slice, 생성 프롬프트, 우선순위)
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
 - docs/ui-main.md + docs/reference/main-ui-reference.png: 메인 화면 UI 기준 v2(대장님 제공, 탑다운 3/4 시점, 9:16). 해상도 360x640. 화면 배치·패널·색·아이콘·장면 구성은 이 기준을 따른다. 기준 이미지는 에셋으로 직접 쓰지 않고 진짜 픽셀아트로 새로 그린다. v1(쿼터뷰)은 참고 보관용. 샵 단계별 장면 기준: main-ui-reference.png(1단계), hub-stage2/3/4-reference.png(2~4단계). 컨셉 이미지이며 물고기가 아닌 생물(해파리, 펭귄, 거북 등)은 넣지 않는다.

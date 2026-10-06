@@ -10,6 +10,10 @@
 3. 색 수를 줄인다 (기본 32색)
 4. 반투명 가장자리를 완전 투명/완전 불투명으로 정리한다
 5. 목표 크기 캔버스에 놓는다 (기본: 아래 가운데. 바닥에 서는 객체 기준)
+6. (--gray) 물고기 겹용: 색을 회색 5단계(#fff #ccc #999 #666 #333)로만 바꾼다 (docs/fish-art.md)
+
+물고기 겹 예:
+  python packages/client/scripts/pixelize.py 베타_몸.png packages/client/src/assets/fish/betta_splendens/l/body.png --size 48x32 --align center --gray
 
 필요: pip install pillow
 """
@@ -33,6 +37,37 @@ def remove_bg(img: Image.Image, color: tuple[int, int, int], tol: int) -> Image.
     return img
 
 
+# 물고기 겹에 쓸 수 있는 회색 5단계 (packages/shared/src/game/fishArt.ts FISH_GRAYS 와 같아야 한다)
+FISH_GRAYS = [255, 204, 153, 102, 51]
+
+
+def to_gray_levels(img: Image.Image) -> Image.Image:
+    """불투명 픽셀의 밝기를 객체 안에서 늘려(가장 밝은 곳 → #fff, 가장 어두운 곳 → #333) 5단계로 나눈다"""
+    px = img.load()
+    lums = []
+    for y in range(img.height):
+        for x in range(img.width):
+            r, g, b, a = px[x, y]
+            if a:
+                lums.append(0.299 * r + 0.587 * g + 0.114 * b)
+    if not lums:
+        return img
+    lums.sort()
+    lo = lums[int(len(lums) * 0.02)]
+    hi = lums[int(len(lums) * 0.98) - 1] if len(lums) > 1 else lo
+    span = max(1.0, hi - lo)
+    for y in range(img.height):
+        for x in range(img.width):
+            r, g, b, a = px[x, y]
+            if not a:
+                continue
+            t = (0.299 * r + 0.587 * g + 0.114 * b - lo) / span  # 0=어두움 1=밝음
+            idx = min(4, max(0, round((1 - t) * 4)))
+            v = FISH_GRAYS[idx]
+            px[x, y] = (v, v, v, 255)
+    return img
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description='생성 이미지를 게임용 픽셀아트로 정리')
     ap.add_argument('src')
@@ -44,6 +79,8 @@ def main() -> None:
     ap.add_argument('--bg', help='투명으로 바꿀 배경색 (예: ffffff)')
     ap.add_argument('--tol', type=int, default=24, help='--bg 허용 오차')
     ap.add_argument('--opaque', action='store_true', help='투명 처리 없이 불투명 이미지로 (배경 이미지용)')
+    ap.add_argument('--gray', action='store_true',
+                    help='물고기 겹용: 밝기를 늘린 뒤 회색 5단계로만 칠한다 (팔레트 교체 규칙)')
     args = ap.parse_args()
 
     tw, th = parse_size(args.size)
@@ -71,6 +108,9 @@ def main() -> None:
     quant = rgb.quantize(colors=args.colors, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).convert('RGB')
     out_obj = quant.convert('RGBA')
     out_obj.putalpha(alpha)
+
+    if args.gray:
+        out_obj = to_gray_levels(out_obj)
 
     canvas = Image.new('RGBA', (tw, th), (0, 0, 0, 0))
     x = (tw - nw) // 2

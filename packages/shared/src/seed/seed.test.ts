@@ -53,6 +53,11 @@ describe('시드 SQL 적용 (PGlite + 실제 마이그레이션)', () => {
     expect(rows[0]).toEqual({ r: 12, s: 120, w: 120 });
   });
 
+  it('모프가 정의된 어종은 gene_loci가 채워진다', async () => {
+    const { rows } = await pg.query<{ gene_loci: { id: string }[] }>(`select gene_loci from species where id = 'betta_splendens'`);
+    expect(rows[0]!.gene_loci.map((l) => l.id)).toEqual(['color', 'pattern', 'fin']);
+  });
+
   it('다시 실행해도 운영 중 야생 개체수는 초기화하지 않는다', async () => {
     await pg.exec(`update wild_populations set count = 7 where species_id = 'betta_splendens'`);
     await pg.exec(`update species set name_ko = '옛 이름' where id = 'betta_splendens'`);

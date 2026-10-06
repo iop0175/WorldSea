@@ -7,7 +7,8 @@
     ".": "./src/index.ts",
     "./db/main": "./src/db/main.schema.ts",
     "./db/log": "./src/db/log.schema.ts",
-    "./db/types": "./src/db/types.ts"
+    "./db/types": "./src/db/types.ts",
+    "./seed/world": "./src/seed/world.ts"
   },
   "scripts": {
     "db:gen:main": "drizzle-kit generate --config drizzle.main.config.ts",

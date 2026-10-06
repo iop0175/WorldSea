@@ -5,6 +5,7 @@
  */
 import { gamePopulation, POPULATION_TEMP, type GamePopulation, type GameRarity } from '../game/population';
 import { ALL_SPECIES, NON_BREEDABLE_FOSSILS, REGIONS, type SpeciesSeed } from './world';
+import { FISH_MORPHS } from '../game/morphs';
 
 /** 기준 가격 (임시, 밸런싱 전). 실제 시세는 희소성으로 따로 계산한다 */
 export const BASE_PRICE_TEMP: Record<GameRarity, number> = {
@@ -111,8 +112,11 @@ export function buildSeedSql(scale: number = POPULATION_TEMP.scale): string {
   const species = buildSpecies(scale);
   const spCols = ['id', 'name_ko', 'scientific_name', 'region_id', 'rarity', 'is_original', 'is_special_map_only', 'breedable', 'auctionable', 'temp_min', 'temp_max', 'salinity', 'max_size_cm', 'min_tank_size', 'base_price', 'initial_population', 'regen_rate_per_day', 'iucn_category', 'iucn_year', 'population_tier', 'population_trend', 'real_population_note', 'data_source'];
   const spVals = species.map(({ row: s }) => `(${[s.id, s.nameKo, s.scientificName, s.regionId, s.rarity, s.isOriginal, s.isSpecialMapOnly, s.breedable, s.auctionable, s.tempMin, s.tempMax, s.salinity, s.maxSizeCm, s.minTankSize, s.basePrice, s.initialPopulation, s.regenRatePerDay, s.iucnCategory, s.iucnYear, s.populationTier, s.populationTrend, s.realPopulationNote, s.dataSource].map(lit).join(',')})`);
-  // gene_loci는 시드에서 건드리지 않는다 (모프 유전자는 따로 정의)
   out.push(`insert into species (${spCols.join(',')}) values\n${spVals.join(',\n')}\non conflict (id) do update set ${spCols.slice(1).map((c) => `${c} = excluded.${c}`).join(', ')};`);
+  // 모프 유전자 좌위 (game/morphs.ts에 정의된 어종만 갱신, 나머지는 그대로)
+  for (const [id, m] of Object.entries(FISH_MORPHS)) {
+    out.push(`update species set gene_loci = ${lit(JSON.stringify(m.loci))}::jsonb where id = ${lit(id)};`);
+  }
 
   const wildVals = species.map(({ row, population: p }) => `(${[row.id, p.startCount, p.hiddenReserve, p.startStatus].map(lit).join(',')})`);
   out.push(`insert into wild_populations (species_id, count, hidden_reserve, status) values\n${wildVals.join(',\n')}\non conflict (species_id) do nothing;`);

@@ -77,23 +77,12 @@
 | `chr/staff.png` | 점원: 빨간 셔츠 | shop clerk in red shirt, walking sprite sheet, 4 directions, 3 frames each |
 | `chr/guest_a.png` ~ `guest_d.png` | 손님 4종 (어른·아이, 옷 색 다르게) | visitor character, walking sprite sheet, 4 directions, 3 frames each |
 
-## 4. 물고기 (레이어 합성용)
+## 4. 물고기
 
-유전자로 색을 입히므로 **흑백(회색조) 마스크**로 만든다. 코드가 색을 곱해서 칠한다. 크기는 메인 수조 기준 16×9, 치어 6×4.
-먼저 대표 몸틀 3종으로 시작한다. 어종이 늘면 같은 규칙으로 추가.
-**물고기 레이어 합성 코드는 사육·교배 기능을 만들 때 연결한다.** 그전까지는 넣어도 임시 도트 물고기가 보인다.
-
-| 파일 | 크기 | 설명 |
-|---|---|---|
-| `fish/body_round.png` | 16×9 | 둥근 몸틀(구피·베타형). 흰색~회색 명암만 |
-| `fish/body_slim.png` | 16×9 | 날씬한 몸틀(테트라형) |
-| `fish/body_tall.png` | 16×9 | 높은 몸틀(엔젤형) |
-| `fish/fin_*.png` | 16×9 | 같은 칸에 지느러미·꼬리만 (몸틀별) |
-| `fish/pattern_band.png`, `pattern_spot.png`, `pattern_half.png` | 16×9 | 무늬만 (흰색). 몸 위에 다른 색으로 곱함 |
-| `fish/eye.png` | 16×9 | 눈만 (검정). 맨 위에 겹침 |
-| `fish/fry.png` | 6×4 | 치어 공통 |
-
-생성 문구: `side view small fish sprite, grayscale only, white to gray shading, no color, transparent background` (몸틀·지느러미·무늬는 각각 따로)
+**규격이 바뀌었다 (디자인 결정 84~88번). `docs/fish-art.md`를 따른다.** 이전의 몸틀 3종(body_round 등) 공유 방식은 쓰지 않는다.
+- 어종별 겹 그림, 회색 5단계 + 팔레트 교체, 작은 그림 16×10 / 큰 그림 48×32, 꼬리 2프레임.
+- 위치: `fish/<어종 id>/<s|l>/<겹>[.<모프>].png`, 확인: http://localhost:5173/fish-preview.html
+- 치어(`fish/fry.png`, 6×4)는 아직 이전 규칙 그대로(공통 그림).
 
 ## 5. 효과
 효과 연출 코드는 해당 기능을 만들 때 연결한다.

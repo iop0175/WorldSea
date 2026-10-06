@@ -87,6 +87,12 @@ export function ramp(base: string): string[] {
   });
 }
 
+/** 밝기·채도 조정 (dl: 밝기 -1~1, ds: 채도 배율) */
+export function shiftHex(hex: string, dl: number, ds = 1): string {
+  const [h, s, l] = hexToHsl(hex);
+  return hslToHex(h, Math.max(0, Math.min(1, s * ds)), Math.max(0.03, Math.min(0.97, l + dl)));
+}
+
 /** 몸·지느러미·무늬 기준색으로 팔레트 */
 export const palette = (body: string, fin: string = body, pattern: string = fin): FishPalette => ({
   body: ramp(body),

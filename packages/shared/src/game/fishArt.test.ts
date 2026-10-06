@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { expressedAllele, fishAssetKey, fishLayerPlan, morphKey, phenotype, ramp, wildGenotype } from './fishArt';
 import { FISH_MORPHS } from './morphs';
-import { EXTANT } from '../seed/world';
+import { ALL_SPECIES } from '../seed/world';
 
 const betta = FISH_MORPHS.betta_splendens!;
 
@@ -41,10 +41,9 @@ describe('물고기 그림 규칙 (디자인 결정 84~88번)', () => {
     expect(plan.missingBody).toBe(false);
   });
 
-  it('1단계 지역 19종은 모두 모프 정의가 있고, 색 대립유전자마다 팔레트가 있다', () => {
-    const stage1 = EXTANT.filter((s) => s.regionId === 'asia_fresh' || s.regionId === 'central_america_fresh');
-    expect(stage1).toHaveLength(19);
-    for (const s of stage1) {
+  it('120종 모두 모프 정의(팔레트)가 있고, 색 대립유전자마다 팔레트가 있다', () => {
+    expect(ALL_SPECIES).toHaveLength(120);
+    for (const s of ALL_SPECIES) {
       const m = FISH_MORPHS[s.id];
       expect(m, s.id).toBeDefined();
       const color = m!.loci.find((l) => l.id === m!.colorLocus);

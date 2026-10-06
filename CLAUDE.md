@@ -33,7 +33,7 @@
 
 - 제작 방식(확정, 88번): 생성 도구로 큰 그림(48×32)을 먼저 만들고 pixelize.py로 정리한다(회색 명암 단계 강제·겹 분리 기능을 추가 예정). 작은 그림(16×10)은 자동 축소하지 않고 손으로 다듬는다. 어종별 생성 프롬프트와 겹 규격 문서는 Claude가 만든다. 규모: 120종 × 2벌 × 2프레임 + 모프 겹 ≈ 1,000~1,500장.
 
-- 준비물(확정, 89번): 1단계 지역 19종부터. 규격 문서 docs/fish-art.md(파일 위치·크기·프레임·겹·회색 5단계·작업 순서·어종별 프롬프트), 모프 정의 shared/game/morphs.ts(19종, 임시 우열: 야생형 우성), 합성 규칙 shared/game/fishArt.ts, 합성 코드 client/src/game/fishCompose.ts, 미리보기 페이지 client/fish-preview.html(개발 서버 전용, 빌드에 넣지 않음), pixelize.py --gray, fish-pixelize.py(물고기 전용 정리: 배경 자동 제거·흐림·회색 4단계+윤곽 #333), fish-strip.py. 시드가 morphs.ts의 좌위를 species.gene_loci에 넣는다.
+- 준비물(확정, 89번): 1단계 지역 19종부터. 규격 문서 docs/fish-art.md(파일 위치·크기·프레임·겹·회색 5단계·작업 순서·어종별 프롬프트), 모프 정의 shared/game/morphs.ts(실존 91종 모프 + 고대·오리지널 기본 팔레트, 임시 우열: 야생형 우성), 120종 생성 프롬프트 docs/fish-prompts.md(원본 scripts/fish-art-notes.ts), 합성 규칙 shared/game/fishArt.ts, 합성 코드 client/src/game/fishCompose.ts, 미리보기 페이지 client/fish-preview.html(개발 서버 전용, 빌드에 넣지 않음), pixelize.py --gray, fish-pixelize.py(물고기 전용 정리: 배경 자동 제거·흐림·회색 4단계+윤곽 #333), fish-strip.py. 시드가 morphs.ts의 좌위를 species.gene_loci에 넣는다.
 
 ## 등급
 - 고정 희귀도: common / uncommon / rare / epic / legendary
@@ -136,7 +136,7 @@
   - migrations/main/0007_bite_gear_drop.sql, 0008_bite_attempts.sql: 입질 장비를 시도별 기록(bite_attempts)으로 옮김, rare_bites.attempts_used
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
   - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
-  - src/game/fishArt.ts: 물고기 그림 규격 상수·팔레트(ramp)·유전→표현형·모프 키·합성 계획(fishLayerPlan)·그려야 할 파일 목록 / src/game/morphs.ts: 어종별 유전자 좌위와 색 팔레트(1단계 19종) / scripts/fish-art-list.ts: docs/fish-art.md 어종별 작업 목록 재생성
+  - src/game/fishArt.ts: 물고기 그림 규격 상수·팔레트(ramp)·유전→표현형·모프 키·합성 계획(fishLayerPlan)·그려야 할 파일 목록 / src/game/morphs.ts: 어종별 유전자 좌위와 색 팔레트(120종) / scripts/fish-art-notes.ts(생김새·모프 설명) + scripts/fish-art-list.ts: docs/fish-prompts.md 재생성
   - src/seed/world.ts: 지역 12 + 어종 120(실존 91, 고대 16, 오리지널 13) 원본. src/seed/build.ts: 시드 SQL 생성(지역·어종 upsert, 야생 개체수는 없을 때만). scripts/seed.ts(pnpm db:seed), scripts/species-table.ts(문서 표 재생성)
 - packages/server (@worldsea/server): Cloudflare Workers + Hono
   - src/app.ts: createApp(deps). 공통 CORS·오류 처리, /v1/* 는 Bearer 토큰 검증 후 요청마다 DB 연결. 테스트는 deps로 PGlite DB·로컬 키 검증기를 넣는다
@@ -168,7 +168,7 @@
 - docs/api.md: API 설계 v1 (공통 규칙, 오류 코드, 엔드포인트 전체와 구현 상태, WebSocket 메시지)
 - docs/species-population.md: 실존 어종 IUCN 조사표(출처 포함)와 게임 개체수 변환 규칙·결과
 - docs/setup-supabase.md: Supabase 프로젝트·로그인·마이그레이션·로컬 실행·배포 설정 순서
-- docs/fish-art.md: 물고기 그림 규격(84~89번)과 1단계 19종 작업 목록
+- docs/fish-art.md: 물고기 그림 규격(84~89번)과 작업 순서 / docs/fish-prompts.md: 120종 생성 프롬프트(기본 120 + 모프 78)와 파일 목록
 - docs/assets-main.md: 메인 화면(1단계) 에셋 목록 (파일명, 크기, 겹 순서, 9-slice, 생성 프롬프트, 우선순위)
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
 - docs/ui-main.md + docs/reference/main-ui-reference.png: 메인 화면 UI 기준 v2(대장님 제공, 탑다운 3/4 시점, 9:16). 해상도 360x640. 화면 배치·패널·색·아이콘·장면 구성은 이 기준을 따른다. 기준 이미지는 에셋으로 직접 쓰지 않고 진짜 픽셀아트로 새로 그린다. v1(쿼터뷰)은 참고 보관용. 샵 단계별 장면 기준: main-ui-reference.png(1단계), hub-stage2/3/4-reference.png(2~4단계). 컨셉 이미지이며 물고기가 아닌 생물(해파리, 펭귄, 거북 등)은 넣지 않는다.

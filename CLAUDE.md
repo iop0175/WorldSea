@@ -160,7 +160,7 @@
   - 에셋: src/assets/<폴더>/<이름>.png 를 넣으면 빌드 시 자동 인식(src/game/assets.ts, import.meta.glob)되어 임시 도형·도트 대신 쓰인다. 없는 에셋은 임시 그림 유지. 목록·크기·프롬프트는 docs/assets-main.md
   - scripts/fish-pixelize.py: 생성 물고기 그림 → 겹 규격 도트(48x32/16x10). numpy·scipy 필요
   - scripts/pixelize.py: 생성 도구 이미지를 목표 크기 진짜 픽셀아트로 정리(잘라내기, 축소, 색 수 줄이기, 알파 정리, --gray는 물고기용 회색 5단계). pillow 필요. scripts/fish-strip.py: 물고기 겹 2프레임 붙이기
-  - 물고기: src/assets/fish/<어종>/<s|l>/<겹>[.<모프>].png (첫 그림: 베타 큰 그림 body·line·fin_front·fin_back.halfmoon, 2026-10-06. 플라캇 기본 fin_back과 작은 그림은 아직), 합성 src/game/fishCompose.ts, 미리보기 fish-preview.html + src/preview/ (http://localhost:5173/fish-preview.html). 규격 docs/fish-art.md
+  - 물고기: src/assets/fish/<어종>/<s|l>/<겹>[.<모프>].png (베타 큰 그림 완료분: body·line·fin_front·fin_back(플라캇)·fin_back.halfmoon·pattern.marble, 2026-10-06. 베일·버터플라이와 작은 그림은 아직. 몸 기준 그림은 마블 베타 생성본, 다른 모프 겹은 이 몸에 맞춘다), 합성 src/game/fishCompose.ts, 미리보기 fish-preview.html + src/preview/ (http://localhost:5173/fish-preview.html). 규격 docs/fish-art.md
   - 글꼴: Galmuri(OFL, npm galmuri, 앱 내장). 본문 Galmuri11, 작은 글자 Galmuri9, 숫자 GalmuriMono
   - 캔버스에서 작은 한글 텍스트는 깨지므로 글자는 React UI 레이어에서 그린다
   - Capacitor(모바일)와 Tauri(PC) 래핑은 아직 안 함

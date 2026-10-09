@@ -9,6 +9,7 @@ import { LAYOUT, STAGE1_SPOTS } from '../game/layout';
 import { ICONS, PixelIcon, type PixelArt } from './PixelIcon';
 import { assetUrl, hasAsset, SLICES } from '../game/assets';
 import { MOCK_BADGES } from './mock';
+import { ExpeditionPanel } from './ExpeditionPanel';
 
 /** 게임 좌표(360x640 기준 px)를 화면 CSS 길이로 */
 const g = (n: number) => `calc(var(--px) * ${n})`;
@@ -107,6 +108,7 @@ function SceneOverlay({ v: P }: { v: MainView }) {
 }
 
 function HunterBand({ v }: { v: MainView }) {
+  const setTab = useGameStore((s) => s.setTab);
   const MOCK_HUNTERS = v.hunters;
   const hunting = MOCK_HUNTERS.filter((h) => h.kind === 'hunting').length;
   const done = MOCK_HUNTERS.filter((h) => h.kind === 'complete').length;
@@ -115,13 +117,13 @@ function HunterBand({ v }: { v: MainView }) {
       <div className="hunter-head">
         <span className="title">헌터</span>
         <span className="sub">{hunting}명 수색중 · {done}명 완료</span>
-        <button type="button" className="claim">모두 수령</button>
+        <button type="button" className="claim" disabled title="수령 기능 준비 중">모두 수령</button>
       </div>
       <div className="cards">
         {MOCK_HUNTERS.map((h, i) => {
           if (h.kind === 'hunting')
             return (
-              <button key={i} type="button" className="card hunting" style={bgImage(`ui/region/${h.regionId}`)} aria-label={`헌터 ${i + 1}, ${h.region}, ${h.done}/${h.total}, ${h.remain} 남음`}>
+              <button key={i} type="button" className="card hunting" onClick={() => setTab('expedition')} style={bgImage(`ui/region/${h.regionId}`)} aria-label={`헌터 ${i + 1}, ${h.region}, ${h.done}/${h.total}, ${h.remain} 남음`}>
                 <span className="region">{h.region}</span>
                 <span className="meta"><span>{h.done}/{h.total}</span><span>{h.remain}</span></span>
                 <span className="bar"><span style={{ width: `${(h.done / h.total) * 100}%` }} /></span>
@@ -129,7 +131,7 @@ function HunterBand({ v }: { v: MainView }) {
             );
           if (h.kind === 'idle')
             return (
-              <button key={i} type="button" className="card idle" aria-label={`${h.name}, 대기 중, 원정 보내기`}>
+              <button key={i} type="button" className="card idle" onClick={() => setTab('expedition')} aria-label={`${h.name}, 대기 중, 원정 보내기`}>
                 <span className="region">{h.name}</span><span className="done">대기 중</span>
               </button>
             );
@@ -182,7 +184,7 @@ function MainScreen({ preview }: { preview: boolean }) {
   return (
     <>
       <TopBar v={v} onMenu={() => setMenuOpen((o) => !o)} />
-      {activeTab === 'shop' ? <SceneOverlay v={v} /> : (
+      {activeTab === 'shop' ? <SceneOverlay v={v} /> : activeTab === 'expedition' ? <ExpeditionPanel preview={preview} /> : (
         <section className="sheet" style={box(12, 120, 336)} aria-label={TAB_INFO[activeTab].title}>
           <h2>{TAB_INFO[activeTab].title}</h2>
           {TAB_INFO[activeTab].lines.map((l) => <p key={l}>{l}</p>)}

@@ -6,9 +6,9 @@ import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { drizzle } from 'drizzle-orm/pglite';
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from 'jose';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import * as schema from '@worldsea/shared/db/main';
-import type { MeResponse } from '@worldsea/shared';
+import type { MeResponse, StartExpeditionResponse } from '@worldsea/shared';
 import { createApp } from '../src/app';
 import { keySetVerifier, supabaseVerifier } from '../src/auth';
 import type { Db } from '../src/db';
@@ -201,5 +201,160 @@ describe('지역 API', () => {
     const response = await call('/v1/regions', await sign(USER_B));
     expect(response.status).toBe(404);
     expect(((await response.json()) as { error: { code: string } }).error.code).toBe('needs_signup');
+  });
+});
+
+describe('수색 시작', () => {
+  const USER = '33333333-3333-3333-3333-333333333333';
+  const HUNTER = '44444444-4444-4444-8444-444444444444';
+  const SECOND = '55555555-5555-4555-8555-555555555555';
+  const THIRD = '66666666-6666-4666-8666-666666666666';
+  const FOURTH = '77777777-7777-4777-8777-777777777777';
+  let token: string;
+  const start = (body: unknown = { hunterId: HUNTER, regionId: 'hunt_fresh' }, key: string | null = 'start_1', auth = token) =>
+    app.request('/v1/expeditions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${auth}`, 'Content-Type': 'application/json', ...(key === null ? {} : { 'Idempotency-Key': key }) },
+      body: JSON.stringify(body),
+    }, {} as Env);
+  const state = async () => (await pg.query<{ stamina: number; time_tickets: number }>(`select stamina, time_tickets from players where id='${USER}'`)).rows[0];
+
+  beforeAll(async () => {
+    token = await sign(USER);
+    await pg.exec(`
+      insert into auth.users(id) values ('${USER}');
+      insert into players(id,nickname,stamina,time_tickets) values ('${USER}','수색대장',10,3);
+      insert into hunters(id,owner_id,name,created_at) values
+        ('${HUNTER}','${USER}','헌터1','2026-01-01'),
+        ('${SECOND}','${USER}','헌터2','2026-01-02'),
+        ('${THIRD}','${USER}','헌터3','2026-01-03'),
+        ('${FOURTH}','${USER}','헌터4','2026-01-04');
+      insert into regions(id,name_ko,kind,unlock_stage,required_level,requires_time_ticket,hunt_seconds,hunt_stamina_cost) values
+        ('hunt_fresh','수색 민물','freshwater',1,1,false,300,2),
+        ('hunt_ancient','수색 고대','ancient',4,20,true,900,5);
+      insert into items(id,name_ko,kind,grade) values ('hunt_float','수색 찌','float','common');
+    `);
+  });
+  beforeEach(async () => {
+    await pg.exec(`delete from expeditions where player_id='${USER}'; delete from subscriptions where player_id='${USER}';
+      update players set level=1,vip_tier=0,stamina=10,stamina_updated_at=now(),time_tickets=3 where id='${USER}';`);
+  });
+
+  it('첫 회차만 차감하고 지역의 고정 시간으로 원정을 만든다', async () => {
+    const r = await start({ hunterId: HUNTER, regionId: 'hunt_fresh', repeatTotal: 100 });
+    expect(r.status).toBe(201);
+    const body = await r.json() as StartExpeditionResponse;
+    expect(body.expedition).toMatchObject({ hunterId: HUNTER, regionId: 'hunt_fresh', repeatTotal: 100, staminaCost: 2, usedTimeTicket: false, options: { recovery: 'none' } });
+    expect(Date.parse(body.expedition.endsAt) - Date.parse(body.expedition.startedAt)).toBe(300000);
+    expect(body.serverTime).toBe(body.expedition.startedAt);
+    expect(await state()).toEqual({ stamina: 8, time_tickets: 3 });
+    const me = await (await call('/v1/me', token)).json() as MeResponse;
+    expect(me.hunters[0].expedition).toMatchObject({ id: body.expedition.id, status: 'active', repeatDone: 0 });
+  });
+
+  it('같은 키의 재시도는 완료·수령 후에도 새 원정이나 차감을 만들지 않는다', async () => {
+    const first = await (await start()).json() as StartExpeditionResponse;
+    await pg.exec(`update expeditions set status='claimed',claimed_at=now() where id='${first.expedition.id}'`);
+    const replay = await start({ hunterId: HUNTER, regionId: 'hunt_fresh', repeatTotal: 1, options: { recovery: 'none' } });
+    expect(replay.status).toBe(200);
+    expect((await replay.json() as StartExpeditionResponse).expedition).toEqual(first.expedition);
+    expect(await state()).toEqual({ stamina: 8, time_tickets: 3 });
+    expect((await pg.query(`select id from expeditions where player_id='${USER}'`)).rows).toHaveLength(1);
+    expect((await start({ hunterId: HUNTER, regionId: 'hunt_fresh', repeatTotal: 2 })).status).toBe(409);
+  });
+
+  it('원정이 진행 중이면 다른 요청 키로 다시 시작할 수 없다', async () => {
+    expect((await start()).status).toBe(201);
+    const r = await start(undefined, 'start_2');
+    expect(r.status).toBe(409);
+    expect(await r.json()).toMatchObject({ error: { code: 'hunter_busy' } });
+    expect(await state()).toEqual({ stamina: 8, time_tickets: 3 });
+  });
+
+  it('동시에 재전송하거나 다른 키로 시작해도 한 번만 차감한다', async () => {
+    const same = await Promise.all([start(), start()]);
+    expect(same.map((r) => r.status).sort()).toEqual([200, 201]);
+    expect(await state()).toEqual({ stamina: 8, time_tickets: 3 });
+    await pg.exec(`delete from expeditions where player_id='${USER}'; update players set stamina=10 where id='${USER}'`);
+    const different = await Promise.all([start(undefined, 'parallel_a'), start(undefined, 'parallel_b')]);
+    expect(different.map((r) => r.status).sort()).toEqual([201, 409]);
+    expect(await state()).toEqual({ stamina: 8, time_tickets: 3 });
+  });
+
+  it('인증·가입·요청 형식과 프리미엄 상한을 검사한다', async () => {
+    expect((await start(undefined, 'start_1', 'invalid')).status).toBe(401);
+    expect((await start(undefined, 'start_1', await sign(USER_B))).status).toBe(404);
+    expect((await start(undefined, null)).status).toBe(400);
+    expect((await start(undefined, 'bad key')).status).toBe(400);
+    for (const extra of [{ repeatTotal: 0 }, { repeatTotal: 201 }, { repeatTotal: 1.5 }, { playerId: USER_A }, { options: { recovery: 'premium' } }, { options: { recovery: 'premium', premiumCap: -1 } }]) {
+      expect((await start({ hunterId: HUNTER, regionId: 'hunt_fresh', ...extra })).status).toBe(400);
+    }
+    expect(await state()).toEqual({ stamina: 10, time_tickets: 3 });
+  });
+
+  it('남의 헌터·잠긴 슬롯·잠긴 지역·없는 지역을 거절하고 차감하지 않는다', async () => {
+    const other = (await pg.query<{ id: string }>(`select id from hunters where owner_id='${USER_A}' limit 1`)).rows[0].id;
+    expect((await start({ hunterId: other, regionId: 'hunt_fresh' })).status).toBe(404);
+    expect((await start({ hunterId: SECOND, regionId: 'hunt_fresh' })).status).toBe(403);
+    expect((await start({ hunterId: HUNTER, regionId: 'hunt_ancient' })).status).toBe(403);
+    expect((await start({ hunterId: HUNTER, regionId: 'unknown' })).status).toBe(404);
+    expect(await state()).toEqual({ stamina: 10, time_tickets: 3 });
+  });
+
+  it('기본 반복 100회, 구독 또는 높은 VIP는 200회까지 허용한다', async () => {
+    const body = { hunterId: HUNTER, regionId: 'hunt_fresh', repeatTotal: 200 };
+    expect((await start(body)).status).toBe(400);
+    await pg.exec(`insert into subscriptions(player_id,platform,product_id,active_until) values ('${USER}','stripe','monthly',now() - interval '1 second')`);
+    expect((await start(body)).status).toBe(400);
+    await pg.exec(`update subscriptions set active_until=now() + interval '1 day' where player_id='${USER}'`);
+    expect((await start(body)).status).toBe(201);
+    await pg.exec(`delete from expeditions where player_id='${USER}'; delete from subscriptions where player_id='${USER}'; update players set vip_tier=5 where id='${USER}'`);
+    expect((await start(body, 'vip_start')).status).toBe(201);
+  });
+
+  it('레벨·구독·VIP로 열린 슬롯은 같은 플레이어의 스태미너를 나눠 쓴다', async () => {
+    await pg.exec(`update players set level=10,vip_tier=5 where id='${USER}'; insert into subscriptions(player_id,platform,product_id,active_until) values ('${USER}','stripe','monthly',now() + interval '1 day')`);
+    for (const hunterId of [HUNTER, SECOND, THIRD, FOURTH]) {
+      expect((await start({ hunterId, regionId: 'hunt_fresh' }, hunterId)).status).toBe(201);
+    }
+    expect(await state()).toEqual({ stamina: 2, time_tickets: 3 });
+  });
+
+  it('부족한 스태미너·티켓은 거절하고 고대 입장 티켓은 반복 전체에 한 장만 쓴다', async () => {
+    await pg.exec(`update players set level=20,stamina=4 where id='${USER}'`);
+    const body = { hunterId: HUNTER, regionId: 'hunt_ancient', repeatTotal: 10 };
+    expect(await (await start(body)).json()).toMatchObject({ error: { code: 'insufficient_stamina' } });
+    expect(await state()).toEqual({ stamina: 4, time_tickets: 3 });
+    await pg.exec(`update players set stamina=10,time_tickets=0 where id='${USER}'`);
+    expect(await (await start(body)).json()).toMatchObject({ error: { code: 'insufficient_time_tickets' } });
+    expect(await state()).toEqual({ stamina: 10, time_tickets: 0 });
+    await pg.exec(`update players set time_tickets=3 where id='${USER}'`);
+    expect((await start(body)).status).toBe(201);
+    expect(await state()).toEqual({ stamina: 5, time_tickets: 2 });
+    expect((await start(body)).status).toBe(200);
+    expect(await state()).toEqual({ stamina: 5, time_tickets: 2 });
+  });
+
+  it('회복된 스태미너를 반영하고 남은 회복 시간을 보존한다', async () => {
+    await pg.exec(`update players set stamina=0,stamina_updated_at=now() - interval '650 seconds' where id='${USER}'`);
+    expect((await start()).status).toBe(201);
+    expect((await state()).stamina).toBe(0);
+    const me = await (await call('/v1/me', token)).json() as MeResponse;
+    expect(me.player.staminaNextSec).toBeGreaterThan(240);
+    expect(me.player.staminaNextSec).toBeLessThanOrEqual(250);
+  });
+
+  it('장비 종류를 검사하며 시작할 때 장비나 프리미엄을 소모하지 않는다', async () => {
+    expect((await start({ hunterId: HUNTER, regionId: 'hunt_fresh', options: { baitId: 'hunt_float' } })).status).toBe(400);
+    expect((await start({ hunterId: HUNTER, regionId: 'hunt_fresh', options: { floatId: 'missing' } })).status).toBe(400);
+    expect((await start({ hunterId: HUNTER, regionId: 'hunt_fresh', options: { floatId: 'hunt_float', recovery: 'premium', premiumCap: 0 } })).status).toBe(201);
+    expect((await pg.query<{ premium: number }>(`select premium from players where id='${USER}'`)).rows[0].premium).toBe(0);
+    expect((await pg.query(`select * from player_items where player_id='${USER}'`)).rows).toHaveLength(0);
+  });
+
+  it('브라우저의 요청 키 헤더를 CORS에서 허용한다', async () => {
+    const r = await app.request('/v1/expeditions', { method: 'OPTIONS', headers: { Origin: 'http://localhost:5173', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type,idempotency-key' } }, {} as Env);
+    expect(r.status).toBe(204);
+    expect(r.headers.get('Access-Control-Allow-Headers')?.toLowerCase()).toContain('idempotency-key');
   });
 });

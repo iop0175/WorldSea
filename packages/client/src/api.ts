@@ -1,4 +1,4 @@
-import type { ApiError, ApiErrorCode, HealthResponse, MeResponse } from '@worldsea/shared';
+import type { ApiError, ApiErrorCode, HealthResponse, MeResponse, RegionsResponse, StartExpeditionBody, StartExpeditionResponse } from '@worldsea/shared';
 import { accessToken } from './auth/supabase';
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8787';
@@ -30,6 +30,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
 export const fetchHealth = (signal?: AbortSignal) => request<HealthResponse>('/health', { signal });
 export const getMe = () => request<MeResponse>('/v1/me');
 export const createPlayer = (nickname: string) => request<MeResponse>('/v1/players', { method: 'POST', body: JSON.stringify({ nickname }) });
+export const getRegions = () => request<RegionsResponse>('/v1/regions');
+export const startExpedition = (body: StartExpeditionBody, key: string) => request<StartExpeditionResponse>('/v1/expeditions', {
+  method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify(body),
+});
 
 /** 실시간 채널 주소 (토큰은 쿼리로: 브라우저 WebSocket은 헤더를 못 붙임) */
 export async function realtimeUrl(): Promise<string | null> {

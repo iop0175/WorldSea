@@ -1,0 +1,2 @@
+ALTER TABLE "expeditions" ADD COLUMN "start_request_key" varchar(128);--> statement-breakpoint
+CREATE UNIQUE INDEX "expeditions_player_start_key" ON "expeditions" USING btree ("player_id","start_request_key");

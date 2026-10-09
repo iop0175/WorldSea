@@ -7,6 +7,7 @@ import type { Env } from './env';
 import { HttpError, sendError } from './errors';
 import { playerRoutes } from './routes/players';
 import { regionRoutes } from './routes/regions';
+import { expeditionRoutes } from './routes/expeditions';
 
 export type AppEnv = {
   Bindings: Env;
@@ -26,7 +27,7 @@ export function createApp(deps: AppDeps = defaultDeps) {
 
   app.use('*', (c, next) => {
     const allowed = c.env?.ALLOWED_ORIGINS?.split(',').map((s) => s.trim()).filter(Boolean);
-    return cors({ origin: allowed?.length ? allowed : '*', allowHeaders: ['Authorization', 'Content-Type'], maxAge: 600 })(c, next);
+    return cors({ origin: allowed?.length ? allowed : '*', allowHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key'], maxAge: 600 })(c, next);
   });
   app.onError((err, c) => sendError(c, err));
 
@@ -49,6 +50,7 @@ export function createApp(deps: AppDeps = defaultDeps) {
   });
   v1.route('/', playerRoutes);
   v1.route('/', regionRoutes);
+  v1.route('/', expeditionRoutes);
   app.route('/v1', v1);
 
   /**

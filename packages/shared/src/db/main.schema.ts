@@ -449,6 +449,8 @@ export const expeditions = pgTable(
       .notNull()
       .references(() => regions.id),
     status: expeditionStatus('status').notNull().default('active'),
+    /** 수색 시작 재시도의 중복 차감 방지. 기존 원정은 null */
+    startRequestKey: varchar('start_request_key', { length: 128 }),
     startedAt: ts('started_at').notNull().defaultNow(),
     endsAt: ts('ends_at').notNull(),
     /** 사냥 1회당 스태미너 소모량 */
@@ -468,6 +470,7 @@ export const expeditions = pgTable(
   },
   (t) => [
     index('expeditions_player_status_idx').on(t.playerId, t.status),
+    uniqueIndex('expeditions_player_start_key').on(t.playerId, t.startRequestKey),
     check('expeditions_repeat_range', sql`${t.repeatTotal} between 1 and 200 and ${t.repeatDone} between 0 and ${t.repeatTotal}`),
     index('expeditions_active_ends_idx').on(t.endsAt).where(sql`${t.status} = 'active'`),
     // 헌터 한 명은 동시에 원정 하나만

@@ -3,6 +3,7 @@
  * 요청 본문은 zod 스키마로 검증하고, 응답은 아래 타입을 따른다.
  */
 import { z } from 'zod';
+import type { HuntOptions } from '../db/types';
 
 export interface HealthResponse {
   ok: true;
@@ -18,6 +19,13 @@ export type ApiErrorCode =
   | 'nickname_taken'
   | 'invalid_request'
   | 'not_found'
+  | 'hunter_busy'
+  | 'hunter_slot_locked'
+  | 'region_locked'
+  | 'repeat_limit'
+  | 'insufficient_stamina'
+  | 'insufficient_time_tickets'
+  | 'idempotency_conflict'
   | 'internal';
 
 export interface ApiError {
@@ -31,6 +39,43 @@ export const createPlayerBody = z.object({
   nickname: z.string().trim().regex(NICKNAME_RE, '닉네임은 2~12자의 한글, 영문, 숫자만 쓸 수 있습니다'),
 });
 export type CreatePlayerBody = z.infer<typeof createPlayerBody>;
+
+export const huntOptionsBody = z.strictObject({
+  recovery: z.enum(['none', 'wait_regen', 'premium']).default('none'),
+  premiumCap: z.number().int().min(0).max(2147483647).optional(),
+  floatId: z.string().min(1).max(100).optional(),
+  baitId: z.string().min(1).max(100).optional(),
+  continueWithoutGear: z.boolean().optional(),
+  autoMinigame: z.boolean().optional(),
+  highGradeBiteMode: z.enum(['auto', 'pause']).optional(),
+}).refine((options) => options.recovery !== 'premium' || options.premiumCap !== undefined, {
+  message: '프리미엄 자동 회복에는 이번 반복의 사용 상한이 필요합니다', path: ['premiumCap'],
+});
+
+export const startExpeditionBody = z.strictObject({
+  hunterId: z.uuid(),
+  regionId: z.string().min(1).max(100),
+  repeatTotal: z.number().int().min(1).max(200).default(1),
+  options: huntOptionsBody.default({ recovery: 'none' }),
+});
+export type StartExpeditionBody = z.infer<typeof startExpeditionBody>;
+export const idempotencyKey = z.string().min(1).max(128).regex(/^[A-Za-z0-9_-]+$/, '요청 키는 영문·숫자·밑줄·하이픈 1~128자여야 합니다');
+
+export interface StartExpeditionResponse {
+  serverTime: string;
+  expedition: {
+    id: string;
+    hunterId: string;
+    regionId: string;
+    startedAt: string;
+    /** 첫 회차 종료 시각 */
+    endsAt: string;
+    repeatTotal: number;
+    options: HuntOptions;
+    staminaCost: number;
+    usedTimeTicket: boolean;
+  };
+}
 
 export interface HunterView {
   id: string;

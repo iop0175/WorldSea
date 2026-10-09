@@ -20,9 +20,16 @@
 | `nickname_taken` | 409 | 닉네임 중복 |
 | `invalid_request` | 400 | 요청 형식 오류 |
 | `not_found` | 404 | 대상 없음 |
+| `hunter_busy` | 409 | 이미 진행 중인 원정이 있는 헌터 |
+| `hunter_slot_locked` | 403 | 현재 레벨·구독·VIP로 열리지 않은 헌터 슬롯 |
+| `region_locked` | 403 | 지역 해금 레벨 부족 |
+| `repeat_limit` | 400 | 현재 구독·VIP의 반복 상한 초과 |
+| `insufficient_stamina` | 409 | 첫 회차를 시작할 스태미너 부족 |
+| `insufficient_time_tickets` | 409 | 고대 지역 입장 티켓 부족 |
+| `idempotency_conflict` | 409 | 같은 요청 키에 다른 수색 요청을 보냄 |
 | `internal` | 500 | 서버 오류 |
 
-- **멱등성**(설계, 수색 기능부터): 재화가 오가는 POST는 `Idempotency-Key` 헤더를 받아, 같은 키의 재시도는 한 번만 처리한다 (네트워크 재시도로 이중 지급 방지).
+- **멱등성**: 수색 시작 POST는 `Idempotency-Key` 헤더가 필수다(영문·숫자·밑줄·하이픈 1~128자). 키는 플레이어별로 원정에 보관한다. 같은 요청을 재전송하면 원정이 완료·수령된 뒤에도 기존 원정을 반환하고 다시 차감하지 않는다. 같은 키에 다른 요청을 보내면 `idempotency_conflict`. 이후 수령 등 재화가 오가는 POST에도 적용 예정.
 
 ## 엔드포인트
 
@@ -48,12 +55,25 @@
 ### 헌터·수색 (첫 기능)
 | 상태 | 메서드 | 경로 | 설명 |
 |---|---|---|---|
-| 🔜 | POST | `/v1/expeditions` | 수색 시작: `{ hunterId, regionId, repeatTotal, options }`. 슬롯·레벨·반복 상한·스태미너 검사 |
+| ✅ | POST | `/v1/expeditions` | 수색 시작: `{ hunterId, regionId, repeatTotal?, options? }`. 헌터 소유·슬롯·중복 수색·지역 레벨·반복 상한·스태미너·고대 티켓 검사 |
 | 🔜 | GET | `/v1/expeditions` | 진행 중·완료 원정 (진행 회차는 요청 시점 계산) |
-| 🔜 | POST | `/v1/expeditions/:id/claim` | 결과 수령 (물고기·재화·아이템을 한 트랜잭션으로 지급) |
+| 🔜 | POST | `/v1/expeditions/:id/claim` | 결과 배치 수령. 물고기는 회차 종료 시 야생 개체수 감소와 함께 소유권을 확정하고, 수령 시 중복 생성하지 않는다. 재화·아이템 지급과 수령 기록은 한 트랜잭션 |
 | 🔜 | POST | `/v1/expeditions/claim-all` | 모두 수령 |
 | 📝 | POST | `/v1/expeditions/:id/stop` | 반복 중지 |
 | 📝 | PATCH | `/v1/hunters/:id` | 헌터 이름·외형 변경 |
+
+수색 시작:
+- 기본 `repeatTotal`은 1, `options`는 `{ recovery: 'none' }`. 기본 상한 100회, 유효한 월 구독 또는 VIP 5 이상은 200회(임시 VIP 기준).
+- 플레이어를 행 잠금하고 첫 회차 스태미너 차감과 원정 생성을 한 트랜잭션으로 처리한다. 스태미너는 모든 헌터가 공유한다. 고대 지역 티켓은 반복 전체 입장에 1장만 차감한다.
+- 첫 회차 스태미너가 부족하면 시작을 거절한다. `wait_regen`·`premium`은 이후 반복 회차의 회복 정책이며, 진행 계산 단계에서 구현한다. `premium`은 `premiumCap`이 필수이고 시작 시 프리미엄을 쓰지 않는다.
+- 찌·미끼는 아이템 존재와 종류만 검사해 옵션에 보관한다. 장비 차감·부족 처리는 입질 시도 단계에서 한다.
+- 최초 응답은 201, 같은 키의 재전송은 200. 응답은 `{ serverTime, expedition: { id, hunterId, regionId, startedAt, endsAt, repeatTotal, options, staminaCost, usedTimeTicket } }`. 시작 응답의 `endsAt`은 첫 회차 종료 시각이다.
+- 현재 단계는 시작만 구현됐다. 경과 회차 계산·결과 확정·수령은 아직 구현되지 않아 시간이 지나도 원정은 `active` 상태로 남는다.
+
+클라이언트 연결:
+- 원정 탭과 헌터 카드에서 지역·헌터·반복 횟수·회복 정책을 선택한다. 현재 화면은 `none`·`wait_regen` 정책을 제공한다.
+- 응답 유실에 대비해 요청 내용과 키를 `sessionStorage`에 보관하고 같은 요청을 재시도할 때 키를 재사용한다. 시작 성공 후 `/v1/me`를 다시 조회해 스태미너와 헌터 현황을 갱신한다.
+- 환경 설정이 없는 미리보기에서는 수색을 시작할 수 없다. 실제 Supabase 없이 확인하려면 `docs/setup-supabase.md`의 `pnpm dev:smoke` 절차를 따른다.
 
 ### 입질 미니게임·특별 맵
 | 상태 | 메서드 | 경로 | 설명 |

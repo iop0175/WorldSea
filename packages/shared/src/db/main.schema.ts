@@ -34,6 +34,7 @@ import { authUsers } from 'drizzle-orm/supabase';
 import type {
   HuntOptions,
   ExpeditionResult,
+  ExpeditionClaimResult,
   Genotype,
   LocusDef,
   Reward,
@@ -459,6 +460,9 @@ export const expeditions = pgTable(
     repeatTotal: smallint('repeat_total').notNull().default(1),
     /** 반복 사냥: 끝난 횟수. 요청 시점에 경과 시간·스태미너로 계산해 갱신한다 (틱 루프 없음) */
     repeatDone: smallint('repeat_done').notNull().default(0),
+    /** 자연 회복 대기 중이면 endsAt은 다음 회차 시작 가능 시각이다 */
+    waitingForStamina: boolean('waiting_for_stamina').notNull().default(false),
+    premiumSpent: integer('premium_spent').notNull().default(0),
     /** 반복 사냥 옵션 (스태미너 부족 시 자동 회복, 장비, 미니게임 자동 설정) */
     options: jsonb('options').$type<HuntOptions>().notNull().default({ recovery: 'none' }),
     /** 반복이 중간에 멈춘 이유: 'stamina_empty' | 'premium_cap' | 'gear_empty' | 'manual' */
@@ -472,6 +476,7 @@ export const expeditions = pgTable(
     index('expeditions_player_status_idx').on(t.playerId, t.status),
     uniqueIndex('expeditions_player_start_key').on(t.playerId, t.startRequestKey),
     check('expeditions_repeat_range', sql`${t.repeatTotal} between 1 and 200 and ${t.repeatDone} between 0 and ${t.repeatTotal}`),
+    check('expeditions_premium_spent_nonneg', sql`${t.premiumSpent} >= 0`),
     index('expeditions_active_ends_idx').on(t.endsAt).where(sql`${t.status} = 'active'`),
     // 헌터 한 명은 동시에 원정 하나만
     uniqueIndex('expeditions_one_active_per_hunter')
@@ -479,6 +484,15 @@ export const expeditions = pgTable(
       .where(sql`${t.status} = 'active'`),
   ],
 ).enableRLS();
+
+/** 수령 응답 보관: 응답 유실 재시도도 같은 배치를 반환한다 */
+export const expeditionClaims = pgTable('expedition_claims', {
+  playerId: uuid('player_id').notNull().references(() => players.id, { onDelete: 'cascade' }),
+  requestKey: varchar('request_key', { length: 128 }).notNull(),
+  target: text('target').notNull(), // 'all' 또는 원정 id
+  response: jsonb('response').$type<{ serverTime: string; claimed: ExpeditionClaimResult; hasMore: boolean }>().notNull(),
+  createdAt: createdAt(),
+}, (t) => [primaryKey({ columns: [t.playerId, t.requestKey] })]).enableRLS();
 
 /**
  * 희귀어 입질: 입질이 생기는 순간 야생 개체 1마리를 reserved로 옮겨 잡아두고,
@@ -506,6 +520,8 @@ export const rareBites = pgTable(
     attemptsUsed: smallint('attempts_used').notNull().default(0),
     /** 자동 진행으로 판정했는지 (자동 감점 적용 여부, 분석용) */
     isAuto: boolean('is_auto').notNull().default(false),
+    /** 높은 등급의 직접 진행 입질. 만료되면 자동 시도 없이 바다로 돌아간다 */
+    pausedRepeat: boolean('paused_repeat').notNull().default(false),
     fishId: uuid('fish_id').references((): AnyPgColumn => fish.id),
     createdAt: createdAt(),
     resolvedAt: ts('resolved_at'),
@@ -643,6 +659,9 @@ export const fish = pgTable(
     tankId: uuid('tank_id').references(() => tanks.id, { onDelete: 'set null' }),
     status: fishStatus('status').notNull().default('holding'),
     caughtRegionId: text('caught_region_id').references(() => regions.id),
+    expeditionId: uuid('expedition_id').references(() => expeditions.id, { onDelete: 'set null' }),
+    /** 포획 시 소유권은 확정하고 배치 수령까지 보관한다 */
+    pendingClaim: boolean('pending_claim').notNull().default(false),
     nickname: varchar('nickname', { length: 20 }),
     bornAt: ts('born_at').notNull().defaultNow(),
   },
@@ -650,6 +669,7 @@ export const fish = pgTable(
     index('fish_owner_status_idx').on(t.ownerId, t.status),
     index('fish_tank_idx').on(t.tankId),
     index('fish_species_morph_idx').on(t.speciesId, t.morphKey),
+    index('fish_expedition_idx').on(t.expeditionId),
     check('fish_health_range', sql`${t.health} between 0 and 100`),
     check('fish_inbreeding_range', sql`${t.inbreeding} between 0 and 1`),
     check('fish_maturity_range', sql`${t.maturity} between 0 and 1`),

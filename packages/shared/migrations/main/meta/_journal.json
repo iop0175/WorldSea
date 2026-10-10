@@ -71,6 +71,20 @@
       "when": 1790994793019,
       "tag": "0009_expedition_start_key",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1791615905107,
+      "tag": "0010_expedition_progress",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1791616767355,
+      "tag": "0011_expedition_claims",
+      "breakpoints": true
     }
   ]
 }

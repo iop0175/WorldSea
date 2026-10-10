@@ -5,6 +5,7 @@ import { expeditions, hunters, players, subscriptions } from '@worldsea/shared/d
 import type { AppEnv } from '../app';
 import { HttpError } from '../errors';
 import type { Db } from '../db';
+import { advanceExpeditions } from '../game/expeditionProgress';
 
 /** 임시 시작 지급값 (밸런싱 단계에서 확정) */
 const STARTING = { gold: 1000, premium: 0, timeTickets: 3 } as const;
@@ -53,6 +54,7 @@ playerRoutes.post('/players', async (c) => {
 });
 
 export async function loadMe(db: Db, userId: string, now: Date): Promise<MeResponse | null> {
+  await advanceExpeditions(db, userId, now);
   const [p] = await db.select().from(players).where(eq(players.id, userId));
   if (!p) return null;
   const st = computeStamina(p.stamina, p.staminaUpdatedAt, now, p.level);
@@ -81,13 +83,14 @@ export async function loadMe(db: Db, userId: string, now: Date): Promise<MeRespo
       tutorialStep: p.tutorialStep,
     },
     hunters: hs.map((h) => {
-      const e = exps.find((x) => x.hunterId === h.id);
+      const e = exps.find((x) => x.hunterId === h.id && x.status === 'active')
+        ?? exps.filter((x) => x.hunterId === h.id).sort((a, b) => b.startedAt.getTime() - a.startedAt.getTime())[0];
       return {
         id: h.id,
         name: h.name,
         skinId: h.skinId,
         expedition: e
-          ? { id: e.id, regionId: e.regionId, status: e.status as 'active' | 'completed', repeatDone: e.repeatDone, repeatTotal: e.repeatTotal, endsAt: e.endsAt.toISOString() }
+          ? { id: e.id, regionId: e.regionId, status: e.status as 'active' | 'completed', repeatDone: e.repeatDone, repeatTotal: e.repeatTotal, endsAt: e.endsAt.toISOString(), waitingForStamina: e.waitingForStamina, stopReason: e.stopReason }
           : null,
       };
     }),

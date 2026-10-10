@@ -3,7 +3,7 @@
  * 요청 본문은 zod 스키마로 검증하고, 응답은 아래 타입을 따른다.
  */
 import { z } from 'zod';
-import type { HuntOptions } from '../db/types';
+import type { ExpeditionClaimResult, ExpeditionResult, HuntOptions } from '../db/types';
 
 export interface HealthResponse {
   ok: true;
@@ -89,7 +89,35 @@ export interface HunterView {
     repeatDone: number;
     repeatTotal: number;
     endsAt: string;
+    waitingForStamina?: boolean;
+    stopReason?: string | null;
   };
+}
+
+export interface ExpeditionsResponse {
+  serverTime: string;
+  expeditions: {
+    id: string;
+    hunterId: string;
+    regionId: string;
+    status: 'active' | 'completed';
+    repeatDone: number;
+    repeatTotal: number;
+    endsAt: string;
+    waitingForStamina: boolean;
+    stopReason: string | null;
+    premiumSpent: number;
+    result: ExpeditionResult | null;
+    claimable: boolean;
+    pendingBites: number;
+  }[];
+}
+
+export interface ClaimExpeditionsResponse {
+  serverTime: string;
+  claimed: ExpeditionClaimResult;
+  /** 같은 대상에 아직 수령할 배치가 남았는지 */
+  hasMore: boolean;
 }
 
 /** 내 상태. 시간에 따라 변하는 값(스태미너)은 서버가 요청 시점에 계산해 준다 */

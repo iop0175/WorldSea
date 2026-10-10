@@ -201,7 +201,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 /* 원정 탭 스켈레톤 */
 .expedition-sheet { left: calc(var(--px) * 12); top: calc(var(--px) * 48); width: calc(var(--px) * 336); height: calc(var(--px) * 434); overflow-y: auto; }
 .expedition-heading { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--px) * 8); }
-.expedition-heading button { border: 1px solid var(--edge-light); background: #23394a; padding: calc(var(--px) * 4); font-size: calc(var(--px) * 9); }
+.expedition-heading button:not(.claim) { border: 1px solid var(--edge-light); background: #23394a; color: var(--text); padding: calc(var(--px) * 4); font-size: calc(var(--px) * 9); }
 .expedition-form { display: grid; gap: calc(var(--px) * 6); margin-top: calc(var(--px) * 8); }
 .expedition-form label { display: grid; gap: calc(var(--px) * 4); }
 .expedition-form input, .expedition-form select { min-width: 0; width: 100%; min-height: calc(var(--px) * 28); padding: calc(var(--px) * 4); border: 1px solid var(--edge-light); background: #0b151c; color: var(--text); font: inherit; }
@@ -214,6 +214,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .expedition-sheet .expedition-success { color: var(--stamina); }
 .expedition-sheet .expedition-error { color: #ffd774; }
 .expedition-note { padding-top: calc(var(--px) * 8); font-size: calc(var(--px) * 9); }
+.expedition-results { margin: calc(var(--px) * 8) 0 calc(var(--px) * 12); }
+.expedition-results h3 { margin: 0; color: var(--title); font-size: calc(var(--px) * 12); }
+.expedition-result { margin-top: calc(var(--px) * 6); padding: calc(var(--px) * 8); border: 1px solid var(--edge-light); background: #122532; }
+.expedition-result strong { color: var(--title); }
+.expedition-result small { display: block; margin: calc(var(--px) * 4) 0; color: var(--muted); }
+.expedition-result button { margin-top: calc(var(--px) * 4); }
 
 /* 개발용 서버 상태 */
 .server { left: calc(var(--px) * 4); bottom: calc(var(--px) * 146); width: calc(var(--px) * 5); height: calc(var(--px) * 5); background: #888; }

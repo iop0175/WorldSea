@@ -6,9 +6,10 @@ import { join } from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { drizzle } from 'drizzle-orm/pglite';
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from 'jose';
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as schema from '@worldsea/shared/db/main';
-import type { MeResponse, StartExpeditionResponse } from '@worldsea/shared';
+import type { ExpeditionsResponse, MeResponse, StartExpeditionResponse } from '@worldsea/shared';
+import * as hunt from '../src/game/hunt';
 import { createApp } from '../src/app';
 import { keySetVerifier, supabaseVerifier } from '../src/auth';
 import type { Db } from '../src/db';
@@ -356,5 +357,66 @@ describe('수색 시작', () => {
     const r = await app.request('/v1/expeditions', { method: 'OPTIONS', headers: { Origin: 'http://localhost:5173', 'Access-Control-Request-Method': 'POST', 'Access-Control-Request-Headers': 'content-type,idempotency-key' } }, {} as Env);
     expect(r.status).toBe(204);
     expect(r.headers.get('Access-Control-Allow-Headers')?.toLowerCase()).toContain('idempotency-key');
+  });
+});
+
+describe('수색 진행 API', () => {
+  const USER = '88888888-8888-4888-8888-888888888888';
+  const HUNTER = '99999999-9999-4999-8999-999999999999';
+  let token: string;
+  const start = (key: string) => app.request('/v1/expeditions', {
+    method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json', 'Idempotency-Key': key },
+    body: JSON.stringify({ hunterId: HUNTER, regionId: 'progress_test' }),
+  }, {} as Env);
+  beforeAll(async () => {
+    token = await sign(USER);
+    await pg.exec(`insert into auth.users(id) values ('${USER}');
+      insert into players(id,nickname,stamina) values ('${USER}','진행대장',10);
+      insert into hunters(id,owner_id,name) values ('${HUNTER}','${USER}','진행헌터');
+      insert into regions(id,name_ko,kind,unlock_stage,required_level,special_map_chance,hunt_seconds,hunt_stamina_cost)
+        values ('progress_test','진행 시험 지역','freshwater',1,1,0,300,1);`);
+  });
+  it('인증·플레이어를 검사하고 다른 플레이어의 원정을 공개하지 않는다', async () => {
+    expect((await call('/v1/expeditions')).status).toBe(401);
+    const e = (await (await start('progress_1')).json() as StartExpeditionResponse).expedition;
+    const own = await (await call('/v1/expeditions', token)).json() as ExpeditionsResponse;
+    expect(own.expeditions.map((x) => x.id)).toContain(e.id);
+    const other = await (await call('/v1/expeditions', await sign(USER_A))).json() as ExpeditionsResponse;
+    expect(other.expeditions.map((x) => x.id)).not.toContain(e.id);
+  });
+  it('내 상태 조회가 지난 회차를 완료하고 같은 헌터로 다시 출발할 수 있다', async () => {
+    const outcome = vi.spyOn(hunt, 'huntOutcome').mockReturnValue('gold');
+    try {
+      await pg.exec(`update expeditions set ends_at=now()-interval '1 second' where player_id='${USER}'`);
+      const me = await (await call('/v1/me', token)).json() as MeResponse;
+      expect(me.hunters[0].expedition).toMatchObject({ status: 'completed', repeatDone: 1 });
+      const list = await (await call('/v1/expeditions', token)).json() as ExpeditionsResponse;
+      expect(list.expeditions[0]).toMatchObject({ status: 'completed', result: { gold: 20, exp: 10 } });
+      expect(me.player.gold).toBe(0);
+      expect((await start('progress_2')).status).toBe(201);
+      const refreshed = await (await call('/v1/me', token)).json() as MeResponse;
+      expect(refreshed.hunters[0].expedition?.status).toBe('active');
+    } finally { outcome.mockRestore(); }
+  });
+  const claim = (path: string, key?: string, bearer = token) => app.request(path, {
+    method: 'POST', headers: { ...(bearer ? { Authorization: `Bearer ${bearer}` } : {}), ...(key ? { 'Idempotency-Key': key } : {}) },
+  }, {} as Env);
+  it('수령 HTTP API는 인증·요청 키·원정 소유권을 검사한다', async () => {
+    const list = await (await call('/v1/expeditions', token)).json() as ExpeditionsResponse;
+    const id = list.expeditions.find((e) => e.status === 'completed')!.id;
+    expect((await claim('/v1/expeditions/claim-all', 'auth', '')).status).toBe(401);
+    expect((await claim('/v1/expeditions/claim-all')).status).toBe(400);
+    expect((await claim('/v1/expeditions/invalid/claim', 'invalid')).status).toBe(400);
+    expect((await claim(`/v1/expeditions/${id}/claim`, 'foreign', await sign(USER_A))).status).toBe(404);
+    const first = await claim(`/v1/expeditions/${id}/claim`, 'http_claim');
+    expect(first.status).toBe(200);
+    const result = await first.json();
+    expect(result).toMatchObject({ claimed: { gold: 20, exp: 10 }, hasMore: false });
+    expect(await (await claim(`/v1/expeditions/${id}/claim`, 'http_claim')).json()).toEqual(result);
+    expect((await claim('/v1/expeditions/claim-all', 'http_claim')).status).toBe(409);
+    const all = await claim('/v1/expeditions/claim-all', 'http_all');
+    expect(await all.json()).toMatchObject({ claimed: { gold: 0 }, hasMore: false });
+    const me = await (await call('/v1/me', token)).json() as MeResponse;
+    expect(me.player).toMatchObject({ gold: 20, exp: 10 });
   });
 });

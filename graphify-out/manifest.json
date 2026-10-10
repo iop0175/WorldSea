@@ -24,9 +24,9 @@
     "semantic_hash": ""
   },
   "packages/client/src/api.ts": {
-    "mtime": 1791556826.607003,
-    "seen": 1791556860.5620966,
-    "ast_hash": "a520b0b23caf04daac3b016770ed7ee0",
+    "mtime": 1791617017.3860753,
+    "seen": 1791617993.2521994,
+    "ast_hash": "6e31d6c06498c97df6d114acec9c4b3a",
     "semantic_hash": ""
   },
   "packages/client/src/auth/supabase.ts": {
@@ -78,21 +78,21 @@
     "semantic_hash": ""
   },
   "packages/client/src/session.ts": {
-    "mtime": 1790993442.1935725,
-    "seen": 1790994938.8175442,
-    "ast_hash": "2120787cd55d16d70589a6ec754225e7",
+    "mtime": 1791617017.3860753,
+    "seen": 1791617993.2529204,
+    "ast_hash": "466e665dcfee0c2fb0c6e96f5133c113",
     "semantic_hash": ""
   },
   "packages/client/src/store.ts": {
-    "mtime": 1790993442.1935725,
-    "seen": 1790994938.8175452,
-    "ast_hash": "6728458a728068e8c5980bcb0be7e25d",
+    "mtime": 1791617017.3848805,
+    "seen": 1791617993.252922,
+    "ast_hash": "32a7596b016353d2fb7de97e40cca713",
     "semantic_hash": ""
   },
   "packages/client/src/ui/App.tsx": {
-    "mtime": 1791556826.608013,
-    "seen": 1791556860.5638065,
-    "ast_hash": "140aab6433b31987ff72b847a1a0549b",
+    "mtime": 1791617085.452815,
+    "seen": 1791617993.2529237,
+    "ast_hash": "3560c82012900a556cab4b5531830881",
     "semantic_hash": ""
   },
   "packages/client/src/ui/PixelIcon.tsx": {
@@ -174,15 +174,15 @@
     "semantic_hash": ""
   },
   "packages/server/src/routes/expeditions.ts": {
-    "mtime": 1791556826.6117349,
-    "seen": 1791556860.565783,
-    "ast_hash": "e265da6969afadaa7d93eb1694bd250f",
+    "mtime": 1791616733.381021,
+    "seen": 1791617993.253929,
+    "ast_hash": "7bc670f0b428e785736f7b5b57a3ceb5",
     "semantic_hash": ""
   },
   "packages/server/src/routes/players.ts": {
-    "mtime": 1790993442.2018726,
-    "seen": 1790994938.8175626,
-    "ast_hash": "1133a2e95b4e488a69d1694bc1ba1e80",
+    "mtime": 1791615622.6508374,
+    "seen": 1791616151.4955423,
+    "ast_hash": "1cf3f94e9d9e99c98004852501c06d3c",
     "semantic_hash": ""
   },
   "packages/server/src/routes/regions.ts": {
@@ -192,9 +192,9 @@
     "semantic_hash": ""
   },
   "packages/server/test/api.test.ts": {
-    "mtime": 1791556826.6127977,
-    "seen": 1791556860.566105,
-    "ast_hash": "5ff93427db7b1ef2fa691aac9779d9b1",
+    "mtime": 1791617334.4148839,
+    "seen": 1791617993.2540638,
+    "ast_hash": "8f702cb3178d261e9dec68423b2d66ef",
     "semantic_hash": ""
   },
   "packages/server/tsconfig.json": {
@@ -288,9 +288,9 @@
     "semantic_hash": ""
   },
   "packages/shared/migrations/main/meta/_journal.json": {
-    "mtime": 1791556826.6154497,
-    "seen": 1791556860.5681293,
-    "ast_hash": "6aaa7af4871507e49312bab08fe0a201",
+    "mtime": 1791616767.3558822,
+    "seen": 1791617993.2551627,
+    "ast_hash": "9c42700d8172a5a60eb1f33443e1f406",
     "semantic_hash": ""
   },
   "packages/shared/package.json": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "packages/shared/src/api/types.ts": {
-    "mtime": 1791556826.6164951,
-    "seen": 1791556860.5687115,
-    "ast_hash": "aa5adee58c8e173ceda576f191c8e618",
+    "mtime": 1791616665.555196,
+    "seen": 1791617993.2555552,
+    "ast_hash": "6b576d392c7397371d6c0df3e1b6b409",
     "semantic_hash": ""
   },
   "packages/shared/src/db/log.schema.ts": {
@@ -330,15 +330,15 @@
     "semantic_hash": ""
   },
   "packages/shared/src/db/main.schema.ts": {
-    "mtime": 1791556826.617,
-    "seen": 1791556860.5689132,
-    "ast_hash": "5b460f6fd65cac5bd598af2611214f79",
+    "mtime": 1791617453.4004903,
+    "seen": 1791617993.2556324,
+    "ast_hash": "bb0a6994d2987da336e71a610f721300",
     "semantic_hash": ""
   },
   "packages/shared/src/db/types.ts": {
-    "mtime": 1790993442.2221594,
-    "seen": 1790994938.8175898,
-    "ast_hash": "741e8c4d7926a358df0f7f23454e9c24",
+    "mtime": 1791616665.5541275,
+    "seen": 1791617993.2556336,
+    "ast_hash": "fa71a6d2aedb23c4261e4eeb20e8909f",
     "semantic_hash": ""
   },
   "packages/shared/src/game/constants.test.ts": {
@@ -348,9 +348,9 @@
     "semantic_hash": ""
   },
   "packages/shared/src/game/constants.ts": {
-    "mtime": 1790993442.2221594,
-    "seen": 1790994938.817592,
-    "ast_hash": "55aeee050490561beee80e8e88913d88",
+    "mtime": 1791616665.5562074,
+    "seen": 1791617993.2557008,
+    "ast_hash": "15558677bac23b9afa4dc80b677b4d29",
     "semantic_hash": ""
   },
   "packages/shared/src/game/hunters.ts": {
@@ -486,15 +486,15 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1791556826.591216,
-    "seen": 1791556860.570678,
-    "ast_hash": "4567953e65344ab54f6aed67b17bef57",
+    "mtime": 1791617989.7360592,
+    "seen": 1791617993.2573254,
+    "ast_hash": "01ce7e7a53eafc7be82f0cdce687e4a8",
     "semantic_hash": ""
   },
   "docs/api.md": {
-    "mtime": 1791556826.5951266,
-    "seen": 1791556860.5706813,
-    "ast_hash": "025ec0abfbc8df1b46897a03542c152b",
+    "mtime": 1791617843.4614205,
+    "seen": 1791617993.2573266,
+    "ast_hash": "bf5027dcf7d6bd474f17c7c9655e5836",
     "semantic_hash": ""
   },
   "docs/assets-main.md": {
@@ -504,15 +504,15 @@
     "semantic_hash": ""
   },
   "docs/screens.md": {
-    "mtime": 1790993442.1798477,
-    "seen": 1790994938.817618,
-    "ast_hash": "48829ec5390fd8c4a8be10de0d8a0bcc",
+    "mtime": 1791616070.605172,
+    "seen": 1791616151.4991121,
+    "ast_hash": "2bb1e4ce95dafa9180839ccf78dbd9c4",
     "semantic_hash": ""
   },
   "docs/setup-supabase.md": {
-    "mtime": 1791556826.596139,
-    "seen": 1791556860.570883,
-    "ast_hash": "c25024ae3557f6f58de40d8d33d29089",
+    "mtime": 1791617843.4614205,
+    "seen": 1791617993.2575748,
+    "ast_hash": "a510ec84744f6f59f68648128b4ed9b2",
     "semantic_hash": ""
   },
   "docs/species-population.md": {
@@ -576,15 +576,15 @@
     "semantic_hash": ""
   },
   "packages/client/src/ui/ExpeditionPanel.tsx": {
-    "mtime": 1791556826.6085186,
-    "seen": 1791556860.5638108,
-    "ast_hash": "2ae403bfb070eb4c891ba2834fe8e87c",
+    "mtime": 1791617718.4335485,
+    "seen": 1791617993.2529256,
+    "ast_hash": "37fea4864c24517a1e2c04dbe4316213",
     "semantic_hash": ""
   },
   "packages/server/scripts/smoke.ts": {
-    "mtime": 1791556826.610693,
-    "seen": 1791556860.5648093,
-    "ast_hash": "6366c2ef57ab5e6bdcb2fb9e48ad4880",
+    "mtime": 1791616812.4534976,
+    "seen": 1791617993.2533455,
+    "ast_hash": "ac2ec7fded99cc0a3a1c90f3fdcd4982",
     "semantic_hash": ""
   },
   "artifacts/expedition-after.png": {
@@ -735,6 +735,42 @@
     "mtime": 1791556826.5211082,
     "seen": 1791556860.5725348,
     "ast_hash": "8673b8a140be6a532b05c7cb73566bbe",
+    "semantic_hash": ""
+  },
+  "packages/server/src/game/expeditionProgress.ts": {
+    "mtime": 1791617261.6842213,
+    "seen": 1791617993.2536871,
+    "ast_hash": "864085de69d07505c4a16a3df601d2af",
+    "semantic_hash": ""
+  },
+  "packages/server/src/game/hunt.ts": {
+    "mtime": 1791615364.1815894,
+    "seen": 1791616151.495406,
+    "ast_hash": "b4a6b18c27a823eb80c6b0133963b0ad",
+    "semantic_hash": ""
+  },
+  "packages/server/test/expeditionProgress.test.ts": {
+    "mtime": 1791617261.6854591,
+    "seen": 1791617993.254065,
+    "ast_hash": "52cc92ba34f2e99b96905b90697e6028",
+    "semantic_hash": ""
+  },
+  "packages/shared/migrations/main/meta/0010_snapshot.json": {
+    "mtime": 1791616211.6443899,
+    "seen": 1791616254.47678,
+    "ast_hash": "fcafeab8825493a9f5a355f893f66b87",
+    "semantic_hash": ""
+  },
+  "packages/server/src/game/expeditionClaims.ts": {
+    "mtime": 1791616733.381021,
+    "seen": 1791617993.2536848,
+    "ast_hash": "fd579e8176c577291b31bd231ec72604",
+    "semantic_hash": ""
+  },
+  "packages/shared/migrations/main/meta/0011_snapshot.json": {
+    "mtime": 1791616767.3558822,
+    "seen": 1791617993.2551606,
+    "ast_hash": "490e2177bf71fbba7e2affca8046cc02",
     "semantic_hash": ""
   }
 }

@@ -24,13 +24,28 @@ for (const name of readdirSync(migrations).filter((n) => n.endsWith('.sql')).sor
 }
 await pg.query('insert into auth.users(id) values ($1)', [user.id]);
 const db = drizzle(pg, { schema }) as unknown as Db;
-await db.insert(schema.players).values({ id: user.id, nickname: '테스트대장', stamina: 60, timeTickets: 3 });
-await db.insert(schema.hunters).values({ ownerId: user.id, name: '헌터 1' });
+await db.insert(schema.players).values({ id: user.id, nickname: '테스트대장', stamina: 60, timeTickets: 3, gold: 1000, premium: 20 });
+const [hunter] = await db.insert(schema.hunters).values({ ownerId: user.id, name: '헌터 1' }).returning();
 await db.insert(schema.regions).values([
-  { id: 'asia_fresh', nameKo: '아시아 민물', kind: 'freshwater', unlockStage: 1, requiredLevel: 1, huntSeconds: 300, huntStaminaCost: 2 },
-  { id: 'central_america_fresh', nameKo: '중미 민물', kind: 'freshwater', unlockStage: 1, requiredLevel: 1, huntSeconds: 300, huntStaminaCost: 1, sortOrder: 1 },
+  { id: 'asia_fresh', nameKo: '아시아 민물', kind: 'freshwater', unlockStage: 1, requiredLevel: 1, huntSeconds: 5, huntStaminaCost: 2, specialMapChance: 0 },
+  { id: 'central_america_fresh', nameKo: '중미 민물', kind: 'freshwater', unlockStage: 1, requiredLevel: 1, huntSeconds: 5, huntStaminaCost: 1, sortOrder: 1, specialMapChance: 0 },
   { id: 'devonian', nameKo: '데본기', kind: 'ancient', unlockStage: 4, requiredLevel: 35, requiresTimeTicket: true, huntSeconds: 1800, huntStaminaCost: 5, sortOrder: 2 },
 ]);
+// 로컬 화면에서 바로 수령을 확인할 예시. 실제 지역 시간·DB에는 영향을 주지 않는다.
+await db.insert(schema.species).values({ id: 'betta_splendens', nameKo: '베타', scientificName: 'Betta splendens', regionId: 'asia_fresh', rarity: 'common', tempMin: 24, tempMax: 28, salinity: 'fresh', maxSizeCm: 7, basePrice: 100, initialPopulation: 100 });
+await db.insert(schema.wildPopulations).values({ speciesId: 'betta_splendens', count: 98 });
+await db.insert(schema.items).values({ id: 'float_common', nameKo: '일반 찌', kind: 'float', grade: 'common', chanceBonus: 0.05 });
+const demoAt = new Date(Date.now() - 10_000);
+const [demo] = await db.insert(schema.expeditions).values({
+  playerId: user.id, hunterId: hunter!.id, regionId: 'asia_fresh', status: 'completed',
+  startedAt: new Date(demoAt.getTime() - 10_000), endsAt: demoAt, staminaCost: 2, repeatTotal: 2, repeatDone: 2,
+  result: { catches: [{ speciesId: 'betta_splendens', count: 2 }], gold: 40, premium: 1, exp: 20, items: [{ id: 'float_common', count: 3 }], misses: 0 },
+}).returning();
+await db.insert(schema.fish).values(['male', 'female'].map((sex) => ({
+  ownerId: user.id, speciesId: 'betta_splendens', origin: 'wild' as const, sex: sex as 'male' | 'female',
+  genotype: {}, morphKey: 'wild', sizeCm: 5, health: 95, growthRate: 1, maturity: 1,
+  expeditionId: demo!.id, pendingClaim: true, caughtRegionId: 'asia_fresh', bornAt: demoAt, statsUpdatedAt: demoAt,
+})));
 const { publicKey, privateKey } = await generateKeyPair('ES256');
 const keys = createLocalJWKSet({ keys: [{ ...await exportJWK(publicKey), kid: 'smoke', alg: 'ES256' }] });
 const token = await new SignJWT({ role: 'authenticated', email: user.email }).setProtectedHeader({ alg: 'ES256', kid: 'smoke' })

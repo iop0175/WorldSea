@@ -135,6 +135,8 @@
   - migrations/main/0006_species_daily_catches.sql: 취약 어종 플레이어별 일일 포획 수
   - migrations/main/0007_bite_gear_drop.sql, 0008_bite_attempts.sql: 입질 장비를 시도별 기록(bite_attempts)으로 옮김, rare_bites.attempts_used
   - migrations/main/0009_expedition_start_key.sql: 수색 시작 요청 키와 플레이어별 유니크 인덱스(재시도 중복 차감 방지)
+  - migrations/main/0010_expedition_progress.sql: 회복 대기·프리미엄 사용량·높은 등급 입질 정지·수령 대기 개체와 원정 연결
+  - migrations/main/0011_expedition_claims.sql: 플레이어별 수령 요청 키·대상·응답 보관(RLS, 중복 지급 방지)
   - migrations/log/0000_init.sql, scripts/verify.mjs (PGlite로 마이그레이션 전체·트리거 검증)
   - src/game/population.ts: 실제 야생 현황 → 게임 개체수 변환 규칙
   - src/game/fishArt.ts: 물고기 그림 규격 상수·팔레트(ramp)·유전→표현형·모프 키·합성 계획(fishLayerPlan)·그려야 할 파일 목록 / src/game/morphs.ts: 어종별 유전자 좌위와 색 팔레트(120종) / scripts/fish-art-notes.ts(생김새·모프 설명) + scripts/fish-art-list.ts: docs/fish-prompts.md 재생성
@@ -144,7 +146,7 @@
   - src/auth.ts: Supabase 토큰 검증 (JWKS 비대칭 키 기본, SUPABASE_JWT_SECRET 있으면 HS256). 토큰의 sub만 신뢰
   - src/db.ts: postgres-js + Drizzle, Hyperdrive(배포) 또는 DATABASE_URL(로컬)
   - src/routes/players.ts: GET /v1/me(스태미너는 요청 시점 계산), POST /v1/players(가입: 플레이어+첫 헌터, 한 트랜잭션)
-  - src/routes/expeditions.ts: POST /v1/expeditions(수색 시작). 헌터 소유·슬롯·진행 중 원정·지역 레벨·반복 상한·장비 종류 검사, 플레이어 행 잠금 후 첫 회차 스태미너·고대 입장 티켓 차감과 원정 생성을 한 트랜잭션으로 처리. Idempotency-Key로 재시도 중복 차감 방지(0009_expedition_start_key.sql 필요). 진행 계산·수령은 아직 미구현.
+  - src/routes/expeditions.ts: POST /v1/expeditions(수색 시작). 헌터 소유·슬롯·진행 중 원정·지역 레벨·반복 상한·장비 종류 검사, 플레이어 행 잠금 후 첫 회차 스태미너·고대 입장 티켓 차감과 원정 생성을 한 트랜잭션으로 처리. Idempotency-Key로 재시도 중복 차감 방지(0009_expedition_start_key.sql 필요). GET /v1/expeditions와 src/game/expeditionProgress.ts가 요청 시점 진행·포획·입질 만료를 확정한다(0010_expedition_progress.sql 필요). src/game/expeditionClaims.ts가 개별/모두 배치 수령과 중복 지급 방지를 처리한다(0011_expedition_claims.sql 필요).
   - /ws?token= : 토큰 검증 후 그 사용자 채널(Durable Object)에 연결
   - test/api.test.ts: vitest + PGlite(실제 마이그레이션) + 로컬 서명 토큰으로 인증·가입·내 정보 검증
   - src/realtime/player-channel.ts: 플레이어별 Durable Object, WebSocket Hibernation, push() RPC
@@ -194,7 +196,11 @@
 완료: 수색 시작 API(POST /v1/expeditions). 첫 회차 시작만 구현됐으며 진행 계산 전에는 원정이 active로 유지된다. 추가 마이그레이션 0009_expedition_start_key.sql은 실제 Supabase에 적용해야 한다.
 완료: 원정 화면 스켈레톤과 수색 시작 API 연결. 임시 DB로 모바일·데스크톱 브라우저에서 시작·반복 상한 오류·응답 유실 재시도·단일 차감·새로고침 상태 유지 확인.
 검증(2026-10-09): 원격 물고기 아트 작업 통합 후 전체 타입 검사·shared/server 테스트 58개·메인/로그 DB 마이그레이션 및 안전장치 검증·클라이언트 빌드·Workers 배포 dry-run 통과. graphify 코드 그래프 갱신 완료(SQL 파서 미설치로 SQL 내부 관계는 제외).
-다음: (1) 수색 진행 계산·결과 확정 → (2) 배치 수령과 원정 화면 추가 연결 → (3) 입질 미니게임. (대장님과 단계별 구현 진행, 2026-10-03)
+완료(2026-10-10): 수색 진행 계산·결과 확정과 GET /v1/expeditions. 내 상태 조회·원정 조회·수색 시작 요청에서 지난 회차를 시각 순서로 처리한다. 공유 스태미너·자연 회복 대기·프리미엄 사용 상한 및 일일 제한·취약종 일일 한도·보호종 놓아줌·포획 소유권 확정·입질 예약/자동 판정/만료·특별 맵 24시간 보관 구현. 결과 재화·아이템·경험치는 수령 전 보관한다. 서버 src/game/hunt.ts의 HUNT_TEMP는 밸런싱 전 임시 확률·수치 원본, src/game/expeditionProgress.ts는 진행 트랜잭션이다. 신규 마이그레이션 0010_expedition_progress.sql은 실제 Supabase에 적용해야 한다.
+검증(2026-10-10): 전체 타입 검사·shared/server 테스트 79개·DB 마이그레이션 및 안전장치·클라이언트 빌드·Workers 배포 dry-run 통과. 마지막 야생 개체 경쟁, 동시/반복 조회, 저장 실패 롤백, 계정 삭제, 자리 비움 중 입질 만료를 검증했다. Drizzle 스냅샷과 현재 스키마 일치 확인, graphify 코드 그래프 갱신 완료(SQL 파서 미설치로 SQL 내부 관계는 제외). 실제 Supabase 마이그레이션 적용과 배포는 하지 않았다.
+완료(2026-10-10): 배치 수령 API(POST /v1/expeditions/:id/claim, /claim-all), 수령 요청 키·응답 저장으로 중복 지급 방지, 50개/50원정씩 처리. 기존 포획 개체를 수령 상태로 옮기며 재화·아이템·경험치와 수령 기록을 한 트랜잭션으로 확정한다. 진행 중 수령과 입질 대기 원정의 후속 결과 수령을 지원한다. 원정 결과 목록·개별/모두 수령·진행/회복 대기 표시·5초 상태 갱신, 샵 허브 모두 수령/완료 카드 연결. 실제 DB에는 0011_expedition_claims.sql 적용 필요.
+검증(2026-10-10, 수령 단계): 전체 타입 검사·shared/server 테스트 89개·DB 마이그레이션과 가드·클라이언트 빌드·Workers dry-run 통과. 실제 모바일 크기 브라우저에서 로그인, 예시 수령, 3회 반복 수색, 완료, 모두 수령, 새로고침 후 상태 유지 확인. 로컬 데모는 5초 수색과 수령 대기 베타 2마리/예시 보상을 사용하며 실제 DB·지역 시드는 변경하지 않는다.
+다음: 직접 입질 미니게임·특별 맵 시도 API/화면. (문서 순서에 따라 수령 단계 완료, 2026-10-10)
 수색 구현 시 참고할 결정: 대상 등급 69, 포획 시점 70, 놓아줌 71·72, 어종 결정 73, 취약 한도 74, 하루 기준 75, 보관 76, 자리 비움 77, 시도 78, 조작 79, 확률 표시 80, 등급 난이도 81, 특별 맵 82. 준비된 규칙 함수: needsMinigame·releaseReward·gameDay·nextDailyReset·BITE_MAX_ATTEMPTS(shared/game/constants.ts), vulnerableDailyLimit·statusFromPercent(shared/game/population.ts), computeStamina(shared/game/stamina.ts), hunterSlots(shared/game/hunters.ts).
 임시 수치(밸런싱 전): 지역 해금 레벨 1~40·수색 5~30분·스태미너 1~5(seed/world.ts), 어종 기준 가격 100/300/1000/4000/20000(seed/build.ts), 개체수 규칙 값(game/population.ts), 스태미너 기본 최대 60·300초당 1 회복(shared/game/stamina.ts), 시작 지급 골드 1000·시간 티켓 3(server/routes/players.ts), 헌터 슬롯 VIP 기준 5등급(shared/game/hunters.ts).
 이후 밸런싱 수치: 재화량, 광고 일일 한도, 길드 규모/퀘스트 보상, VIP 티어 포인트/혜택, 경매 허용 레벨, 유료 호스팅 전환 시점, 고대 어종 모프 유전자.

@@ -2,7 +2,7 @@ import { useEffect, useState, type CSSProperties, type FormEvent } from 'react';
 import { BOTTOM_TABS, BOTTOM_TAB_LABEL_KO, type BottomTab } from '@worldsea/shared';
 import { ApiRequestError, createPlayer, fetchHealth } from '../api';
 import { signInWithEmail, signInWithProvider, signOut } from '../auth/supabase';
-import { refreshMe } from '../session';
+import { collectResults, refreshMe } from '../session';
 import { toView, type MainView } from './viewModel';
 import { useGameStore } from '../store';
 import { LAYOUT, STAGE1_SPOTS } from '../game/layout';
@@ -20,7 +20,7 @@ const box = (x: number, y: number, w?: number, h?: number): CSSProperties => ({
 const TAB_INFO: Record<Exclude<BottomTab, 'shop'>, { title: string; lines: string[] }> = {
   farm: { title: '사육', lines: ['수조 환경(수온·염도·수질)과 자동화 설비', '교배와 성장 관리'] },
   expedition: { title: '원정', lines: ['헌터를 보내 수색 (1회 / 반복 최대 100회)', '희귀어 입질 미니게임'] },
-  dex: { title: '도감', lines: ['어종 122종과 모프 기록', '보전 상태(안정·취약·보호종·야생 멸종)'] },
+  dex: { title: '도감', lines: ['어종 120종과 모프 기록', '보전 상태(안정·취약·보호종·야생 멸종)'] },
   store: { title: '상점', lines: ['찌·미끼(3등급까지), 헌터 외형', '구독과 VIP'] },
 };
 
@@ -109,6 +109,8 @@ function SceneOverlay({ v: P }: { v: MainView }) {
 
 function HunterBand({ v }: { v: MainView }) {
   const setTab = useGameStore((s) => s.setTab);
+  const claimStatus = useGameStore((s) => s.claimStatus);
+  const claimable = useGameStore((s) => s.expeditions.some((e) => e.claimable));
   const MOCK_HUNTERS = v.hunters;
   const hunting = MOCK_HUNTERS.filter((h) => h.kind === 'hunting').length;
   const done = MOCK_HUNTERS.filter((h) => h.kind === 'complete').length;
@@ -117,7 +119,7 @@ function HunterBand({ v }: { v: MainView }) {
       <div className="hunter-head">
         <span className="title">헌터</span>
         <span className="sub">{hunting}명 수색중 · {done}명 완료</span>
-        <button type="button" className="claim" disabled title="수령 기능 준비 중">모두 수령</button>
+        <button type="button" className="claim" disabled={!claimable || claimStatus.busy} onClick={() => { setTab('expedition'); void collectResults(); }}>{claimStatus.busy ? '수령 중…' : '모두 수령'}</button>
       </div>
       <div className="cards">
         {MOCK_HUNTERS.map((h, i) => {
@@ -137,7 +139,7 @@ function HunterBand({ v }: { v: MainView }) {
             );
           if (h.kind === 'complete')
             return (
-              <button key={i} type="button" className="card complete" style={bgImage('ui/card_complete_bg')} aria-label={`헌터 ${i + 1}, ${h.region}, 완료, 수령 가능`}>
+              <button key={i} type="button" className="card complete" onClick={() => setTab('expedition')} style={bgImage('ui/card_complete_bg')} aria-label={`헌터 ${i + 1}, ${h.region}, 완료, 수령 가능`}>
                 <span className="region">{h.region}</span><span className="done">완료 · 수령</span>
               </button>
             );

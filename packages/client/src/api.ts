@@ -1,4 +1,4 @@
-import type { ApiError, ApiErrorCode, HealthResponse, MeResponse, RegionsResponse, StartExpeditionBody, StartExpeditionResponse } from '@worldsea/shared';
+import type { ApiError, ApiErrorCode, ClaimExpeditionsResponse, ExpeditionsResponse, HealthResponse, MeResponse, RegionsResponse, StartExpeditionBody, StartExpeditionResponse } from '@worldsea/shared';
 import { accessToken } from './auth/supabase';
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8787';
@@ -31,6 +31,11 @@ export const fetchHealth = (signal?: AbortSignal) => request<HealthResponse>('/h
 export const getMe = () => request<MeResponse>('/v1/me');
 export const createPlayer = (nickname: string) => request<MeResponse>('/v1/players', { method: 'POST', body: JSON.stringify({ nickname }) });
 export const getRegions = () => request<RegionsResponse>('/v1/regions');
+export const getExpeditions = () => request<ExpeditionsResponse>('/v1/expeditions');
+export const claimExpedition = (target: string, key: string) => request<ClaimExpeditionsResponse>(
+  target === 'all' ? '/v1/expeditions/claim-all' : `/v1/expeditions/${encodeURIComponent(target)}/claim`,
+  { method: 'POST', headers: { 'Idempotency-Key': key } },
+);
 export const startExpedition = (body: StartExpeditionBody, key: string) => request<StartExpeditionResponse>('/v1/expeditions', {
   method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify(body),
 });

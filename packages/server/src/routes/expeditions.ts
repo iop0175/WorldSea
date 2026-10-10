@@ -1,14 +1,47 @@
 import { Hono } from 'hono';
-import { and, asc, eq, gt } from 'drizzle-orm';
+import { and, asc, eq, gt, inArray } from 'drizzle-orm';
 import {
-  computeStamina, HUNTER_SLOT_TEMP, hunterSlots, huntOptionsBody, idempotencyKey,
-  REPEAT_MAX_BASE, REPEAT_MAX_PREMIUM, startExpeditionBody, type StartExpeditionResponse,
+  computeStamina, hasExpeditionRewards, HUNTER_SLOT_TEMP, hunterSlots, huntOptionsBody, idempotencyKey,
+  REPEAT_MAX_BASE, REPEAT_MAX_PREMIUM, startExpeditionBody, type ExpeditionsResponse, type StartExpeditionResponse,
 } from '@worldsea/shared';
-import { expeditions, hunters, items, players, regions, subscriptions } from '@worldsea/shared/db/main';
+import { expeditions, hunters, items, players, rareBites, regions, subscriptions } from '@worldsea/shared/db/main';
 import type { AppEnv } from '../app';
 import { HttpError } from '../errors';
+import { advanceExpeditions, settleExpeditions } from '../game/expeditionProgress';
+import { claimExpeditions } from '../game/expeditionClaims';
+import { z } from 'zod';
 
 export const expeditionRoutes = new Hono<AppEnv>();
+
+expeditionRoutes.get('/expeditions', async (c) => {
+  const now = new Date();
+  const [player] = await c.var.db.select({ id: players.id }).from(players).where(eq(players.id, c.var.user.id));
+  if (!player) throw new HttpError(404, 'needs_signup', '닉네임을 정하고 시작해 주세요');
+  await advanceExpeditions(c.var.db, player.id, now);
+  const rows = await c.var.db.select().from(expeditions).where(and(eq(expeditions.playerId, player.id), inArray(expeditions.status, ['active', 'completed']))).orderBy(asc(expeditions.startedAt), asc(expeditions.id));
+  const bites = await c.var.db.select({ expeditionId: rareBites.expeditionId }).from(rareBites).where(and(eq(rareBites.playerId, player.id), eq(rareBites.status, 'pending')));
+  return c.json<ExpeditionsResponse>({ serverTime: now.toISOString(), expeditions: rows.map((e) => ({
+    id: e.id, hunterId: e.hunterId, regionId: e.regionId, status: e.status as 'active' | 'completed',
+    repeatDone: e.repeatDone, repeatTotal: e.repeatTotal, endsAt: e.endsAt.toISOString(),
+    waitingForStamina: e.waitingForStamina, stopReason: e.stopReason, premiumSpent: e.premiumSpent, result: e.result,
+    claimable: hasExpeditionRewards(e.result), pendingBites: bites.filter((b) => b.expeditionId === e.id).length,
+  })) });
+});
+
+expeditionRoutes.post('/expeditions/claim-all', async (c) => {
+  const key = idempotencyKey.safeParse(c.req.header('Idempotency-Key'));
+  if (!key.success) throw new HttpError(400, 'invalid_request', '올바른 Idempotency-Key 헤더가 필요합니다');
+  await advanceExpeditions(c.var.db, c.var.user.id, new Date());
+  return c.json(await claimExpeditions(c.var.db, c.var.user.id, 'all', key.data));
+});
+
+expeditionRoutes.post('/expeditions/:id/claim', async (c) => {
+  const key = idempotencyKey.safeParse(c.req.header('Idempotency-Key'));
+  const id = z.uuid().safeParse(c.req.param('id'));
+  if (!key.success || !id.success) throw new HttpError(400, 'invalid_request', '올바른 원정 id와 Idempotency-Key 헤더가 필요합니다');
+  await advanceExpeditions(c.var.db, c.var.user.id, new Date());
+  return c.json(await claimExpeditions(c.var.db, c.var.user.id, id.data, key.data));
+});
 
 expeditionRoutes.post('/expeditions', async (c) => {
   const parsed = startExpeditionBody.safeParse(await c.req.json().catch(() => null));
@@ -17,6 +50,7 @@ expeditionRoutes.post('/expeditions', async (c) => {
   if (!key.success) throw new HttpError(400, 'invalid_request', '올바른 Idempotency-Key 헤더가 필요합니다');
   const body = parsed.data;
   const playerId = c.var.user.id;
+  await advanceExpeditions(c.var.db, playerId, new Date());
 
   const result = await c.var.db.transaction(async (tx) => {
     // 공유 스태미너와 같은 헌터의 중복 시작을 플레이어 단위로 직렬화한다.
@@ -31,6 +65,8 @@ expeditionRoutes.post('/expeditions', async (c) => {
       }
       return { expedition: previous, now, replayed: true };
     }
+
+    await settleExpeditions(tx, player, now);
 
     const owned = await tx.select().from(hunters).where(eq(hunters.ownerId, playerId)).orderBy(asc(hunters.createdAt), asc(hunters.id));
     const hunterIndex = owned.findIndex((hunter) => hunter.id === body.hunterId);

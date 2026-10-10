@@ -1,4 +1,10 @@
 /** 게임 공용 상수. 숫자 밸런싱은 아직 미정이라 확정된 규칙만 둔다. */
+import type { ExpeditionResult } from '../db/types';
+
+export function hasExpeditionRewards(result: ExpeditionResult | null): boolean {
+  return !!result && (result.gold > 0 || (result.premium ?? 0) > 0 || result.exp > 0 ||
+    result.catches.some((c) => c.count > 0) || !!result.items?.some((i) => i.count > 0));
+}
 
 export const RARITIES = ['common', 'uncommon', 'rare', 'epic', 'legendary'] as const;
 export type Rarity = (typeof RARITIES)[number];

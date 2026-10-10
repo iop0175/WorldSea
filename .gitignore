@@ -6,6 +6,7 @@ node_modules
 dist
 .wrangler
 .dev.vars
+.artifacts/
 
 # graphify의 로컬 캐시·경로·자동 백업
 graphify-out/cache/

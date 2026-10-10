@@ -68,6 +68,16 @@ export interface ExpeditionResult {
   misses?: number;
 }
 
+/** 한 배치에서 실제 수령한 개체와 보상 */
+export interface ExpeditionClaimResult {
+  fishIds: string[];
+  catches: { speciesId: string; count: number }[];
+  gold: number;
+  premium: number;
+  exp: number;
+  items: { id: string; count: number }[];
+}
+
 /** 퀘스트·이벤트 보상 */
 export interface Reward {
   gold?: number;

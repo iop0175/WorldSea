@@ -31,9 +31,9 @@
 
 - 움직임(확정, 87번): 꼬리 흔들기 2프레임(꼬리가 있는 겹만 2장: 몸 꼬리부·꼬리지느러미). 위아래 떠다니기·좌우 방향 전환(뒤집기)·속도 변화는 코드로 연출한다. 작은 그림·큰 그림 모두 2프레임.
 
-- 제작 방식(확정, 88번): 생성 도구로 큰 그림(48×32)을 먼저 만들고 pixelize.py로 정리한다(회색 명암 단계 강제·겹 분리 기능을 추가 예정). 작은 그림(16×10)은 자동 축소하지 않고 손으로 다듬는다. 어종별 생성 프롬프트와 겹 규격 문서는 Claude가 만든다. 규모: 120종 × 2벌 × 2프레임 + 모프 겹 ≈ 1,000~1,500장.
+- 제작 방식(확정, 88번): 생성 도구로 큰 그림(48×32)을 먼저 만들고 fish-pixelize.py로 정리한다(배경 제거·회색 단계 강제). 겹 나누기는 손으로(또는 Claude가 영역을 지정해) 한다. 작은 그림(16×10)은 자동 축소하지 않고 손으로 다듬는다. 어종별 생성 프롬프트와 겹 규격 문서는 Claude가 만든다. 규모: 120종 × 2벌 × 2프레임 + 모프 겹 ≈ 1,000~1,500장.
 
-- 준비물(확정, 89번): 1단계 지역 19종부터. 규격 문서 docs/fish-art.md(파일 위치·크기·프레임·겹·회색 5단계·작업 순서·어종별 프롬프트), 모프 정의 shared/game/morphs.ts(실존 91종 모프 + 고대·오리지널 기본 팔레트, 임시 우열: 야생형 우성), 120종 생성 프롬프트 docs/fish-prompts.md(원본 scripts/fish-art-notes.ts), 합성 규칙 shared/game/fishArt.ts, 합성 코드 client/src/game/fishCompose.ts, 미리보기 페이지 client/fish-preview.html(개발 서버 전용, 빌드에 넣지 않음), pixelize.py --gray, fish-pixelize.py(물고기 전용 정리: 배경 자동 제거·흐림·회색 4단계+윤곽 #333), fish-strip.py. 시드가 morphs.ts의 좌위를 species.gene_loci에 넣는다.
+- 준비물(확정, 89번): 그림 작업은 1단계 지역부터(프롬프트·모프 정의는 120종 모두 준비). 규격 문서 docs/fish-art.md(파일 위치·크기·프레임·겹·회색 5단계·작업 순서·어종별 프롬프트), 모프 정의 shared/game/morphs.ts(실존 91종 모프 + 고대·오리지널 기본 팔레트, 임시 우열: 야생형 우성), 120종 생성 프롬프트 docs/fish-prompts.md(원본 scripts/fish-art-notes.ts), 합성 규칙 shared/game/fishArt.ts, 합성 코드 client/src/game/fishCompose.ts, 미리보기 페이지 client/fish-preview.html(개발 서버 전용, 빌드에 넣지 않음), pixelize.py --gray, fish-pixelize.py(물고기 전용 정리: 배경 자동 제거·흐림·회색 4단계+윤곽 #333), fish-strip.py. 시드가 morphs.ts의 좌위를 species.gene_loci에 넣는다.
 
 ## 등급
 - 고정 희귀도: common / uncommon / rare / epic / legendary
@@ -124,7 +124,7 @@
   - src/index.ts: 공용 타입·상수 진입점 (클라이언트는 여기만 가져온다. DB 스키마는 번들에 넣지 않는다)
   - src/game/constants.ts: 확정 규칙 상수(등급, 하단 탭, 헌터 슬롯 최대, 반복 최대, 상점 최고 등급, 입질 제한 시간)
   - src/api/types.ts: API 응답 타입
-  - src/db/main.schema.ts: 메인 DB 35개 테이블 (서버 전용, '@worldsea/shared/db/main')
+  - src/db/main.schema.ts: 메인 DB 36개 테이블 (서버 전용, '@worldsea/shared/db/main')
   - src/db/log.schema.ts: 로그 DB 6개 테이블(gacha_logs 포함)
   - src/db/types.ts: jsonb 공용 타입
   - migrations/main/0000_init.sql (생성), 0001_safety_guards.sql (수동 트리거: 보호종 감소 차단, 교배 불가 차단, 경매 불가 차단 + 기본 헌터 외형 시드)

@@ -1,4 +1,4 @@
-import type { ApiError, ApiErrorCode, ClaimExpeditionsResponse, ExpeditionsResponse, HealthResponse, MeResponse, RegionsResponse, StartExpeditionBody, StartExpeditionResponse } from '@worldsea/shared';
+import type { ApiError, ApiErrorCode, BiteAttemptBody, BiteAttemptResponse, BitesResponse, ClaimExpeditionsResponse, EncounterAttemptBody, EncounterAttemptResponse, EncountersResponse, RegionDetailResponse, ExpeditionsResponse, HealthResponse, MeResponse, RegionsResponse, StartExpeditionBody, StartExpeditionResponse } from '@worldsea/shared';
 import { accessToken } from './auth/supabase';
 
 const API_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:8787';
@@ -36,6 +36,12 @@ export const claimExpedition = (target: string, key: string) => request<ClaimExp
   target === 'all' ? '/v1/expeditions/claim-all' : `/v1/expeditions/${encodeURIComponent(target)}/claim`,
   { method: 'POST', headers: { 'Idempotency-Key': key } },
 );
+export const getRegion = (id: string) => request<RegionDetailResponse>(`/v1/regions/${encodeURIComponent(id)}`);
+export const getBites = () => request<BitesResponse>('/v1/bites');
+export const getEncounters = () => request<EncountersResponse>('/v1/encounters');
+/** attemptNo가 재전송 식별자라 응답 유실 후에는 같은 본문을 다시 보내면 저장된 결과를 받는다 */
+export const attemptBite = (id: string, body: BiteAttemptBody) => request<BiteAttemptResponse>(`/v1/bites/${encodeURIComponent(id)}/attempt`, { method: 'POST', body: JSON.stringify(body) });
+export const attemptEncounter = (id: string, body: EncounterAttemptBody) => request<EncounterAttemptResponse>(`/v1/encounters/${encodeURIComponent(id)}/attempt`, { method: 'POST', body: JSON.stringify(body) });
 export const startExpedition = (body: StartExpeditionBody, key: string) => request<StartExpeditionResponse>('/v1/expeditions', {
   method: 'POST', headers: { 'Idempotency-Key': key }, body: JSON.stringify(body),
 });

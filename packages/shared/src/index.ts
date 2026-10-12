@@ -5,6 +5,7 @@
  */
 export type { Genotype, HuntOptions, ExpeditionResult, Reward, LocusDef, AlleleDef, Dominance, GeneLayer } from './db/types';
 export * from './game/constants';
+export * from './game/biteGauge';
 export * from './api/types';
 export * from './game/stamina';
 export * from './game/hunters';

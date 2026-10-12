@@ -5,6 +5,7 @@ import { collectResults, refreshMe } from '../session';
 import { useGameStore } from '../store';
 import { mmss } from './viewModel';
 import { REGION_NAME_KO } from './mock';
+import { BitePanel } from './BitePanel';
 
 const PREVIEW_REGIONS: RegionView[] = [
   { id: 'asia_fresh', nameKo: '아시아 민물', kind: 'freshwater', unlockStage: 1, requiredLevel: 1, requiresTimeTicket: false, specialMapChance: 0.01, huntSeconds: 300, huntStaminaCost: 1, unlocked: true },
@@ -104,13 +105,14 @@ export function ExpeditionPanel({ preview }: { preview: boolean }) {
       {preview && <p>미리보기입니다. 로그인 후 수색을 시작할 수 있습니다.</p>}
       {claimStatus.message && <p className="expedition-success" role="status">{claimStatus.message}</p>}
       {claimStatus.error && <p className="expedition-error" role="alert">{claimStatus.error}</p>}
+      <BitePanel preview={preview} />
       {!preview && <div className="expedition-results" aria-label="수령 대기 결과">
         <div className="expedition-heading"><h3>수령 대기</h3><button type="button" className="claim" disabled={loading || claimStatus.busy || !expeditions.some((e) => e.claimable)} onClick={() => void collectResults()}>{claimStatus.busy ? '수령 중…' : '결과 모두 수령'}</button></div>
         {!expeditions.some((e) => e.claimable || e.pendingBites > 0) && <p>수령할 결과가 없습니다. 헌터를 보내 보세요.</p>}
         {expeditions.filter((e) => e.claimable || e.pendingBites > 0).map((e) => <article key={e.id} className="expedition-result">
           <strong>{regionName(e.regionId)}</strong><span> · {e.repeatDone}/{e.repeatTotal}회</span>
           <p>물고기 {e.result?.catches.reduce((sum, c) => sum + c.count, 0) ?? 0}마리 · 골드 {e.result?.gold ?? 0}{!!e.result?.premium && ` · 프리미엄 ${e.result.premium}`}{!!e.result?.items?.length && ` · 아이템 ${e.result.items.reduce((sum, i) => sum + i.count, 0)}개`}</p>
-          {e.pendingBites > 0 && <small>입질 {e.pendingBites}건 대기 · 직접 잡기 화면 준비 중</small>}
+          {e.pendingBites > 0 && <small>입질 {e.pendingBites}건 대기 · 위 "입질 · 특별 맵"에서 직접 잡을 수 있습니다</small>}
           <button type="button" className="claim" disabled={loading || !e.claimable || claimStatus.busy} onClick={() => void collectResults(e.id)}>이 원정 수령</button>
         </article>)}
       </div>}

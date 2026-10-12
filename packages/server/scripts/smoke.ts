@@ -46,6 +46,21 @@ await db.insert(schema.fish).values(['male', 'female'].map((sex) => ({
   genotype: {}, morphKey: 'wild', sizeCm: 5, health: 95, growthRate: 1, maturity: 1,
   expeditionId: demo!.id, pendingClaim: true, caughtRegionId: 'asia_fresh', bornAt: demoAt, statsUpdatedAt: demoAt,
 })));
+// 직접 잡기 화면 확인용 예시: 희귀 어종 입질 1건(30분)과 특별 맵 1건(24시간). 임시 DB에만 들어간다.
+await db.insert(schema.species).values([
+  { id: 'cyprinus_rubrofuscus', nameKo: '코이', scientificName: 'Cyprinus rubrofuscus', regionId: 'asia_fresh', rarity: 'rare', tempMin: 5, tempMax: 28, salinity: 'fresh', maxSizeCm: 80, basePrice: 1000, initialPopulation: 100 },
+  { id: 'moon_koi', nameKo: '달빛 비단잉어', scientificName: null, regionId: 'asia_fresh', rarity: 'epic', isOriginal: true, isSpecialMapOnly: true, tempMin: 10, tempMax: 25, salinity: 'fresh', maxSizeCm: 60, basePrice: 4000, initialPopulation: 10 },
+]);
+await db.insert(schema.wildPopulations).values([{ speciesId: 'cyprinus_rubrofuscus', count: 79, reserved: 1 }, { speciesId: 'moon_koi', count: 10 }]);
+await db.insert(schema.items).values([
+  { id: 'bait_common', nameKo: '일반 미끼', kind: 'bait', grade: 'common', chanceBonus: 0.03 },
+  { id: 'float_rare', nameKo: '희귀 찌', kind: 'float', grade: 'rare', chanceBonus: 0.1 },
+]);
+await db.insert(schema.playerItems).values([
+  { playerId: user.id, itemId: 'float_common', count: 3 }, { playerId: user.id, itemId: 'float_rare', count: 2 }, { playerId: user.id, itemId: 'bait_common', count: 2 },
+]);
+await db.insert(schema.rareBites).values({ expeditionId: demo!.id, playerId: user.id, speciesId: 'cyprinus_rubrofuscus', expiresAt: new Date(Date.now() + 30 * 60_000), minigameSeed: 424242 });
+await db.insert(schema.specialEncounters).values({ playerId: user.id, expeditionId: demo!.id, regionId: 'asia_fresh', speciesId: 'moon_koi', expiresAt: new Date(Date.now() + 24 * 3600_000) });
 const { publicKey, privateKey } = await generateKeyPair('ES256');
 const keys = createLocalJWKSet({ keys: [{ ...await exportJWK(publicKey), kid: 'smoke', alg: 'ES256' }] });
 const token = await new SignJWT({ role: 'authenticated', email: user.email }).setProtectedHeader({ alg: 'ES256', kid: 'smoke' })

@@ -37,36 +37,40 @@ export class HubScene extends Phaser.Scene {
   create() {
     const g = this.add.graphics().setDepth(0);
     g.fillStyle(C.void).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-    if (hasAsset('bg/hub_stage1')) {
-      this.add.image(0, LAYOUT.scene.y, 'bg/hub_stage1').setOrigin(0).setDepth(0);
+    const hasSceneArt = hasAsset('bg/hub_stage1');
+    if (hasSceneArt) {
+      this.add.image(0, LAYOUT.scene.y, 'bg/hub_stage1')
+        .setOrigin(0)
+        .setDisplaySize(GAME_WIDTH, LAYOUT.scene.h)
+        .setDepth(0);
     } else {
       this.drawRoom(g);
       this.drawBackWall(g);
+      this.placeDecor(g);
+
+      // 개별 에셋 모드에서는 수조와 캐릭터를 레이어로 합성한다.
+      this.tank(g, 'tank_wall', S.wallTankA, 4, 3);
+      this.tank(g, 'tank_wall', S.wallTankB, 4, 3);
+      this.tank(g, 'tank_long', S.longTank, 8, 4);
+      this.tank(g, 'tank_tall', S.tallTank, 8, 5);
+      this.tank(g, 'tank_main', S.mainTank, 10, 7, true);
+      this.breeding(g);
+      this.fryTank(g, S.fryA);
+      this.fryTank(g, S.fryB);
+
+      if (hasAsset('obj/counter')) this.obj('obj/counter', S.counter.x, S.counter.y);
+      else this.drawCounter(g);
+      if (hasAsset('obj/door_double')) this.obj('obj/door_double', S.market.x - 6, S.market.y - 8);
+      else this.drawDoors(g);
+      if (hasAsset('obj/mat')) this.obj('obj/mat', 242, 438);
+
+      // 사람 (y 기준 깊이 정렬)
+      this.addPerson('staff', 'npc_staff', S.counter.x + 56, S.counter.y + 6);
+      // 통로: 왼쪽 세로 통로 x86, 위 가로 통로 y214, 아래 가로 통로 y380, 입구 통로 x206
+      this.walker('player', 'player', [[140, 212], [86, 212], [86, 380], [196, 380], [86, 380], [86, 212]]);
+      this.walker('guest_a', 'npc_guest_a', [[290, 476], [206, 476], [206, 380], [86, 380], [86, 214], [330, 214], [330, 350], [330, 214], [86, 214], [86, 380], [206, 380], [206, 476]]);
+      this.walker('guest_b', 'npc_guest_b', [[56, 300], [56, 378], [180, 378], [56, 378]]);
     }
-    this.placeDecor(g);
-
-    // 수조들
-    this.tank(g, 'tank_wall', S.wallTankA, 4, 3);
-    this.tank(g, 'tank_wall', S.wallTankB, 4, 3);
-    this.tank(g, 'tank_long', S.longTank, 8, 4);
-    this.tank(g, 'tank_tall', S.tallTank, 8, 5);
-    this.tank(g, 'tank_main', S.mainTank, 10, 7, true);
-    this.breeding(g);
-    this.fryTank(g, S.fryA);
-    this.fryTank(g, S.fryB);
-
-    if (hasAsset('obj/counter')) this.obj('obj/counter', S.counter.x, S.counter.y);
-    else this.drawCounter(g);
-    if (hasAsset('obj/door_double')) this.obj('obj/door_double', S.market.x - 6, S.market.y - 8);
-    else this.drawDoors(g);
-    if (hasAsset('obj/mat')) this.obj('obj/mat', 242, 438);
-
-    // 사람 (y 기준 깊이 정렬)
-    this.addPerson('staff', 'npc_staff', S.counter.x + 56, S.counter.y + 6);
-    // 통로: 왼쪽 세로 통로 x86, 위 가로 통로 y214, 아래 가로 통로 y380, 입구 통로 x206
-    this.walker('player', 'player', [[140, 212], [86, 212], [86, 380], [196, 380], [86, 380], [86, 212]]);
-    this.walker('guest_a', 'npc_guest_a', [[290, 476], [206, 476], [206, 380], [86, 380], [86, 214], [330, 214], [330, 350], [330, 214], [86, 214], [86, 380], [206, 380], [206, 476]]);
-    this.walker('guest_b', 'npc_guest_b', [[56, 300], [56, 378], [180, 378], [56, 378]]);
 
     // 다른 탭을 열면 장면을 어둡게
     this.dim = this.add.rectangle(0, 0, GAME_WIDTH, GAME_HEIGHT, 0x000000, 0.5).setOrigin(0).setDepth(10000).setVisible(false);

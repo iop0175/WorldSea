@@ -47,5 +47,9 @@ export const ICONS = {
   hourglass: { rows: ['BBBBBBBB', '.BccccB.', '..BccB..', '...BB...', '...BB...', '..BccB..', '.BccccB.', 'BBBBBBBB'], pal: { B: '#4c95b5', c: '#bfeaf5' } },
   menu: { rows: ['........', 'WWWWWWWW', '........', 'WWWWWWWW', '........', 'WWWWWWWW', '........', '........'], pal: { W: '#e9f1f4' } },
   lock: { rows: ['..WWWW..', '.W....W.', '.W....W.', 'WWWWWWWW', 'WWWKKWWW', 'WWWKKWWW', 'WWWWWWWW', '........'], pal: { W: '#c7d3d8', K: '#2b3a44' } },
+  /** 물고기 실루엣(왼쪽을 봄). K=윤곽(등급색으로 바꿔 씀), b=몸, h=배 하이라이트, W=눈 */
+  fish: { rows: ['.....KKKKK......', '...KKbbbbbKK..K.', '.KKbbbbbbbbbKKKK', 'KbWKbbbbbbbbbbKK', 'KbbbbhhhhbbbbKKK', '.KKbhhhhhhbbKKKK', '...KKbbbbbKK..K.', '.....KKKKK......'], pal: { K: '#0b1b24', b: '#16384a', h: '#1f4f66', W: '#f4f1e8' } },
+  bobber: { rows: ['...KK...', '...WW...', '..KWWK..', '.KRRRRK.', '.KRRRRK.', '.KWWWWK.', '.KWWWWK.', '..KWWK..', '...KK...', '...KK...'], pal: { K: '#2b1a12', W: '#f4f1e8', R: '#e5484d' } },
+  worm: { rows: ['........', '.kk..kk.', 'kppkkppk', 'pPPpPPPp', 'kppkkppk', '.kk..kk.', '........', '........'], pal: { k: '#6b2b2b', p: '#e58f8f', P: '#f2b3b3' } },
   face: { rows: ['..HHHHHHHH..', '.HHHHHHHHHH.', 'HHHHHHHHHHHH', '..ffffffff..', '..fkffffkf..', '..ffffffff..', '..ffmmmmff..', '...ffffff...', '..BBBWWBBB..', '.BBBBWWBBBB.', 'BBBBBWWBBBBB', 'BBBBBWWBBBBB'], pal: { H: '#7a4a24', f: '#f1c27d', k: '#111111', m: '#b3714a', B: '#2a8fb4', W: '#f4f1e8' } },
 } satisfies Record<string, PixelArt>;

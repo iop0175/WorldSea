@@ -160,13 +160,43 @@ describe('수색 진행·결과 확정', () => {
   it('특별 맵은 24시간 보관하고 야생 개체를 예약하지 않는다', async () => {
     await pg.exec(`update regions set special_map_chance=1;
       insert into species(id,name_ko,region_id,rarity,is_original,is_special_map_only,temp_min,temp_max,salinity,max_size_cm,base_price,initial_population)
-      values ('special','특별 물고기','test','epic',true,true,20,30,'fresh',10,100,10)`);
+      values ('special','특별 물고기','test','epic',true,true,20,30,'fresh',10,100,10);
+      insert into wild_populations(species_id,count) values ('special',10)`);
     await expedition();
     await advanceExpeditions(db, USER, at(300));
     const encounters = await db.select().from(schema.specialEncounters);
     expect(encounters).toHaveLength(1);
     expect(encounters[0]).toMatchObject({ speciesId: 'special', chancesLeft: 5, expiresAt: at(86700), status: 'active' });
     expect((await state()).population.reserved).toBe(0);
+  });
+  const SPECIAL_SQL = `insert into species(id,name_ko,region_id,rarity,is_original,is_special_map_only,temp_min,temp_max,salinity,max_size_cm,base_price,initial_population)
+      values ('special','특별 물고기','test','epic',true,true,20,30,'fresh',10,100,10);
+      insert into wild_populations(species_id,count) values ('special',10);`;
+  it('특별 맵 발생 확률은 그 회차에 쓴 스태미너에 비례한다 (100번)', async () => {
+    await pg.exec(`${SPECIAL_SQL} update regions set special_map_chance=0.001`);
+    // 스태미너 1: 확률 0.001, 스태미너 3: 0.003
+    vi.spyOn(hunt, 'random').mockReturnValue(0.002);
+    await expedition({ staminaCost: 1 });
+    await advanceExpeditions(db, USER, at(300));
+    expect(await db.select().from(schema.specialEncounters)).toHaveLength(0);
+    await pg.exec(`update expeditions set status='claimed'`);
+    await expedition({ staminaCost: 3, hunterId: SECOND });
+    await advanceExpeditions(db, USER, at(300));
+    expect(await db.select().from(schema.specialEncounters)).toHaveLength(1);
+  });
+  it('잡을 수 없는 특별 개체는 맵을 열지 않는다: 보호종·야생 0마리·오늘 한도 소진 (101번)', async () => {
+    await pg.exec(`${SPECIAL_SQL} update regions set special_map_chance=1`);
+    for (const fix of [
+      `update wild_populations set status='protected' where species_id='special'`,
+      `update wild_populations set count=0 where species_id='special'`,
+      `update wild_populations set count=2, status='vulnerable' where species_id='special'; insert into species_daily_catches(player_id,day,species_id,count) values ('${USER}','2026-10-09','special',9)`,
+    ]) {
+      await pg.exec(`update wild_populations set count=10, status='stable' where species_id='special'; delete from species_daily_catches; delete from special_encounters; update expeditions set status='claimed'; ${fix}`);
+      await expedition({ endsAt: at(300) });
+      await advanceExpeditions(db, USER, at(300));
+      expect(await db.select().from(schema.specialEncounters), fix).toHaveLength(0);
+      await pg.exec(`update expeditions set status='claimed'`);
+    }
   });
   it('같은 바다의 마지막 한 마리는 두 플레이어 중 한 명에게만 넘어간다', async () => {
     const other = '44444444-4444-4444-8444-444444444444';

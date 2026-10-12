@@ -119,7 +119,8 @@ export const regions = pgTable('regions', {
   requiredLevel: smallint('required_level').notNull(),
   requiresTimeTicket: boolean('requires_time_ticket').notNull().default(false),
   /** 특별 맵 등장 확률 (원정 1회당) */
-  specialMapChance: real('special_map_chance').notNull().default(0.01),
+  /** 쓴 스태미너 1당 특별 맵 발생 확률 (100번: 0.001). 회차 확률 = 이 값 × 그 회차 스태미너 */
+    specialMapChance: real('special_map_chance').notNull().default(0.001),
   /** 사냥 1회 시간(초). 고급 지역일수록 길다 */
   huntSeconds: integer('hunt_seconds').notNull().default(300),
   /** 사냥 1회 스태미너 소모량 */
@@ -553,6 +554,10 @@ export const biteAttempts = pgTable(
     position: real('position'),
     isAuto: boolean('is_auto').notNull().default(false),
     success: boolean('success').notNull(),
+    /** 고른 장비를 실제로 차감했는지. 잡을 수 없게 된 시도는 false (94번) */
+    gearConsumed: boolean('gear_consumed').notNull().default(true),
+    /** 잡을 수 없어 놓아준 사유 (94번) */
+    releaseReason: text('release_reason').$type<'protected' | 'daily_limit' | 'depleted'>(),
     createdAt: createdAt(),
   },
   (t) => [primaryKey({ columns: [t.biteId, t.attemptNo] })],
@@ -584,6 +589,31 @@ export const specialEncounters = pgTable(
     index('special_encounters_player_idx').on(t.playerId, t.status),
     check('special_chances_range', sql`${t.chancesLeft} between 0 and 5`),
   ],
+).enableRLS();
+
+/** 특별 맵 시도 기록 (92번): 응답을 못 받은 같은 순번 재전송에 저장된 결과를 그대로 돌려준다 */
+export const encounterAttempts = pgTable(
+  'encounter_attempts',
+  {
+    encounterId: uuid('encounter_id')
+      .notNull()
+      .references(() => specialEncounters.id, { onDelete: 'cascade' }),
+    /** 1부터 */
+    attemptNo: smallint('attempt_no').notNull(),
+    floatId: text('float_id').references(() => items.id),
+    baitId: text('bait_id').references(() => items.id),
+    /** 클라이언트가 보낸 위치 (0=가운데, 1=가장자리) */
+    position: real('position').notNull(),
+    /** 판정에 쓴 성공 확률 (표시값과 같음) */
+    chance: real('chance').notNull(),
+    success: boolean('success').notNull(),
+    gearConsumed: boolean('gear_consumed').notNull().default(true),
+    releaseReason: text('release_reason').$type<'protected' | 'daily_limit' | 'depleted'>(),
+    /** 성공 시 새 개체 */
+    fishId: uuid('fish_id').references((): AnyPgColumn => fish.id, { onDelete: 'set null' }),
+    createdAt: createdAt(),
+  },
+  (t) => [primaryKey({ columns: [t.encounterId, t.attemptNo] })],
 ).enableRLS();
 
 // ---------------------------------------------------------------------------

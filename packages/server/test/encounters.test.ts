@@ -58,7 +58,7 @@ async function state() {
 describe('특별 맵 시도', () => {
   it('성공하면 야생 개체수를 줄이고 바로 소유하며 서버 최초 포획으로 공개한다', async () => {
     const res = await attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0 }, at(10));
-    expect(res.attempt).toEqual({ attemptNo: 1, success: true, chance: 0.5 });
+    expect(res.attempt).toEqual({ attemptNo: 1, success: true, chance: 0.35, gearConsumed: true, releaseReason: null });
     expect(res.encounter).toMatchObject({ status: 'finished', chancesLeft: 4, speciesId: 'special', chances: null });
     const s = await state();
     expect(s.fish).toMatchObject([{ ownerId: USER, speciesId: 'special', pendingClaim: false, expeditionId: null, caughtRegionId: 'test' }]);
@@ -71,9 +71,9 @@ describe('특별 맵 시도', () => {
   it('실패하면 야생은 그대로이고 기회가 줄며 확률이 내려가고, 5번 실패하면 끝난다', async () => {
     vi.spyOn(hunt, 'random').mockReturnValue(0.999);
     const first = await attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0.5 }, at(10));
-    expect(first.attempt).toMatchObject({ success: false, chance: 0.35 });
+    expect(first.attempt).toMatchObject({ success: false, chance: 0.245 });
     expect(first.encounter).toMatchObject({ status: 'active', chancesLeft: 4, fishId: null, speciesId: null });
-    expect(first.encounter.chances![0]).toBe(0.45);
+    expect(first.encounter.chances![0]).toBe(0.3);
     for (let n = 2; n <= 4; n++) await attemptEncounter(db, USER, ENC, { attemptNo: n, position: 0.5 }, at(10 + n));
     const last = await attemptEncounter(db, USER, ENC, { attemptNo: 5, position: 0.5 }, at(20));
     expect(last.encounter).toMatchObject({ status: 'finished', chancesLeft: 0, chances: null });
@@ -87,20 +87,50 @@ describe('특별 맵 시도', () => {
   it('찌는 확률을 올리고 시도마다 한 개 소모한다', async () => {
     vi.spyOn(hunt, 'random').mockReturnValue(0.999);
     const res = await attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0, floatId: 'test_float' }, at(10));
-    expect(res.attempt.chance).toBe(0.6);
+    expect(res.attempt.chance).toBe(0.45);
     expect((await state()).stock.test_float).toBe(1);
     await expect(attemptEncounter(db, USER, ENC, { attemptNo: 2, position: 0, baitId: 'test_float' }, at(11))).rejects.toMatchObject({ code: 'insufficient_items' });
     expect((await state()).stock.test_float).toBe(1);
   });
 
-  it('이미 처리된 순번은 장비를 다시 차감하지 않고 거절하며, 건너뛴 순번도 거절한다', async () => {
+  it('같은 순번의 재전송은 저장된 결과를 돌려주고 장비를 다시 차감하지 않으며, 내용이 다르거나 순번을 건너뛰면 거절한다 (92번)', async () => {
     vi.spyOn(hunt, 'random').mockReturnValue(0.999);
-    await attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0, floatId: 'test_float' }, at(10));
-    await expect(attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0, floatId: 'test_float' }, at(11))).rejects.toMatchObject({ code: 'idempotency_conflict' });
+    const body = { attemptNo: 1, position: 0.3, floatId: 'test_float' };
+    const first = await attemptEncounter(db, USER, ENC, body, at(10));
+    const again = await attemptEncounter(db, USER, ENC, body, at(11));
+    expect(again.attempt).toEqual(first.attempt);
+    expect(again.encounter).toEqual(first.encounter);
+    await expect(attemptEncounter(db, USER, ENC, { ...body, position: 0.4 }, at(12))).rejects.toMatchObject({ code: 'idempotency_conflict' });
+    await expect(attemptEncounter(db, USER, ENC, { ...body, floatId: undefined }, at(12))).rejects.toMatchObject({ code: 'idempotency_conflict' });
     await expect(attemptEncounter(db, USER, ENC, { attemptNo: 3, position: 0 }, at(12))).rejects.toMatchObject({ code: 'invalid_request' });
     const s = await state();
     expect(s.stock.test_float).toBe(1);
     expect(s.encounter.chancesLeft).toBe(4);
+    expect(await db.select().from(schema.encounterAttempts)).toHaveLength(1);
+  });
+
+  it('성공으로 닫힌 뒤, 또는 만료된 뒤의 재전송도 저장된 결과를 돌려준다 (92번)', async () => {
+    const body = { attemptNo: 1, position: 0 };
+    const first = await attemptEncounter(db, USER, ENC, body, at(10));
+    expect(first.encounter.status).toBe('finished');
+    const again = await attemptEncounter(db, USER, ENC, body, at(11));
+    expect(again).toMatchObject({ attempt: first.attempt, encounter: { status: 'finished', fishId: first.encounter.fishId, speciesId: 'special' } });
+    await expireEncounters(db, USER, at(90000));
+    expect((await attemptEncounter(db, USER, ENC, body, at(90000))).attempt).toEqual(first.attempt);
+    // 새 순번은 닫힌 특별 맵이라 거절한다.
+    await expect(attemptEncounter(db, USER, ENC, { attemptNo: 2, position: 0 }, at(90001))).rejects.toMatchObject({ code: 'encounter_closed' });
+    expect((await state()).fish).toHaveLength(1);
+  });
+
+  it('잡을 수 없게 된 시도는 사유를 알리고 장비를 쓰지 않은 것으로 기록한다 (94번)', async () => {
+    await pg.exec(`update wild_populations set status='protected'`);
+    const res = await attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0, floatId: 'test_float' }, at(10));
+    expect(res.attempt).toMatchObject({ success: false, gearConsumed: false, releaseReason: 'protected' });
+    expect((await db.select().from(schema.encounterAttempts))[0]).toMatchObject({ gearConsumed: false, releaseReason: 'protected', floatId: 'test_float' });
+    expect((await state()).stock.test_float).toBe(2);
+    await pg.exec(`update wild_populations set status='vulnerable'; update wild_populations set count=0, reserved=1; update special_encounters set status='active', chances_left=5; delete from encounter_attempts`);
+    // 마지막 한 마리가 다른 플레이어의 입질에 예약된 상태(비율은 10%라 보호종 전)
+    expect((await attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0 }, at(20))).attempt.releaseReason).toBe('depleted');
   });
 
   it('남의 특별 맵은 찾을 수 없고, 24시간이 지나면 만료된다', async () => {
@@ -146,7 +176,7 @@ describe('특별 맵 목록', () => {
     let { encounters } = await listEncounters(db, USER, at(10));
     expect(encounters).toHaveLength(1);
     expect(encounters[0]).toMatchObject({ id: ENC, regionId: 'test', speciesId: null, rarity: 'epic', chancesLeft: 5, chancesMax: 5 });
-    expect(encounters[0]!.chances[0]).toBe(0.5);
+    expect(encounters[0]!.chances[0]).toBe(0.35);
     expect(encounters[0]!.gear).toEqual([{ id: 'test_float', kind: 'float', count: 2, chanceBonus: 0.1 }]);
     await pg.exec(`insert into species_discoveries(species_id) values ('special')`);
     ({ encounters } = await listEncounters(db, USER, at(10)));

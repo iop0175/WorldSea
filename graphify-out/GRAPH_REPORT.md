@@ -1,16 +1,16 @@
 # Graph Report - WorldSea-github  (2026-10-12)
 
 ## Corpus Check
-- 129 files · ~631,002 words
+- 131 files · ~641,433 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1115 nodes · 1931 edges · 65 communities (59 shown, 6 thin omitted)
+- 1123 nodes · 1944 edges · 66 communities (60 shown, 6 thin omitted)
 - Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.67)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b6c14067`
+- Built from commit: `6cd82ec8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -27,7 +27,7 @@
 - game/bites.ts
 - constants.ts
 - 6. 어종 표
-- expeditions.ts
+- players.ts
 - 메인 화면(샵 1단계) 에셋 목록
 - scripts
 - abnormal.test.ts
@@ -66,11 +66,12 @@
 - 남미 민물 (11종)
 - 아시아 민물 (11종)
 - 아프리카 민물 (11종)
-- ref_vitest
+- morphs.ts
 - 인도양 (10종)
 - 데본기 (10종)
 - 중미 민물 (10종)
 - 북미 민물 (10종)
+- errors.ts
 - 유럽 민물 (9종)
 - 북극해 (9종)
 - 대서양 (9종)
@@ -105,19 +106,19 @@
 ## Import Cycles
 - None detected.
 
-## Communities (65 total, 6 thin omitted)
+## Communities (66 total, 6 thin omitted)
 
 ### Community 0 - "App.tsx"
 Cohesion: 0.06
-Nodes (71): ApiRequestError, claimExpedition(), createPlayer(), fetchHealth(), getExpeditions(), getMe(), getRegions(), realtimeUrl() (+63 more)
+Nodes (73): ApiRequestError, claimExpedition(), createPlayer(), fetchHealth(), getExpeditions(), getMe(), getRegions(), realtimeUrl() (+65 more)
 
 ### Community 1 - "world.ts"
 Cohesion: 0.06
-Nodes (49): db, sqlText, all, RARITY, STATUS, TIER, TREND, ConservationStatusValue (+41 more)
+Nodes (54): db, sqlText, all, RARITY, STATUS, TIER, TREND, ConservationStatusValue (+46 more)
 
 ### Community 2 - "main.schema.ts"
 Cohesion: 0.04
-Nodes (45): aquariumRatings, auctionBids, auctions, auctionStatus, biteStatus, breedings, breedingStatus, conservationStatus (+37 more)
+Nodes (46): aquariumRatings, auctionBids, auctions, auctionStatus, biteStatus, breedings, breedingStatus, conservationStatus (+38 more)
 
 ### Community 3 - "scripts"
 Cohesion: 0.05
@@ -133,7 +134,7 @@ Nodes (35): galmuri, dependencies, galmuri, phaser, react, react-dom, @supabase/
 
 ### Community 6 - "HubScene"
 Cohesion: 0.08
-Nodes (20): ASSET_URLS, files, hasAsset(), SHEETS, SLICES, GAME_HEIGHT, GAME_WIDTH, LAYOUT (+12 more)
+Nodes (19): ASSET_URLS, files, hasAsset(), SHEETS, SLICES, GAME_HEIGHT, GAME_WIDTH, LAYOUT (+11 more)
 
 ### Community 7 - "월드씨 화면 구성 요소 목록 (v0.1)"
 Cohesion: 0.07
@@ -144,20 +145,20 @@ Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 9 - "game/bites.ts"
-Cohesion: 0.21
-Nodes (26): attemptBite(), Item, listBites(), loadGear(), loadStock(), spendGear(), Stock, usableGear() (+18 more)
+Cohesion: 0.18
+Nodes (29): attemptBite(), Item, listBites(), loadGear(), loadStock(), releaseReasonFor(), spendGear(), Stock (+21 more)
 
 ### Community 10 - "constants.ts"
-Cohesion: 0.15
-Nodes (16): BITE_MAX_ATTEMPTS, BOTTOM_TAB_LABEL_KO, BOTTOM_TABS, DAILY_RESET_UTC_HOUR, DEFAULT_MINIGAME_THRESHOLD, hasExpeditionRewards(), needsMinigame(), nextDailyReset() (+8 more)
+Cohesion: 0.13
+Nodes (17): BITE_MAX_ATTEMPTS, BOTTOM_TAB_LABEL_KO, BOTTOM_TABS, DAILY_RESET_UTC_HOUR, DEFAULT_MINIGAME_THRESHOLD, GEAR_COMBINE_COUNT, needsMinigame(), nextDailyReset() (+9 more)
 
 ### Community 11 - "6. 어종 표"
 Cohesion: 0.10
 Nodes (19): 1. 원칙, 2. 변환 규칙, 3. 결과 요약, 4. 주의 사항, 5. 지역 (임시 수치), 6. 어종 표, 남미 민물 (Lv.10), 대서양 (Lv.25) (+11 more)
 
-### Community 12 - "expeditions.ts"
-Cohesion: 0.10
-Nodes (27): AppEnv, HttpError, expireEncounters(), advanceExpeditions(), loadMe(), playerRoutes, STARTING, BiteAttemptBody (+19 more)
+### Community 12 - "players.ts"
+Cohesion: 0.12
+Nodes (20): advanceExpeditions(), loadMe(), playerRoutes, STARTING, CreatePlayerBody, hunters, subscriptions, HUNTER_SLOT_MAX (+12 more)
 
 ### Community 13 - "메인 화면(샵 1단계) 에셋 목록"
 Cohesion: 0.13
@@ -168,8 +169,8 @@ Cohesion: 0.11
 Nodes (17): name, packageManager, pnpm, onlyBuiltDependencies, private, scripts, build, db:gen:log (+9 more)
 
 ### Community 15 - "abnormal.test.ts"
-Cohesion: 0.14
-Nodes (9): Db, Schema, START, START, START, ref_drizzle_orm, ref_electric_sql_pglite, ref_node_fs (+1 more)
+Cohesion: 0.12
+Nodes (12): Db, Schema, START, START, START, at(), expedition(), START (+4 more)
 
 ### Community 16 - "3. UI 요소"
 Cohesion: 0.14
@@ -181,15 +182,15 @@ Nodes (10): 길리쿠스 · `gillicus_arcuatus` · 고급 · 고대, 레피도�
 
 ### Community 18 - "app.ts"
 Cohesion: 0.06
-Nodes (42): hono, hono, app, clientDir, db, demoAt, keys, migrations (+34 more)
+Nodes (41): hono, hono, app, clientDir, db, demoAt, keys, migrations (+33 more)
 
 ### Community 19 - "월드씨 (WorldSea)"
 Cohesion: 0.14
 Nodes (13): 게임 시스템, 기술 스택, 등급, 명령어 (저장소 루트에서), 물고기 그림 (디자인 결정), 법적 원칙, 설계 원칙 (반드시 지킬 것), 수익 모델 (+5 more)
 
 ### Community 20 - "api/types.ts"
-Cohesion: 0.09
-Nodes (22): ApiError, BiteView, ClaimExpeditionsResponse, EncounterAttemptResponse, EncountersResponse, EncounterView, HunterView, huntOptionsBody (+14 more)
+Cohesion: 0.08
+Nodes (23): regionRoutes, ApiError, BiteView, ClaimExpeditionsResponse, EncounterAttemptResponse, EncountersResponse, EncounterView, HunterView (+15 more)
 
 ### Community 21 - "FishPreview.tsx"
 Cohesion: 0.11
@@ -204,20 +205,20 @@ Cohesion: 0.17
 Nodes (10): actionLogs, catchLogs, catchSource, currencyKind, currencyLogs, gachaLogs, populationLogs, populationReason (+2 more)
 
 ### Community 24 - "shared/src/index.ts"
-Cohesion: 0.20
-Nodes (16): AlleleDef, Dominance, ExpeditionResult, GeneLayer, Genotype, HuntOptions, LocusDef, Reward (+8 more)
+Cohesion: 0.36
+Nodes (8): AlleleDef, Dominance, ExpeditionResult, GeneLayer, Genotype, HuntOptions, Reward, TankEquipment
 
 ### Community 25 - "compilerOptions"
 Cohesion: 0.18
 Nodes (10): compilerOptions, forceConsistentCasingInFileNames, isolatedModules, module, moduleResolution, noEmit, resolveJsonModule, skipLibCheck (+2 more)
 
 ### Community 26 - "hunt.ts"
-Cohesion: 0.18
-Nodes (12): claimExpeditions(), CHANCE_STEPS, chooseSpecies(), HUNT_TEMP, huntOutcome(), seededRoll(), weighted(), at() (+4 more)
+Cohesion: 0.31
+Nodes (8): CHANCE_STEPS, chooseSpecies(), HUNT_TEMP, huntOutcome(), weighted(), RARITIES, packages_shared_src_index_rarities, packages_shared_src_index_rarity
 
 ### Community 27 - "expeditionProgress.ts"
-Cohesion: 0.11
-Nodes (21): CLAIM_BATCH_MAX, Bite, Expedition, Player, Population, Species, expeditions, fish (+13 more)
+Cohesion: 0.10
+Nodes (28): CLAIM_BATCH_MAX, claimExpeditions(), Bite, Expedition, Player, Population, Species, expeditions (+20 more)
 
 ### Community 28 - "verify.mjs"
 Cohesion: 0.29
@@ -264,8 +265,8 @@ Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
 ### Community 45 - "fishArt.test.ts"
-Cohesion: 0.26
-Nodes (11): FileTable(), FishPreview(), packages_client_src_preview_preview, expectedFishFiles(), expressedAllele(), fishAssetKey(), fishLayerPlan(), morphKey() (+3 more)
+Cohesion: 0.27
+Nodes (10): FileTable(), FishPreview(), packages_client_src_preview_preview, expectedFishFiles(), expressedAllele(), fishAssetKey(), fishLayerPlan(), morphKey() (+2 more)
 
 ### Community 46 - "fish-art-list.ts"
 Cohesion: 0.20
@@ -287,9 +288,9 @@ Nodes (12): 금붕어 · `carassius_auratus` · 고급, 드워프 구라미 · `
 Cohesion: 0.17
 Nodes (12): 나일 틸라피아 · `oreochromis_niloticus` · 일반, 나일퍼치 · `lates_niloticus` · 영웅, 데모이소니 · `pseudotropheus_demasoni` · 고급, 브리샤르디 · `neolamprologus_brichardi` · 일반, 블루 돌핀 시클리드 · `cyrtocara_moorii` · 고급, 세네갈 비키르 · `polypterus_senegalus` · 고급, 아프리카 민물 (11종), 아프리카 버터플라이피시 · `pantodon_buchholzi` · 고급 (+4 more)
 
-### Community 51 - "ref_vitest"
-Cohesion: 0.31
-Nodes (7): computeStamina(), STAMINA_TEMP, staminaMax(), staminaRegenSec(), StaminaState, t0, ref_vitest
+### Community 51 - "morphs.ts"
+Cohesion: 0.27
+Nodes (11): LocusDef, FishPalette, palette(), SpeciesMorphs, AlleleSpec, intensityMorphs(), locus(), morphs() (+3 more)
 
 ### Community 52 - "인도양 (10종)"
 Cohesion: 0.18
@@ -307,6 +308,10 @@ Nodes (11): 레드 데빌 시클리드 · `amphilophus_labiatus` · 고급, 멕�
 Cohesion: 0.18
 Nodes (11): 무지개송어 · `oncorhynchus_mykiss` · 고급, 북미 민물 (10종), 블루길 · `lepomis_macrochirus` · 일반, 세일핀 몰리 · `poecilia_latipinna` · 일반, 안개은린어 · `orig_mistsilver` · 영웅 · 오리지널 특별 개체, 앨리게이터 가 · `atractosteus_spatula` · 영웅, 채널메기 · `ictalurus_punctatus` · 고급, 큰입배스 · `micropterus_salmoides` · 고급 (+3 more)
 
+### Community 56 - "errors.ts"
+Cohesion: 0.33
+Nodes (6): AppEnv, HttpError, expireEncounters(), BiteAttemptBody, EncounterAttemptBody, ref_zod
+
 ### Community 57 - "유럽 민물 (9종)"
 Cohesion: 0.20
 Nodes (10): 강꼬치고기 · `esox_lucius` · 고급, 벨루가 철갑상어 · `huso_huso` · 전설, 브라운 송어 · `salmo_trutta` · 고급, 샘물요정송어 · `orig_fairytrout` · 영웅 · 오리지널 특별 개체, 웰스메기 · `silurus_glanis` · 영웅, 유럽 민물 (9종), 유럽 뱀장어 · `anguilla_anguilla` · 희귀, 유럽 퍼치 · `perca_fluviatilis` · 일반 (+2 more)
@@ -320,8 +325,8 @@ Cohesion: 0.20
 Nodes (10): 대서양 (9종), 대서양 고등어 · `scomber_scombrus` · 일반, 대서양 대구 · `gadus_morhua` · 고급, 대서양 연어 · `salmo_salar` · 고급, 대서양 참다랑어 · `thunnus_thynnus` · 영웅, 대서양 청어 · `clupea_harengus` · 일반, 대서양 핼리벗 · `hippoglossus_hippoglossus` · 희귀, 유령장어 · `orig_ghosteel` · 영웅 · 오리지널 특별 개체 (+2 more)
 
 ### Community 61 - "fishArt.ts"
-Cohesion: 0.17
-Nodes (15): DEFAULT_PALETTE, DOMINANCE_RANK, FISH_GRAYS, FISH_SLOTS, FishFileSpec, FishLayer, FishPalette, FishSlot (+7 more)
+Cohesion: 0.21
+Nodes (12): DEFAULT_PALETTE, DOMINANCE_RANK, FISH_FRAMES, FISH_SLOTS, FishFileSpec, FishLayer, FishSlot, hexToHsl() (+4 more)
 
 ### Community 63 - "물고기 그림 규격 (디자인 결정 84~88번)"
 Cohesion: 0.25
@@ -332,7 +337,7 @@ Cohesion: 0.33
 Nodes (5): 1단계, 2단계, 3단계, 4단계 (고대), 물고기 생성 프롬프트 (120종)
 
 ## Knowledge Gaps
-- **516 isolated node(s):** `name`, `private`, `packageManager`, `dev:client`, `dev:server` (+511 more)
+- **519 isolated node(s):** `name`, `private`, `packageManager`, `dev:client`, `dev:server` (+514 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -340,16 +345,16 @@ Nodes (5): 1단계, 2단계, 3단계, 4단계 (고대), 물고기 생성 프롬�
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `createApp()` connect `app.ts` to `abnormal.test.ts`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Why does `hasAsset()` connect `HubScene` to `App.tsx`, `fishArt.test.ts`, `FishPreview.tsx`?**
   _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Why does `hono` connect `app.ts` to `server/package.json`?**
   _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **What connects `name`, `private`, `packageManager` to the rest of the system?**
-  _516 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _519 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `App.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.05966724039013196 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.057455540355677154 - nodes in this community are weakly interconnected._
 - **Should `world.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.06170598911070781 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05683563748079877 - nodes in this community are weakly interconnected._
 - **Should `main.schema.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.0425531914893617 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.041666666666666664 - nodes in this community are weakly interconnected._

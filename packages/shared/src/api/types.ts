@@ -81,6 +81,9 @@ export interface StartExpeditionResponse {
   };
 }
 
+/** 잡을 수 없어 놓아준 사유 (94번). protected=보호종·멸종, daily_limit=오늘 한도 소진, depleted=야생 0마리 */
+export type ReleaseReason = 'protected' | 'daily_limit' | 'depleted';
+
 /** 입질 시도: 직접(position 0=가운데~1=가장자리) 또는 auto. attemptNo는 이번이 몇 번째 시도인지(재전송 구분용) */
 export const biteAttemptBody = z.strictObject({
   attemptNo: z.number().int().min(1).max(10),
@@ -117,7 +120,7 @@ export interface BitesResponse {
 
 export interface BiteAttemptResponse {
   serverTime: string;
-  attempt: { attemptNo: number; success: boolean; chance: number };
+  attempt: { attemptNo: number; success: boolean; chance: number; gearConsumed: boolean; releaseReason: ReleaseReason | null };
   bite: {
     id: string;
     status: 'pending' | 'caught' | 'escaped';
@@ -160,7 +163,7 @@ export interface EncountersResponse {
 
 export interface EncounterAttemptResponse {
   serverTime: string;
-  attempt: { attemptNo: number; success: boolean; chance: number };
+  attempt: { attemptNo: number; success: boolean; chance: number; gearConsumed: boolean; releaseReason: ReleaseReason | null };
   encounter: {
     id: string;
     status: 'active' | 'finished';

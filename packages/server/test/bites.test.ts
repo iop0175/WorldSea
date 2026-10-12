@@ -68,7 +68,7 @@ describe('입질 직접 시도', () => {
   it('성공하면 개체를 수령 대기로 만들고 예약을 정리하며 원정 결과에 더한다', async () => {
     vi.spyOn(hunt, 'seededRoll').mockReturnValue(0);
     const res = await attemptBite(db, USER, BITE, { attemptNo: 1, position: 0 }, at(10));
-    expect(res.attempt).toEqual({ attemptNo: 1, success: true, chance: 0.75 });
+    expect(res.attempt).toEqual({ attemptNo: 1, success: true, chance: 0.75, gearConsumed: true, releaseReason: null });
     expect(res.bite).toMatchObject({ status: 'caught', attemptsUsed: 1, chances: null });
     const s = await state();
     expect(s.fish).toMatchObject([{ ownerId: USER, speciesId: 'test_fish', pendingClaim: true, expeditionId: EXPEDITION }]);
@@ -156,6 +156,24 @@ describe('입질 직접 시도', () => {
     expect(res.attempt.success).toBe(false);
     expect(res.bite.status).toBe('escaped');
     expect((await state()).population).toMatchObject({ count: 6, reserved: 0 });
+  });
+
+  it('잡을 수 없게 된 시도는 사유를 알리고 장비를 쓰지 않은 것으로 기록한다 (94번)', async () => {
+    await pg.exec(`update wild_populations set status='protected' where species_id='test_fish'`);
+    const res = await attemptBite(db, USER, BITE, { attemptNo: 1, position: 0, floatId: 'test_float' }, at(10));
+    expect(res.attempt).toMatchObject({ success: false, gearConsumed: false, releaseReason: 'protected' });
+    const s = await state();
+    expect(s.attempts[0]).toMatchObject({ floatId: 'test_float', gearConsumed: false, releaseReason: 'protected' });
+    expect(s.stock.test_float).toBe(2);
+    // 재전송에도 같은 사유를 돌려준다.
+    expect((await attemptBite(db, USER, BITE, { attemptNo: 1, position: 0, floatId: 'test_float' }, at(11))).attempt).toEqual(res.attempt);
+  });
+
+  it('일일 한도에 막힌 시도는 daily_limit 사유로 끝난다', async () => {
+    await pg.exec(`update wild_populations set count=19, reserved=1 where species_id='test_fish'; update species set initial_population=100 where id='test_fish';
+      insert into species_daily_catches(player_id, day, species_id, count) values ('${USER}', '${START.toISOString().slice(0, 10)}', 'test_fish', 3)`);
+    const res = await attemptBite(db, USER, BITE, { attemptNo: 1, position: 0 }, at(10));
+    expect(res.attempt).toMatchObject({ gearConsumed: false, releaseReason: 'daily_limit' });
   });
 
   it('자동 시도는 자동 확률을 쓰고 시도 기록에 자동으로 남긴다', async () => {

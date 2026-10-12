@@ -249,11 +249,16 @@ export async function settleExpeditions(tx: Db, player: Player, now: Date): Prom
         }
       }
     }
+    // 발생 확률은 쓴 스태미너 1당(100번). 그 플레이어가 지금 잡을 수 없는 특별 개체는 맵을 열지 않는다(101번).
     const special = catalog.filter((s) => s.regionId === region.id && s.isSpecialMapOnly);
-    if (special.length && random() < region.specialMapChance) {
-      const s = special[Math.floor(random() * special.length)]!;
+    if (special.length && random() < region.specialMapChance * current.staminaCost) {
+      const open: Species[] = [];
+      for (const candidate of special) if (await quota(candidate, at)) open.push(candidate);
+      const s = open[Math.floor(random() * open.length)];
+      if (s) {
       const expiresAt = new Date(at.getTime() + 86400 * 1000);
       await tx.insert(specialEncounters).values({ playerId: player.id, expeditionId: current.id, regionId: region.id, speciesId: s.id, createdAt: at, expiresAt, status: expiresAt <= now ? 'expired' : 'active' });
+      }
     }
     if (current.repeatDone === current.repeatTotal) current.status = 'completed';
     if (current.status === 'active') await beginNext(current, at, region.huntSeconds);

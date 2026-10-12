@@ -53,6 +53,27 @@ describe('시드 SQL 적용 (PGlite + 실제 마이그레이션)', () => {
     expect(rows[0]).toEqual({ r: 12, s: 120, w: 120 });
   });
 
+  it('찌·미끼가 등급별로 들어가고 상점 가격은 rare까지만 있다 (98·103번)', async () => {
+    await pg.exec(buildSeedSql());
+    const legendary = ALL_SPECIES.filter((s) => s.rarity === 'legendary').length;
+    const rows = await pg.query<{ id: string; chance_bonus: number; price_gold: number | null; target_species_id: string | null }>(
+      `select id, chance_bonus, price_gold, target_species_id from items order by sort_order`);
+    expect(rows.rows).toHaveLength(10 + legendary);
+    const byId = new Map(rows.rows.map((r) => [r.id, r]));
+    expect(['common', 'uncommon', 'rare', 'epic', 'legendary'].map((g) => byId.get(`float_${g}`)!.chance_bonus)).toEqual([0.03, 0.06, 0.1, 0.15, 0.2]);
+    expect(['common', 'uncommon', 'rare', 'epic', 'legendary'].map((g) => byId.get(`bait_${g}`)!.price_gold)).toEqual([50, 250, 1250, null, null]);
+    const targeted = rows.rows.filter((r) => r.target_species_id);
+    expect(targeted).toHaveLength(legendary);
+    expect(targeted.every((r) => r.chance_bonus === 0.25 && r.price_gold === null)).toBe(true);
+    // 다시 실행해도 플레이어 보유 수량·중복 행이 생기지 않는다.
+    await pg.exec(buildSeedSql());
+    expect((await pg.query<{ n: number }>('select count(*)::int n from items')).rows[0]!.n).toBe(10 + legendary);
+  });
+  it('특별 맵 발생 확률은 스태미너 1당 0.1%로 시드된다 (100번)', async () => {
+    await pg.exec(buildSeedSql());
+    const rows = await pg.query<{ special_map_chance: number }>('select distinct special_map_chance from regions');
+    expect(rows.rows.map((r) => r.special_map_chance)).toEqual([0.001]);
+  });
   it('모프가 정의된 어종은 gene_loci가 채워진다', async () => {
     const { rows } = await pg.query<{ gene_loci: { id: string }[] }>(`select gene_loci from species where id = 'betta_splendens'`);
     expect(rows[0]!.gene_loci.map((l) => l.id)).toEqual(['color', 'pattern', 'fin']);

@@ -85,6 +85,13 @@
       "when": 1791616767355,
       "tag": "0011_expedition_claims",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1791778405185,
+      "tag": "0012_encounter_attempts_gear_consumed",
+      "breakpoints": true
     }
   ]
 }

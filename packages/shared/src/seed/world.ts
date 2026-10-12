@@ -16,6 +16,7 @@ export interface RegionSeed {
   unlockStage: number;
   requiredLevel: number;
   requiresTimeTicket: boolean;
+  /** 쓴 스태미너 1당 특별 맵 발생 확률 (100번) */
   specialMapChance: number;
   huntSeconds: number;
   huntStaminaCost: number;
@@ -29,7 +30,7 @@ const r = (
   requiredLevel: number, huntSeconds: number, huntStaminaCost: number, specialMapName: string,
 ): RegionSeed => ({
   id, nameKo, kind, unlockStage, requiredLevel, requiresTimeTicket: kind === 'ancient',
-  specialMapChance: 0.01, huntSeconds, huntStaminaCost, sortOrder, specialMapName,
+  specialMapChance: 0.001, huntSeconds, huntStaminaCost, sortOrder, specialMapName,
 });
 
 /** 임시 수치: 해금 레벨, 수색 1회 시간(초), 스태미너 */

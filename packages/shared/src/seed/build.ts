@@ -103,6 +103,37 @@ const lit = (v: string | number | boolean | null): string => {
   return `'${v.replace(/'/g, "''")}'`;
 };
 
+/** 찌·미끼 등급별 성공 확률 보정(98번), 상점 가격(103번, 임시). epic·legendary는 상점 판매 불가(DB CHECK). */
+const GEAR_TEMP: Record<GameRarity, { bonus: number; price: number | null }> = {
+  common: { bonus: 0.03, price: 50 },
+  uncommon: { bonus: 0.06, price: 250 },
+  rare: { bonus: 0.1, price: 1250 },
+  epic: { bonus: 0.15, price: null },
+  legendary: { bonus: 0.2, price: null },
+};
+/** 전설급 전용 미끼는 범용 전설 등급보다 5%p 높다(98번) */
+const TARGET_BAIT_BONUS = 0.25;
+const GEAR_NAME: Record<GameRarity, string> = { common: '일반', uncommon: '고급', rare: '희귀', epic: '영웅', legendary: '전설' };
+
+export interface GearSeed {
+  id: string; nameKo: string; kind: 'float' | 'bait'; grade: GameRarity;
+  chanceBonus: number; targetSpeciesId: string | null; priceGold: number | null; sortOrder: number;
+}
+
+/** 범용 찌·미끼 5등급씩 + 전설급 어종마다 전용 미끼 */
+export function buildGear(): GearSeed[] {
+  const grades = Object.keys(GEAR_TEMP) as GameRarity[];
+  const general = (['float', 'bait'] as const).flatMap((kind, k) => grades.map((grade, i): GearSeed => ({
+    id: `${kind}_${grade}`, nameKo: `${GEAR_NAME[grade]} ${kind === 'float' ? '찌' : '미끼'}`, kind, grade,
+    chanceBonus: GEAR_TEMP[grade].bonus, targetSpeciesId: null, priceGold: GEAR_TEMP[grade].price, sortOrder: k * 10 + i,
+  })));
+  const targeted = ALL_SPECIES.filter((s) => s.rarity === 'legendary').map((s, i): GearSeed => ({
+    id: `bait_target_${s.id}`, nameKo: `${s.nameKo} 전용 미끼`, kind: 'bait', grade: 'legendary',
+    chanceBonus: TARGET_BAIT_BONUS, targetSpeciesId: s.id, priceGold: null, sortOrder: 100 + i,
+  }));
+  return [...general, ...targeted];
+}
+
 export function buildSeedSql(scale: number = POPULATION_TEMP.scale): string {
   const out: string[] = [];
   const regionCols = ['id', 'name_ko', 'kind', 'unlock_stage', 'required_level', 'requires_time_ticket', 'special_map_chance', 'hunt_seconds', 'hunt_stamina_cost', 'sort_order'];
@@ -117,6 +148,11 @@ export function buildSeedSql(scale: number = POPULATION_TEMP.scale): string {
   for (const [id, m] of Object.entries(FISH_MORPHS)) {
     out.push(`update species set gene_loci = ${lit(JSON.stringify(m.loci))}::jsonb where id = ${lit(id)};`);
   }
+
+  // 찌·미끼 (플레이어 보유 수량 player_items는 건드리지 않는다)
+  const gearCols = ['id', 'name_ko', 'kind', 'grade', 'chance_bonus', 'target_species_id', 'price_gold', 'sort_order'];
+  const gearVals = buildGear().map((g) => `(${[g.id, g.nameKo, g.kind, g.grade, g.chanceBonus, g.targetSpeciesId, g.priceGold, g.sortOrder].map(lit).join(',')})`);
+  out.push(`insert into items (${gearCols.join(',')}) values\n${gearVals.join(',\n')}\non conflict (id) do update set ${gearCols.slice(1).map((c) => `${c} = excluded.${c}`).join(', ')};`);
 
   const wildVals = species.map(({ row, population: p }) => `(${[row.id, p.startCount, p.hiddenReserve, p.startStatus].map(lit).join(',')})`);
   out.push(`insert into wild_populations (species_id, count, hidden_reserve, status) values\n${wildVals.join(',\n')}\non conflict (species_id) do nothing;`);

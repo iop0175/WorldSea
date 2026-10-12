@@ -172,11 +172,14 @@ describe('B. 동시 요청', () => {
     expect(await stock()).toBeGreaterThanOrEqual(0);
     expect(results.filter((r) => r.status === 'rejected').every((r) => (r as PromiseRejectedResult).reason?.code)).toBe(true);
   });
-  it('특별 맵 같은 순번을 동시에 보내면 한 번만 처리한다', async () => {
+  it('특별 맵 같은 순번을 동시에 보내면 한 번만 처리하고 둘 다 같은 결과를 받는다 (92번)', async () => {
     vi.spyOn(hunt, 'random').mockReturnValue(0.999);
     const body = { attemptNo: 1, position: 0.2, floatId: 'test_float' };
     const results = await Promise.allSettled([attemptEncounter(db, USER, ENC, body, at(10)), attemptEncounter(db, USER, ENC, body, at(10))]);
-    expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1);
+    expect(results.every((r) => r.status === 'fulfilled')).toBe(true);
+    const [a, b] = results.map((r) => (r as PromiseFulfilledResult<Awaited<ReturnType<typeof attemptEncounter>>>).value);
+    expect(a!.attempt).toEqual(b!.attempt);
+    expect(await db.select().from(schema.encounterAttempts)).toHaveLength(1);
     expect((await db.select().from(schema.specialEncounters))[0]!.chancesLeft).toBe(4);
     expect(await stock()).toBe(0);
   });

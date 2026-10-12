@@ -111,8 +111,8 @@
 입질 조회·시도:
 - 목록 응답 `{ serverTime, bites }`. 각 입질은 `id`, `expeditionId`, `speciesId`, `rarity`, `expiresAt`, `attemptsUsed`, `attemptsMax`(3), `paused`(높은 등급 정지 입질), `chances`, `autoChance`, `gear`를 제공한다. `chances`는 이번 시도의 장비 없는 위치별 성공 확률 11칸이고 `chances[i]`가 `position i/10`(0=가운데, 1=가장자리)의 확률이다. `gear`는 쓸 수 있는 찌·미끼(`id`, `kind`, `count`, `chanceBonus`)이며 `chanceBonus`는 확률에 그대로 더해지고 최대 확률(95%)에서 잘린다. 다른 어종 전용 미끼는 제외한다.
 - 시도 요청의 `attemptNo`는 이번이 몇 번째 시도인지(`attemptsUsed + 1`)다. 직접 시도는 `position`(0~1)을, 자동 시도는 `auto: true`만 보낸다. 서버는 `biteChance`(`game/hunt.ts`)로 확률을 계산하고 입질 시드와 시도 순번에서 만든 난수(`seededRoll`)로 판정하므로 화면 확률과 판정 확률이 같다.
-- 응답 `{ serverTime, attempt: { attemptNo, success, chance }, bite: { id, status, attemptsUsed, attemptsMax, fishId, chances } }`. 성공이면 `caught`로 끝나고 수령 대기 개체(`fishId`)가 원정 결과에 더해진다. 실패하면 다음 시도 확률(시도마다 하락)을 `chances`로 주고, 3번째 실패이거나 그 사이 어종이 보호종·일일 한도 초과가 되면 `escaped`로 바다에 돌려보낸다(야생 개체수 복원).
-- 장비는 시도마다 성공·실패와 무관하게 하나씩 차감한다. 단 보호종·일일 한도·0마리로 어차피 잡을 수 없는 시도는 장비를 차감하지 않고 바로 `escaped`로 끝낸다(특별 맵도 같다).
+- 응답 `{ serverTime, attempt: { attemptNo, success, chance, gearConsumed, releaseReason }, bite: { id, status, attemptsUsed, attemptsMax, fishId, chances } }`. 성공이면 `caught`로 끝나고 수령 대기 개체(`fishId`)가 원정 결과에 더해진다. 실패하면 다음 시도 확률(시도마다 -5%p)을 `chances`로 주고, 3번째 실패이거나 잡을 수 없게 되면 `escaped`로 바다에 돌려보낸다(야생 개체수 복원).
+- 장비는 시도마다 성공·실패와 무관하게 하나씩 차감한다. 시도 사이에 보호종·일일 한도 소진·야생 0마리가 되어 어차피 잡을 수 없는 시도는 "놓아줌"으로 끝내고 장비를 차감하지 않는다(94번). 이때 `gearConsumed: false`, `releaseReason`은 `protected`(보호종·멸종) / `daily_limit`(오늘 한도) / `depleted`(야생 0마리, 특별 맵만)이고 `bite_attempts.gear_consumed`·`release_reason`에 기록한다. 잡을 수 있으면 `gearConsumed: true`, `releaseReason: null`이다(특별 맵도 같다).
 - 직접·자동 시도를 이미 한 입질이 30분 만료되면 자동 판정 없이 `expired`로 닫고 시도 횟수를 유지하며 예약만 푼다. 없거나 종류가 다르거나 다른 어종 전용이면 `409 insufficient_items`이고 아무것도 바꾸지 않는다.
 - 같은 `attemptNo`를 같은 내용으로 다시 보내면 저장된 결과를 돌려주고 장비를 다시 차감하지 않는다(응답 유실 재시도). 열려 있는 입질에 다른 내용이면 `409 idempotency_conflict`, 끝났거나 만료된 입질이면 `409 bite_closed`, 순번을 건너뛰면 `400 invalid_request`, 남의 입질이면 `404`다.
 - 높은 등급 정지 입질도 같은 방식으로 직접 시도한다. 시도 결과가 원정 상태(`completed`, `high_grade_bite`)를 되살리지는 않는다.
@@ -121,9 +121,11 @@
 - 목록 응답 `{ serverTime, encounters }`. 각 항목은 `id`, `regionId`, `speciesId`(공개 전 null), `rarity`, `expiresAt`, `chancesLeft`, `chancesMax`(5), `chances`(이번 기회의 위치별 확률 11칸), `gear`다. 확률 규칙·장비 보정·차감은 입질 시도와 같다(`biteChance`, 시도마다 하락).
 - 개체는 시도하는 순간에만 다룬다(예약 없음). 성공하면 한 트랜잭션에서 야생 개체수를 줄이고 **바로 소유**(`pendingClaim: false`, 원정 결과와 무관)로 만들며 `species_discoveries`에 서버 최초 포획을 기록해 모두에게 공개한다. 실패하면 야생은 그대로다.
 - 성공하면 `finished`. 5번 모두 실패하거나 그 사이 어종이 보호종·일일 한도 초과·0마리가 되면 남은 기회를 0으로 하고 `finished`다. 24시간이 지나면 `expired`가 되어 `409 encounter_closed`다.
-- 응답 `{ serverTime, attempt: { attemptNo, success, chance }, encounter: { id, status, chancesLeft, fishId, speciesId, chances } }`. `speciesId`는 성공했을 때만 채운다.
-- 시도 기록 표가 없어 재전송 결과를 되돌려주지 못한다. 이미 처리된 `attemptNo`는 `409 idempotency_conflict`(장비 차감 없음)이며 클라이언트는 `GET /v1/encounters`로 다시 조회한다. 응답 유실이 잦으면 시도 기록 표를 추가한다.
-- 확률 수치(`manualChance`, `edgeFactor`, `attemptPenalty`)는 `HUNT_TEMP`의 밸런싱 전 임시값이다.
+- 응답 `{ serverTime, attempt: { attemptNo, success, chance, gearConsumed, releaseReason }, encounter: { id, status, chancesLeft, fishId, speciesId, chances } }`. `speciesId`는 성공했을 때만 채운다.
+- 시도는 `encounter_attempts`(위치·장비·확률·성공·차감 여부·사유·개체 id)에 남긴다(92번, `0012_encounter_attempts_gear_consumed.sql` 필요). 같은 `attemptNo`를 같은 내용으로 다시 보내면 상태(마지막 시도로 닫힘·24시간 만료 포함)와 무관하게 저장된 결과를 그대로 돌려주고 장비를 다시 차감하지 않는다. 내용이 다르면 `409 idempotency_conflict`, 닫힌 특별 맵의 새 순번은 `409 encounter_closed`, 순번을 건너뛰면 `400`이다.
+- 특별 맵 성공 확률은 등급과 무관하게 가운데 35%에서 시작하고(99번, `HUNT_TEMP.specialCenter`) 가장자리 배율 40%·시도당 -5%p는 입질과 같다. 장비 보정은 더한다.
+- 발생 확률은 쓴 스태미너 1당 0.1%(100번, `regions.specialMapChance = 0.001`, 회차 확률 = 값 × 그 회차 스태미너)이고, 그 플레이어가 지금 잡을 수 없는 특별 개체(보호종·야생 0마리·오늘 한도 소진)는 맵을 열지 않는다(101번).
+- 확률 수치(`manualChance` 95/90/75/50/30%, `edgeFactor` 0.4, `attemptPenalty` 0.05, 자동 80/70/55/30/15%)는 95~97번으로 확정된 값이며 `HUNT_TEMP`가 원본이다. 찌·미끼 보정은 `items.chance_bonus`(98번), 시드는 `pnpm db:seed`가 넣는다.
 
 ### 사육·교배
 | 상태 | 메서드 | 경로 | 설명 |

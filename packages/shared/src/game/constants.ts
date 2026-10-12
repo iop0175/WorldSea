@@ -90,3 +90,5 @@ export const nextDailyReset = (at: Date): Date =>
  */
 export const BITE_MAX_ATTEMPTS = 3;
 export const SPECIAL_MAP_ATTEMPTS = 5;
+/** 같은 장비 이만큼을 합쳐 한 등급 위 1개 (102번, 모든 등급 같음). 조합 기능은 아직 없다. */
+export const GEAR_COMBINE_COUNT = 5;

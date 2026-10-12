@@ -1,7 +1,7 @@
 import { and, asc, eq, gt, inArray } from 'drizzle-orm';
 import {
   BITE_MAX_ATTEMPTS, gameDay, vulnerableDailyLimit,
-  type BiteAttemptBody, type BiteAttemptResponse, type BitesResponse, type BiteView,
+  type BiteAttemptBody, type BiteAttemptResponse, type BitesResponse, type BiteView, type ReleaseReason,
 } from '@worldsea/shared';
 import { biteAttempts, expeditions, items, playerItems, players, rareBites, species, speciesDailyCatches, wildPopulations } from '@worldsea/shared/db/main';
 import type { Db } from '../db';
@@ -10,6 +10,20 @@ import { biteChance, biteChanceTable, seededRoll } from './hunt';
 import { captureFish, saveWildPopulation, settleExpeditions } from './expeditionProgress';
 
 type Item = typeof items.$inferSelect;
+
+/**
+ * 지금 이 플레이어가 이 어종을 잡을 수 없으면 사유를 돌려준다(94번), 잡을 수 있으면 null.
+ * needStock: 시도 순간에 야생 개체가 남아 있어야 하는 경우(특별 맵). 입질은 이미 한 마리를 예약해 둔 상태라 검사하지 않는다.
+ */
+export function releaseReasonFor(
+  p: { count: number; reserved: number; status: string }, s: { initialPopulation: number }, dailyCount: number, needStock: boolean,
+): ReleaseReason | null {
+  const limit = vulnerableDailyLimit((p.count + p.reserved) / s.initialPopulation * 100);
+  if (p.status === 'extinct_wild' || p.status === 'protected' || limit === 0) return 'protected';
+  if (needStock && p.count < 1) return 'depleted';
+  if (limit !== null && dailyCount >= limit) return 'daily_limit';
+  return null;
+}
 
 export async function loadGear(tx: Db, ...ids: (string | undefined)[]): Promise<Item[]> {
   const wanted = ids.filter((id): id is string => !!id);
@@ -80,9 +94,12 @@ export async function attemptBite(db: Db, playerId: string, biteId: string, body
     const position = body.auto ? null : body.position!;
     const gear = await loadGear(tx, body.floatId, body.baitId);
     const bonus = gear.reduce((sum, item) => sum + item.chanceBonus, 0);
-    const view = (status: 'pending' | 'caught' | 'escaped', attemptsUsed: number, fishId: string | null, success: boolean, chance: number): BiteAttemptResponse => ({
+    const view = (
+      status: 'pending' | 'caught' | 'escaped', attemptsUsed: number, fishId: string | null, success: boolean, chance: number,
+      gearConsumed: boolean, releaseReason: ReleaseReason | null,
+    ): BiteAttemptResponse => ({
       serverTime: at.toISOString(),
-      attempt: { attemptNo: body.attemptNo, success, chance },
+      attempt: { attemptNo: body.attemptNo, success, chance, gearConsumed, releaseReason },
       bite: {
         id: bite.id, status, attemptsUsed, attemptsMax: BITE_MAX_ATTEMPTS, fishId,
         chances: status === 'pending' ? biteChanceTable(s!.rarity, attemptsUsed + 1) : null,
@@ -99,7 +116,7 @@ export async function attemptBite(db: Db, playerId: string, biteId: string, body
         throw new HttpError(409, 'idempotency_conflict', '같은 시도 순번을 다른 내용으로 보낼 수 없습니다');
       }
       return view(bite.status === 'pending' || bite.status === 'caught' ? bite.status : 'escaped', bite.attemptsUsed, bite.fishId, prior.success,
-        biteChance(s!.rarity, position, body.attemptNo, bonus));
+        biteChance(s!.rarity, position, body.attemptNo, bonus), prior.gearConsumed, prior.releaseReason);
     }
     if (bite.status !== 'pending') throw new HttpError(409, 'bite_closed', '이미 끝났거나 놓친 입질입니다');
     if (body.attemptNo !== bite.attemptsUsed + 1) throw new HttpError(400, 'invalid_request', `다음 시도 순번은 ${bite.attemptsUsed + 1}입니다`);
@@ -111,9 +128,9 @@ export async function attemptBite(db: Db, playerId: string, biteId: string, body
 
     const day = gameDay(at);
     const [dailyCatch] = await tx.select().from(speciesDailyCatches).where(and(eq(speciesDailyCatches.playerId, playerId), eq(speciesDailyCatches.day, day), eq(speciesDailyCatches.speciesId, s!.id)));
-    const limit = vulnerableDailyLimit((p!.count + p!.reserved) / s!.initialPopulation * 100);
-    const allowed = p!.status !== 'extinct_wild' && p!.status !== 'protected' && (limit === null || (dailyCatch?.count ?? 0) < limit);
-    // 어차피 잡을 수 없는 시도에는 장비를 쓰지 않는다.
+    const releaseReason = releaseReasonFor(p, s!, dailyCatch?.count ?? 0, false);
+    const allowed = releaseReason === null;
+    // 어차피 잡을 수 없는 시도에는 장비를 쓰지 않는다(94번: 기록에는 고른 장비를 남기고 차감 여부만 구분).
     if (allowed) await spendGear(tx, playerId, s!.id, gear, body.floatId, body.baitId);
     const chance = biteChance(s!.rarity, position, body.attemptNo, bonus);
     const success = allowed && seededRoll(bite.minigameSeed, body.attemptNo) < chance;
@@ -122,7 +139,7 @@ export async function attemptBite(db: Db, playerId: string, biteId: string, body
 
     await tx.insert(biteAttempts).values({
       biteId: bite.id, attemptNo: body.attemptNo, floatId: body.floatId, baitId: body.baitId,
-      position, isAuto: !!body.auto, success, createdAt: at,
+      position, isAuto: !!body.auto, success, gearConsumed: allowed, releaseReason, createdAt: at,
     });
     let fishId: string | null = null;
     if (final) {
@@ -138,6 +155,6 @@ export async function attemptBite(db: Db, playerId: string, biteId: string, body
     await tx.update(rareBites).set({
       status, attemptsUsed: body.attemptNo, isAuto: bite.isAuto || !!body.auto, fishId, ...(final ? { resolvedAt: at } : {}),
     }).where(eq(rareBites.id, bite.id));
-    return view(status, body.attemptNo, fishId, success, chance);
+    return view(status, body.attemptNo, fishId, success, chance, allowed, releaseReason);
   });
 }

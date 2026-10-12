@@ -1,0 +1,188 @@
+{
+  "checks": [
+    {
+      "name": "preview boot",
+      "pass": true
+    },
+    {
+      "name": "tab 샵",
+      "pass": true
+    },
+    {
+      "name": "tab 사육",
+      "pass": true
+    },
+    {
+      "name": "tab 원정",
+      "pass": true
+    },
+    {
+      "name": "tab 도감",
+      "pass": true
+    },
+    {
+      "name": "tab 상점",
+      "pass": true
+    },
+    {
+      "name": "preview hunter select",
+      "pass": true
+    },
+    {
+      "name": "preview hunter label matches",
+      "pass": true
+    },
+    {
+      "name": "repeat preset",
+      "pass": true
+    },
+    {
+      "name": "locked region disabled",
+      "pass": true
+    },
+    {
+      "name": "preview start disabled",
+      "pass": true
+    },
+    {
+      "name": "step 진행 현황",
+      "pass": true
+    },
+    {
+      "name": "step 결과 수령",
+      "pass": true
+    },
+    {
+      "name": "menu open",
+      "pass": true
+    },
+    {
+      "name": "preview menu disabled",
+      "pass": true
+    },
+    {
+      "name": "menu Escape closes",
+      "pass": true
+    },
+    {
+      "name": "menu tab closes",
+      "pass": true
+    },
+    {
+      "name": "main action handlers",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "HUD overflow 360",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "HUD overflow 500",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "HUD overflow 1280",
+      "pass": true,
+      "detail": []
+    },
+    {
+      "name": "profile dialog",
+      "pass": true
+    },
+    {
+      "name": "unfinished action explains status",
+      "pass": true
+    },
+    {
+      "name": "tank routes to farm",
+      "pass": true
+    },
+    {
+      "name": "completed card opens results",
+      "pass": true
+    },
+    {
+      "name": "invalid repeat blocked",
+      "pass": true
+    },
+    {
+      "name": "start API error displayed",
+      "pass": true
+    },
+    {
+      "name": "successful start opens progress",
+      "pass": true
+    },
+    {
+      "name": "double click only one start",
+      "pass": true,
+      "detail": [
+        {
+          "body": {
+            "hunterId": "11111111-1111-4111-8111-111111111111",
+            "regionId": "asia_fresh",
+            "repeatTotal": 10,
+            "options": {
+              "recovery": "none"
+            }
+          },
+          "key": "5d692d0e-f47e-4ed3-b7f2-157c68e4c5d1"
+        },
+        {
+          "body": {
+            "hunterId": "11111111-1111-4111-8111-111111111111",
+            "regionId": "asia_fresh",
+            "repeatTotal": 10,
+            "options": {
+              "recovery": "none"
+            }
+          },
+          "key": "fd984b69-e478-40a3-b03b-5a30be035c15"
+        }
+      ]
+    },
+    {
+      "name": "start idempotency key",
+      "pass": true
+    },
+    {
+      "name": "progress data",
+      "pass": true
+    },
+    {
+      "name": "result reward display",
+      "pass": true
+    },
+    {
+      "name": "claim executed",
+      "pass": true
+    },
+    {
+      "name": "bite game opens",
+      "pass": true
+    },
+    {
+      "name": "bite attempt payload",
+      "pass": true,
+      "detail": [
+        {
+          "attemptNo": 1,
+          "position": 0.9560978775809447
+        }
+      ]
+    },
+    {
+      "name": "bite game closes",
+      "pass": true
+    },
+    {
+      "name": "no runtime errors",
+      "pass": true,
+      "detail": []
+    }
+  ],
+  "errors": []
+}

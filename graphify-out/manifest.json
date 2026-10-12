@@ -20,8 +20,8 @@
     "semantic_hash": ""
   },
   "packages/client/src/api.ts": {
-    "mtime": 1791766294.6647966,
-    "ast_hash": "45eadfd37f6f905b8a2020f0c4385cc3",
+    "mtime": 1791779885.5147755,
+    "ast_hash": "64875aaf169fc95cbe9e213af89fad2f",
     "semantic_hash": ""
   },
   "packages/client/src/auth/supabase.ts": {
@@ -75,13 +75,13 @@
     "semantic_hash": ""
   },
   "packages/client/src/ui/App.tsx": {
-    "mtime": 1791766294.6677969,
-    "ast_hash": "08aaa62c38abe73e9921bf985d74c8db",
+    "mtime": 1791793184.4668384,
+    "ast_hash": "9b39339b69852ebdb2395f2a5560a0b3",
     "semantic_hash": ""
   },
   "packages/client/src/ui/PixelIcon.tsx": {
-    "mtime": 1790924752.9361818,
-    "ast_hash": "90675c791e355d8e94c339764ed86051",
+    "mtime": 1791780604.6190848,
+    "ast_hash": "189a621b6151a31ab0095be60c4c9e22",
     "semantic_hash": ""
   },
   "packages/client/src/ui/mock.ts": {
@@ -320,8 +320,8 @@
     "semantic_hash": ""
   },
   "packages/shared/src/index.ts": {
-    "mtime": 1791254358.2912462,
-    "ast_hash": "83cf02401369b74ee725d48e1c4fc23f",
+    "mtime": 1791779875.2062695,
+    "ast_hash": "67d873cb7cee05a43b2683fe4643b9b0",
     "semantic_hash": ""
   },
   "packages/shared/src/seed/build.ts": {
@@ -405,8 +405,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1791779498.5574095,
-    "ast_hash": "9338100daf6d27daba5d6af4eac3fd6c",
+    "mtime": 1791781150.7924197,
+    "ast_hash": "7dc12321074d993b13af7cf19df26228",
     "semantic_hash": ""
   },
   "docs/api.md": {
@@ -480,13 +480,13 @@
     "semantic_hash": ""
   },
   "packages/client/src/ui/ExpeditionPanel.tsx": {
-    "mtime": 1791766294.668797,
-    "ast_hash": "1c9f38b4eea70edd1f8c12e96b7b68ff",
+    "mtime": 1791792380.9630327,
+    "ast_hash": "1f30e7a0684ae956745b9ac1398fd332",
     "semantic_hash": ""
   },
   "packages/server/scripts/smoke.ts": {
-    "mtime": 1791766294.6707976,
-    "ast_hash": "f2208be7d28a5fcf696431b52abc44ac",
+    "mtime": 1791779997.377745,
+    "ast_hash": "3b51720ff893a55f52436af208d3a63c",
     "semantic_hash": ""
   },
   "artifacts/expedition-after.png": {
@@ -867,6 +867,426 @@
   "packages/shared/migrations/main/meta/0012_snapshot.json": {
     "mtime": 1791778405.1845517,
     "ast_hash": "c913e64979bbc9182b2a138bc270d8cb",
+    "semantic_hash": ""
+  },
+  "packages/client/src/ui/BitePanel.tsx": {
+    "mtime": 1791780989.4750896,
+    "ast_hash": "8aab709f575188f6ea39e3b5bcc8ed24",
+    "semantic_hash": ""
+  },
+  "packages/shared/src/game/biteGauge.test.ts": {
+    "mtime": 1791779870.5889654,
+    "ast_hash": "819e2ec107ba8a029299b65f2a2d82b5",
+    "semantic_hash": ""
+  },
+  "packages/shared/src/game/biteGauge.ts": {
+    "mtime": 1791779863.964633,
+    "ast_hash": "02ee8ab1b701a034adaab82ec6cdd848",
+    "semantic_hash": ""
+  },
+  "packages/client/scripts/extract-reference-ui.py": {
+    "mtime": 1791793909.0147572,
+    "ast_hash": "eca8c5b4a707d3de99bf156058bd0331",
+    "semantic_hash": ""
+  },
+  "docs/ui-design-brief.md": {
+    "mtime": 1791783473.8050902,
+    "ast_hash": "8a8ac690ad7a764a92b166d506d321cf",
+    "semantic_hash": ""
+  },
+  "images/021bc4e7-f646-4283-ac4a-6fb13f9f4225.png": {
+    "mtime": 1791245645.820513,
+    "ast_hash": "1a3a88730cece6eb5f4454d6fc89df3b",
+    "semantic_hash": ""
+  },
+  "images/asset/01_shop.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "138c4e36334156c8b0c9d3a042381c6c",
+    "semantic_hash": ""
+  },
+  "images/asset/01_top_bar_full.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "da9b6fbe70646035ba9208163050b512",
+    "semantic_hash": ""
+  },
+  "images/asset/02_aquarium_tank.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "a6afc78f3ce63499231416e7fea20e57",
+    "semantic_hash": ""
+  },
+  "images/asset/02_profile_avatar.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "88a686b2d36e236cf49a34c148370e66",
+    "semantic_hash": ""
+  },
+  "images/asset/03_crab.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "cbe426782a18b92df2c9dbeae3ce2726",
+    "semantic_hash": ""
+  },
+  "images/asset/03_menu_button.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "a7b91f81d1411c2edb889a411add4910",
+    "semantic_hash": ""
+  },
+  "images/asset/04_map.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "a26418529de7166a40e3300651842b8a",
+    "semantic_hash": ""
+  },
+  "images/asset/04_title_banner_coral_wave.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "b8b1d42d8dd5fc51bfd0d4cfef8a4e01",
+    "semantic_hash": ""
+  },
+  "images/asset/05_book_crown.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "3226f991459580bb966b211bb4bcc7b9",
+    "semantic_hash": ""
+  },
+  "images/asset/05_side_panel_calendar_bonsai.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "fe3e5ab1cf421b48742fbb4cb9b48120",
+    "semantic_hash": ""
+  },
+  "images/asset/06_shopping_basket.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "da342f1403eeccce26172d967421f054",
+    "semantic_hash": ""
+  },
+  "images/asset/06_side_panel_bag_org.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "01600b90949220989d7d9db749df8ff2",
+    "semantic_hash": ""
+  },
+  "images/asset/07_long_bar_gem_ends.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "8b141d85581f3548cd5da1da0d1d0896",
+    "semantic_hash": ""
+  },
+  "images/asset/08_card_underwater.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "528ea91ccd61d9594d4a098568121612",
+    "semantic_hash": ""
+  },
+  "images/asset/09_card_gold_map.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "b247a08b11d4e40035a3b9e73f48cf7c",
+    "semantic_hash": ""
+  },
+  "images/asset/10_card_blue_dragon.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "ef73a2721cd8eda59b769dca2704c03c",
+    "semantic_hash": ""
+  },
+  "images/asset/11_card_dark_dragon.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "5e2d7acc314a9436880cb7439ebd4952",
+    "semantic_hash": ""
+  },
+  "images/asset/12_btn_settings.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "f027a9293101f14ffddbf042693fccef",
+    "semantic_hash": ""
+  },
+  "images/asset/13_btn_mail.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "37723ea826e5ca336ee864a22cf3566b",
+    "semantic_hash": ""
+  },
+  "images/asset/14_btn_trophy.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "0d55f6612fe39e80214fa4bfa15251de",
+    "semantic_hash": ""
+  },
+  "images/asset/15_btn_crown.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "848d9afc56fecf0eb336fab289b46afa",
+    "semantic_hash": ""
+  },
+  "images/asset/16_btn_star.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "ecb9cb270dcd0c804c33e52cddb108ad",
+    "semantic_hash": ""
+  },
+  "images/asset/17_small_panel_blue.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "de2f2a28521b8967e45c72c9e2e59c01",
+    "semantic_hash": ""
+  },
+  "images/asset/18_small_panel_wood.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "15d5af570f411e11bb2b2e3eaa947949",
+    "semantic_hash": ""
+  },
+  "images/asset/19_small_bar_gem.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "378dbaf4bfe75b00e2d143b91bc63490",
+    "semantic_hash": ""
+  },
+  "images/asset/20_btn_close.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "2a648681d06182af5b122b975b10b774",
+    "semantic_hash": ""
+  },
+  "images/e325f3a9-4696-470b-bb50-65705db4a73b.png": {
+    "mtime": 1791245640.1106994,
+    "ast_hash": "c8d76683dedf1ba003e3a462de4d586f",
+    "semantic_hash": ""
+  },
+  "images/\ub808\ud2b8\ub85c \ud53d\uc140 \uc544\ucfe0\uc544\ub9ac\uc6c0 \ub300\uad11\uc7a5.png": {
+    "mtime": 1790917075.445824,
+    "ast_hash": "59f7e84109dcd092c3de63fb5ec687ce",
+    "semantic_hash": ""
+  },
+  "images/\uc218\uc871\uad00 \uac8c\uc784 UI \ud53d\uc140 \uc544\ud2b8 \uc2a4\ud504\ub77c\uc774\ud2b8 \uc2dc\ud2b8.png": {
+    "mtime": 1791249836.6581383,
+    "ast_hash": "f959329c9301d2fde46a7727206849e9",
+    "semantic_hash": ""
+  },
+  "images/\ud53d\uc140 \uc544\ucfe0\uc544\ub9ac\uc6c0 \uc6d0\uc815 UI \ubaa8\uc74c.png": {
+    "mtime": 1791783911.5029726,
+    "ast_hash": "3e64ca71a4c5d8c936856d72fc950750",
+    "semantic_hash": ""
+  },
+  "images/\ud53d\uc140 \uc544\ud2b8 \uc544\ucfe0\uc544\ub9ac\uc6c0 \ub85c\ube44.png": {
+    "mtime": 1790917705.741693,
+    "ast_hash": "fd48229cb740c7f27bd0aa137cac4b54",
+    "semantic_hash": ""
+  },
+  "images/\ud53d\uc140 \uc544\ud2b8 \uc6d0\uc815 \ud50c\ub85c\uc6b0 UI.png": {
+    "mtime": 1791785114.6136627,
+    "ast_hash": "0f4db03981acca5dd8df34fac7cc4876",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/01_shop.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "138c4e36334156c8b0c9d3a042381c6c",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/01_top_bar_full.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "da9b6fbe70646035ba9208163050b512",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/02_aquarium_tank.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "a6afc78f3ce63499231416e7fea20e57",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/02_profile_avatar.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "88a686b2d36e236cf49a34c148370e66",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/03_crab.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "cbe426782a18b92df2c9dbeae3ce2726",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/03_menu_button.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "a7b91f81d1411c2edb889a411add4910",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/04_map.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "a26418529de7166a40e3300651842b8a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/04_title_banner_coral_wave.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "b8b1d42d8dd5fc51bfd0d4cfef8a4e01",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/05_book_crown.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "3226f991459580bb966b211bb4bcc7b9",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/05_side_panel_calendar_bonsai.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "fe3e5ab1cf421b48742fbb4cb9b48120",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/06_shopping_basket.png": {
+    "mtime": 1791251671.0,
+    "ast_hash": "da342f1403eeccce26172d967421f054",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/06_side_panel_bag_org.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "01600b90949220989d7d9db749df8ff2",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/07_long_bar_gem_ends.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "8b141d85581f3548cd5da1da0d1d0896",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/08_card_underwater.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "528ea91ccd61d9594d4a098568121612",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/09_card_gold_map.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "b247a08b11d4e40035a3b9e73f48cf7c",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/10_card_blue_dragon.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "ef73a2721cd8eda59b769dca2704c03c",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/11_card_dark_dragon.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "5e2d7acc314a9436880cb7439ebd4952",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/12_btn_settings.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "f027a9293101f14ffddbf042693fccef",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/13_btn_mail.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "37723ea826e5ca336ee864a22cf3566b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/14_btn_trophy.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "0d55f6612fe39e80214fa4bfa15251de",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/15_btn_crown.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "848d9afc56fecf0eb336fab289b46afa",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/16_btn_star.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "ecb9cb270dcd0c804c33e52cddb108ad",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/17_small_panel_blue.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "de2f2a28521b8967e45c72c9e2e59c01",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/18_small_panel_wood.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "15d5af570f411e11bb2b2e3eaa947949",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/19_small_bar_gem.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "378dbaf4bfe75b00e2d143b91bc63490",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/20_btn_close.png": {
+    "mtime": 1791251459.0,
+    "ast_hash": "2a648681d06182af5b122b975b10b774",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/expedition-banner.png": {
+    "mtime": 1791793942.8558402,
+    "ast_hash": "a7d44fd8217e15d68b723b4fe2e4ca57",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/gold.png": {
+    "mtime": 1791793942.8188956,
+    "ast_hash": "c0466e25c8181a24ee10b59ee14c485b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/hunter-kai.png": {
+    "mtime": 1791793942.8528402,
+    "ast_hash": "d4f5743126c027b34241360c41aa4207",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/hunter-luna.png": {
+    "mtime": 1791793942.8538396,
+    "ast_hash": "1eb4a14330f457674a425cd88a8c1601",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/hunter-rex.png": {
+    "mtime": 1791793942.8538396,
+    "ast_hash": "d36524dca644510dc3985cbf46a25fad",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/lock.png": {
+    "mtime": 1791793942.8218415,
+    "ast_hash": "8a556f9229b33b08f7643c8bde2fd9f2",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/menu.png": {
+    "mtime": 1791793942.8208404,
+    "ast_hash": "52475ce91a1a9f4687c5383c3c387c28",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/premium.png": {
+    "mtime": 1791793942.8178413,
+    "ast_hash": "cdf944c9c58c29384ba344a14667ddbe",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/region-ancient.png": {
+    "mtime": 1791793942.851841,
+    "ast_hash": "e263faed757b5b6019f3791a5dd23e81",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/region-coral.png": {
+    "mtime": 1791793942.849841,
+    "ast_hash": "3beed64385022dd57f4e4d0f3ba19dea",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/region-deep.png": {
+    "mtime": 1791793942.85084,
+    "ast_hash": "fa3d0bee9b03e85e6fe14a6e0ffdfa7b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/region-forest.png": {
+    "mtime": 1791793942.851841,
+    "ast_hash": "3593130a0a7e54d5f368ce154c4d26ff",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/stamina.png": {
+    "mtime": 1791793942.8198414,
+    "ast_hash": "87e33c83de30fbe29d24935c4fbc495f",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/reference/ticket.png": {
+    "mtime": 1791793942.8208404,
+    "ast_hash": "6b775a1f02c1a28a3f045592a36af19c",
+    "semantic_hash": ""
+  },
+  ".ui-qa/check.mjs": {
+    "mtime": 1791849333.3581655,
+    "ast_hash": "ec1cd340fdbfe5728fb7ae84b4bbceb4",
+    "semantic_hash": ""
+  },
+  ".ui-qa/report.json": {
+    "mtime": 1791793958.8766994,
+    "ast_hash": "783f0cdf85b003e6de6f5ad26142543d",
+    "semantic_hash": ""
+  },
+  ".ui-qa/bite-360.png": {
+    "mtime": 1791793958.7926679,
+    "ast_hash": "7d85a73fc049148a53712e087c04ecc2",
+    "semantic_hash": ""
+  },
+  ".ui-qa/expedition-360.png": {
+    "mtime": 1791793957.9627764,
+    "ast_hash": "af3c6d0fc9b00b4edbc660ebc79b962b",
+    "semantic_hash": ""
+  },
+  ".ui-qa/expedition-top-360.png": {
+    "mtime": 1791793958.0159936,
+    "ast_hash": "5cb40d00f68d10b8861b054020fd6690",
+    "semantic_hash": ""
+  },
+  ".ui-qa/main-360.png": {
+    "mtime": 1791793957.662364,
+    "ast_hash": "7f7595142de9ea5864d7852d9561fa2c",
     "semantic_hash": ""
   }
 }

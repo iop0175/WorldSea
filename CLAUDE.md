@@ -162,6 +162,7 @@
   - src/auth/supabase.ts: Supabase Auth(로그인·토큰만, DB 직접 접근 금지). 환경 변수 없으면 미리보기 모드
   - src/session.ts: 로그인 상태 → /v1/me → needs_signup이면 닉네임 화면 / src/api.ts: 토큰을 붙여 Workers API 호출
   - src/ui/ExpeditionPanel.tsx: 원정 탭 스켈레톤. 지역·헌터·반복 횟수·스태미너 부족 시 정책 선택 → 수색 시작 API → /v1/me로 상태 갱신. 응답 유실 재시도 키는 sessionStorage에 보관. 반복 진행·수령·입질은 아직 미구현. 헌터 카드에서도 원정 탭 진입.
+  - src/ui/BitePanel.tsx: 원정 탭 안의 입질·특별 맵 카드 목록과 직접 잡기 장면(BiteGame, .hud에 포털). 서버가 준 확률 표만 보간해 표시하고 판정은 서버가 한다. 순수 로직은 shared/game/biteGauge.ts. 글자 크기는 #frame이 아닌 각 시트(.sheet)에서 지정해야 한다(프레임 자체의 cqw 계산이 컨테이너 밖이라 크게 잡힘). 시트의 스크롤바는 숨기고 스크롤은 유지
   - src/ui/viewModel.ts: 서버 응답(또는 미리보기 mock)을 화면 값으로 변환
   - src/game/layout.ts: 해상도(360x640), 화면 영역(LAYOUT), 1단계 샵 배치(STAGE1_SPOTS). Phaser와 React가 같은 좌표를 쓴다
   - src/game/scenes: BootScene(임시 도트 텍스처: 14x8 물고기 레이어 합성, 치어, 사람), HubScene(1단계 탑다운 3/4 임시 장면: 도형 수조·카운터·교배실·치어 수조·문, 헤엄치는 물고기, 통로를 걷는 사람)
@@ -207,7 +208,8 @@
 검증(2026-10-10, 수령 단계): 전체 타입 검사·shared/server 테스트 89개·DB 마이그레이션과 가드·클라이언트 빌드·Workers dry-run 통과. 실제 모바일 크기 브라우저에서 로그인, 예시 수령, 3회 반복 수색, 완료, 모두 수령, 새로고침 후 상태 유지 확인. 로컬 데모는 5초 수색과 수령 대기 베타 2마리/예시 보상을 사용하며 실제 DB·지역 시드는 변경하지 않는다.
 완료(2026-10-12): 직접 입질 시도 API(GET /v1/bites, POST /v1/bites/:id/attempt). 가로 게이지 위치(0~1)와 장비로 위치별 성공 확률을 계산해 화면 확률과 판정을 일치시키고(80번), 시도마다 확률 하락·장비 차감·3번째 실패 시 방류(78번)를 구현했다. 기존 자동 판정과 같은 포획 확정 코드(captureFish)를 쓰도록 expeditionProgress.ts에서 분리했다. 검증: 전체 타입 검사·shared 31개·server 74개 통과(이후 어브노말 테스트 포함 147개).
 완료(2026-10-12): 특별 맵 시도 API(GET /v1/encounters, POST /v1/encounters/:id/attempt). 입질 시도와 같은 확률 규칙, 성공 시 바로 소유·서버 최초 포획 공개(66번). 검증: 타입 검사·shared 31개·server 85개 통과.
-다음: 입질 미니게임·특별 맵 화면(client). 가로 게이지 + 바늘 왕복(중심일수록 빠름), 서버가 준 위치별 확률 표 표시, 장비 선택, 남은 시간/기회 표시. 원정 탭의 pendingBites에서 진입.
+완료(2026-10-12): 입질·특별 맵 직접 잡기 화면(client). 원정 탭 상단 "입질 · 특별 맵" 카드 목록(등급색 윤곽의 물고기 실루엣, 남은 시간)에서 들어가면 게임 화면 위에 덮는 전용 장면이 열린다: 물 배경과 떠다니는 물고기, 기회 칸·시간 막대, 확률에 따라 빨강→초록으로 칠한 21칸 게이지와 흰 바늘(왕복, 가운데일수록 빠름), 바늘 위치의 큰 확률 숫자, 찌·미끼 슬롯(누를 때마다 보유 장비로 순환), 큰 "지금!" 버튼과 자동으로 넘기기(입질만). 결과는 배너(잡았다/아깝다/놓쳤다/놓아줌)와 물고기 연출(빛남·흔들림·헤엄쳐 사라짐)로 보여 주고, 놓아줌 사유와 장비 미사용 안내, 연결이 끊기면 같은 시도를 다시 보내 저장된 결과를 받는다. 특별 개체는 잡은 직후 이름이 공개된다(브라우저에서는 미확인). 화면은 서버가 준 확률 표만 보간해 보여 주고 판정은 서버가 한다. 로직 shared/game/biteGauge.ts(테스트 포함), 화면 client/src/ui/BitePanel.tsx(장면은 .hud에 포털), 아이콘 PixelIcon의 fish·bobber·worm. 스모크 서버(pnpm dev:smoke)에 예시 입질·특별 맵이 들어 있다. 실제 브라우저에서 목록·입질 장면·특별 맵 장면·결과 연출·장비 선택을 확인했다(2026-10-12).
+다음: 화면 확인 후 다듬기(바늘 조작감, 결과 연출), 이후 기능(출석, 보전 포인트 사용처, 조합 기능 등).
 수색 구현 시 참고할 결정: 대상 등급 69, 포획 시점 70, 놓아줌 71·72, 어종 결정 73, 취약 한도 74, 하루 기준 75, 보관 76, 자리 비움 77, 시도 78, 조작 79, 확률 표시 80, 등급 난이도 81, 특별 맵 82. 준비된 규칙 함수: needsMinigame·releaseReward·gameDay·nextDailyReset·BITE_MAX_ATTEMPTS(shared/game/constants.ts), vulnerableDailyLimit·statusFromPercent(shared/game/population.ts), computeStamina(shared/game/stamina.ts), hunterSlots(shared/game/hunters.ts).
 어브노말 테스트(2026-10-12, server/test/abnormal.test.ts) 수정 완료: ① 직접·자동 시도를 한 입질이 만료되면 자동 판정 없이 expired로 닫고(시도 순번 충돌로 만료 정리가 500이 되어 모든 요청이 막히던 문제), 다른 플레이어의 만료 정리가 실패해도 요청한 플레이어는 막지 않는다(실패는 console.error) ② 보호종·일일 한도·0마리로 잡을 수 없는 시도는 장비를 차감하지 않고 바다로 돌려보낸다 ③ 야생 개체수 행이 없으면 TypeError 대신 500 internal ④ 시드 난수를 (0,1) 열린 구간으로 바꿔 항상 성공하는 시드를 없앴다.
 

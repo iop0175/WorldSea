@@ -1,16 +1,16 @@
-# Graph Report - WorldSea-github  (2026-10-12)
+# Graph Report - WorldSea-github  (2026-10-13)
 
 ## Corpus Check
-- 131 files · ~641,433 words
+- 138 files · ~1,270,609 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1123 nodes · 1944 edges · 66 communities (60 shown, 6 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 7 edges (avg confidence: 0.67)
+- 1189 nodes · 2092 edges · 80 communities (74 shown, 6 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 8 edges (avg confidence: 0.65)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `6cd82ec8`
+- Built from commit: `36099e2a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -22,17 +22,17 @@
 - server/package.json
 - dependencies
 - HubScene
-- 월드씨 화면 구성 요소 목록 (v0.1)
+- 4. 원정 탭
 - What You Must Do When Invoked
 - game/bites.ts
 - constants.ts
 - 6. 어종 표
-- players.ts
+- advanceExpeditions
 - 메인 화면(샵 1단계) 에셋 목록
 - scripts
 - abnormal.test.ts
 - 3. UI 요소
-- 백악기 (9종)
+- BitePanel.tsx
 - app.ts
 - 월드씨 (WorldSea)
 - api/types.ts
@@ -41,8 +41,8 @@
 - log.schema.ts
 - shared/src/index.ts
 - compilerOptions
-- hunt.ts
 - expeditionProgress.ts
+- expeditions.ts
 - verify.mjs
 - fish-pixelize.py
 - graphify reference: extra exports and benchmark
@@ -66,59 +66,73 @@
 - 남미 민물 (11종)
 - 아시아 민물 (11종)
 - 아프리카 민물 (11종)
-- morphs.ts
+- api.ts
 - 인도양 (10종)
 - 데본기 (10종)
 - 중미 민물 (10종)
 - 북미 민물 (10종)
-- errors.ts
+- check.mjs
 - 유럽 민물 (9종)
 - 북극해 (9종)
+- ExpeditionPanel.tsx
 - 대서양 (9종)
 - fishArt.ts
+- viewModel.ts
 - 물고기 그림 규격 (디자인 결정 84~88번)
 - 3단계
+- store.ts
+- biteGauge.ts
+- 백악기 (9종)
+- morphs.ts
+- 월드씨 UI 디자인 브리프
+- 월드씨 화면 구성 요소 목록 (v0.1)
+- 메인 화면(샵 허브) UI 기준 (v2)
+- 3. 사육 탭
+- 2. 샵 탭 (허브)
+- 3. 메인 화면 구성
+- 4. 샵 장면 (탑다운 3/4 시점)
+- 4. 원정 화면
 
 ## God Nodes (most connected - your core abstractions)
 1. `settleExpeditions()` - 24 edges
 2. `HubScene` - 23 edges
-3. `Db` - 14 edges
-4. `attemptBite()` - 14 edges
-5. `attemptEncounter()` - 14 edges
-6. `hasAsset()` - 13 edges
-7. `월드씨 (WorldSea)` - 13 edges
-8. `6. 어종 표` - 13 edges
-9. `HttpError` - 12 edges
-10. `What You Must Do When Invoked` - 12 edges
+3. `request()` - 14 edges
+4. `Db` - 14 edges
+5. `attemptBite()` - 14 edges
+6. `attemptEncounter()` - 14 edges
+7. `hasAsset()` - 13 edges
+8. `refreshMe()` - 13 edges
+9. `useGameStore` - 13 edges
+10. `월드씨 (WorldSea)` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `FishPreview()` --indirect_call--> `hasAsset()`  [INFERRED]
   packages/client/src/preview/FishPreview.tsx → packages/client/src/game/assets.ts
 - `App()` --indirect_call--> `hasAsset()`  [INFERRED]
   packages/client/src/ui/App.tsx → packages/client/src/game/assets.ts
-- `FileTable()` --calls--> `hasAsset()`  [EXTRACTED]
-  packages/client/src/preview/FishPreview.tsx → packages/client/src/game/assets.ts
-- `loadImage()` --calls--> `assetUrl()`  [EXTRACTED]
-  packages/client/src/game/fishCompose.ts → packages/client/src/game/assets.ts
-- `Icon()` --calls--> `assetUrl()`  [EXTRACTED]
-  packages/client/src/ui/App.tsx → packages/client/src/game/assets.ts
+- `App()` --calls--> `fetchHealth()`  [EXTRACTED]
+  packages/client/src/ui/App.tsx → packages/client/src/api.ts
+- `SignupScreen()` --calls--> `createPlayer()`  [EXTRACTED]
+  packages/client/src/ui/App.tsx → packages/client/src/api.ts
+- `ExpeditionPanel()` --calls--> `getRegions()`  [EXTRACTED]
+  packages/client/src/ui/ExpeditionPanel.tsx → packages/client/src/api.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (66 total, 6 thin omitted)
+## Communities (80 total, 6 thin omitted)
 
 ### Community 0 - "App.tsx"
-Cohesion: 0.06
-Nodes (73): ApiRequestError, claimExpedition(), createPlayer(), fetchHealth(), getExpeditions(), getMe(), getRegions(), realtimeUrl() (+65 more)
+Cohesion: 0.16
+Nodes (23): redirectTo(), signInWithEmail(), signInWithProvider(), assetUrl(), useGameStore, App(), bgImage(), box() (+15 more)
 
 ### Community 1 - "world.ts"
 Cohesion: 0.06
-Nodes (54): db, sqlText, all, RARITY, STATUS, TIER, TREND, ConservationStatusValue (+46 more)
+Nodes (53): db, sqlText, all, RARITY, STATUS, TIER, TREND, ConservationStatusValue (+45 more)
 
 ### Community 2 - "main.schema.ts"
 Cohesion: 0.04
-Nodes (46): aquariumRatings, auctionBids, auctions, auctionStatus, biteStatus, breedings, breedingStatus, conservationStatus (+38 more)
+Nodes (45): aquariumRatings, auctionBids, auctions, auctionStatus, biteStatus, breedings, breedingStatus, conservationStatus (+37 more)
 
 ### Community 3 - "scripts"
 Cohesion: 0.05
@@ -136,17 +150,17 @@ Nodes (35): galmuri, dependencies, galmuri, phaser, react, react-dom, @supabase/
 Cohesion: 0.08
 Nodes (19): ASSET_URLS, files, hasAsset(), SHEETS, SLICES, GAME_HEIGHT, GAME_WIDTH, LAYOUT (+11 more)
 
-### Community 7 - "월드씨 화면 구성 요소 목록 (v0.1)"
-Cohesion: 0.07
-Nodes (26): 0. 공통 요소 (모든 화면), 1. 시작 흐름, 2-1. 허브 메인 (확정), 2-2. 시장 (확정: 하이브리드), 2-3. 길드 (확정), 2-4. 수족관 전시 (확정: 최종 콘텐츠), 2. 샵 탭 (허브), 3-1. 수조 목록 (확정) (+18 more)
+### Community 7 - "4. 원정 탭"
+Cohesion: 0.25
+Nodes (8): 4-1. 원정 메인 (확정), 4-2. 지역 선택 (확정), 4-3. 수색 설정 (확정), 4-4. 결과 수령 (확정), 4-5. 입질 미니게임 (확정, 77~81번), 4-6. 특별 맵 (확정), 4-7. 헌터 외형 (확정), 4. 원정 탭
 
 ### Community 8 - "What You Must Do When Invoked"
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 9 - "game/bites.ts"
-Cohesion: 0.18
-Nodes (29): attemptBite(), Item, listBites(), loadGear(), loadStock(), releaseReasonFor(), spendGear(), Stock (+21 more)
+Cohesion: 0.16
+Nodes (30): HttpError, attemptBite(), Item, listBites(), loadGear(), loadStock(), releaseReasonFor(), spendGear() (+22 more)
 
 ### Community 10 - "constants.ts"
 Cohesion: 0.13
@@ -156,9 +170,9 @@ Nodes (17): BITE_MAX_ATTEMPTS, BOTTOM_TAB_LABEL_KO, BOTTOM_TABS, DAILY_RESET_UTC
 Cohesion: 0.10
 Nodes (19): 1. 원칙, 2. 변환 규칙, 3. 결과 요약, 4. 주의 사항, 5. 지역 (임시 수치), 6. 어종 표, 남미 민물 (Lv.10), 대서양 (Lv.25) (+11 more)
 
-### Community 12 - "players.ts"
-Cohesion: 0.12
-Nodes (20): advanceExpeditions(), loadMe(), playerRoutes, STARTING, CreatePlayerBody, hunters, subscriptions, HUNTER_SLOT_MAX (+12 more)
+### Community 12 - "advanceExpeditions"
+Cohesion: 0.20
+Nodes (11): advanceExpeditions(), loadMe(), HUNTER_SLOT_MAX, HUNTER_SLOT_TEMP, hunterSlots(), computeStamina(), STAMINA_TEMP, staminaMax() (+3 more)
 
 ### Community 13 - "메인 화면(샵 1단계) 에셋 목록"
 Cohesion: 0.13
@@ -169,20 +183,20 @@ Cohesion: 0.11
 Nodes (17): name, packageManager, pnpm, onlyBuiltDependencies, private, scripts, build, db:gen:log (+9 more)
 
 ### Community 15 - "abnormal.test.ts"
-Cohesion: 0.12
-Nodes (12): Db, Schema, START, START, START, at(), expedition(), START (+4 more)
+Cohesion: 0.10
+Nodes (17): CHANCE_STEPS, chooseSpecies(), HUNT_TEMP, huntOutcome(), seededRoll(), weighted(), START, START (+9 more)
 
 ### Community 16 - "3. UI 요소"
-Cohesion: 0.14
-Nodes (13): ① 상단바 (한 줄), 1. 해상도와 화면 영역, 2. 공통 스타일, ② 샵 장면 위 UI, 3. UI 요소, ③ 헌터 띠, 4. 샵 장면 (탑다운 3/4 시점), ④ 하단 탭바 (+5 more)
+Cohesion: 0.40
+Nodes (5): ① 상단바 (한 줄), ② 샵 장면 위 UI, 3. UI 요소, ③ 헌터 띠, ④ 하단 탭바
 
-### Community 17 - "백악기 (9종)"
-Cohesion: 0.20
-Nodes (10): 길리쿠스 · `gillicus_arcuatus` · 고급 · 고대, 레피도테스 · `lepidotes` · 일반 · 고대, 백악기 (9종), 스쿠알리코락스 · `squalicorax` · 희귀 · 고대, 엔코두스 · `enchodus` · 일반 · 고대, 크레톡시리나 · `cretoxyrhina_mantelli` · 영웅 · 고대, 크시팍티누스 · `xiphactinus_audax` · 전설 · 고대, 폭풍턱어 · `orig_stormjaw` · 영웅 · 오리지널 특별 개체 (+2 more)
+### Community 17 - "BitePanel.tsx"
+Cohesion: 0.14
+Nodes (20): BiteGame(), BitePanel(), chanceColor(), CLOSED_CODES, fishArt(), Gear, loadRegionNames(), Outcome (+12 more)
 
 ### Community 18 - "app.ts"
 Cohesion: 0.06
-Nodes (41): hono, hono, app, clientDir, db, demoAt, keys, migrations (+33 more)
+Nodes (44): hono, hono, app, clientDir, db, demoAt, keys, migrations (+36 more)
 
 ### Community 19 - "월드씨 (WorldSea)"
 Cohesion: 0.14
@@ -190,7 +204,7 @@ Nodes (13): 게임 시스템, 기술 스택, 등급, 명령어 (저장소 루트
 
 ### Community 20 - "api/types.ts"
 Cohesion: 0.08
-Nodes (23): regionRoutes, ApiError, BiteView, ClaimExpeditionsResponse, EncounterAttemptResponse, EncountersResponse, EncounterView, HunterView (+15 more)
+Nodes (23): Round, ApiErrorCode, BiteView, ClaimExpeditionsResponse, EncountersResponse, EncounterView, HunterView, huntOptionsBody (+15 more)
 
 ### Community 21 - "FishPreview.tsx"
 Cohesion: 0.11
@@ -205,20 +219,20 @@ Cohesion: 0.17
 Nodes (10): actionLogs, catchLogs, catchSource, currencyKind, currencyLogs, gachaLogs, populationLogs, populationReason (+2 more)
 
 ### Community 24 - "shared/src/index.ts"
-Cohesion: 0.36
-Nodes (8): AlleleDef, Dominance, ExpeditionResult, GeneLayer, Genotype, HuntOptions, Reward, TankEquipment
+Cohesion: 0.38
+Nodes (8): AlleleDef, Dominance, ExpeditionResult, GeneLayer, Genotype, HuntOptions, LocusDef, Reward
 
 ### Community 25 - "compilerOptions"
 Cohesion: 0.18
 Nodes (10): compilerOptions, forceConsistentCasingInFileNames, isolatedModules, module, moduleResolution, noEmit, resolveJsonModule, skipLibCheck (+2 more)
 
-### Community 26 - "hunt.ts"
-Cohesion: 0.31
-Nodes (8): CHANCE_STEPS, chooseSpecies(), HUNT_TEMP, huntOutcome(), weighted(), RARITIES, packages_shared_src_index_rarities, packages_shared_src_index_rarity
+### Community 26 - "expeditionProgress.ts"
+Cohesion: 0.11
+Nodes (18): Bite, Expedition, Player, Population, Species, dailyCounters, fish, specialEncounters (+10 more)
 
-### Community 27 - "expeditionProgress.ts"
+### Community 27 - "expeditions.ts"
 Cohesion: 0.10
-Nodes (28): CLAIM_BATCH_MAX, claimExpeditions(), Bite, Expedition, Player, Population, Species, expeditions (+20 more)
+Nodes (28): AppEnv, Db, Schema, CLAIM_BATCH_MAX, claimExpeditions(), playerRoutes, STARTING, CreatePlayerBody (+20 more)
 
 ### Community 28 - "verify.mjs"
 Cohesion: 0.29
@@ -265,8 +279,8 @@ Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
 ### Community 45 - "fishArt.test.ts"
-Cohesion: 0.27
-Nodes (10): FileTable(), FishPreview(), packages_client_src_preview_preview, expectedFishFiles(), expressedAllele(), fishAssetKey(), fishLayerPlan(), morphKey() (+2 more)
+Cohesion: 0.26
+Nodes (11): FileTable(), FishPreview(), packages_client_src_preview_preview, expectedFishFiles(), expressedAllele(), fishAssetKey(), fishLayerPlan(), morphKey() (+3 more)
 
 ### Community 46 - "fish-art-list.ts"
 Cohesion: 0.20
@@ -288,9 +302,9 @@ Nodes (12): 금붕어 · `carassius_auratus` · 고급, 드워프 구라미 · `
 Cohesion: 0.17
 Nodes (12): 나일 틸라피아 · `oreochromis_niloticus` · 일반, 나일퍼치 · `lates_niloticus` · 영웅, 데모이소니 · `pseudotropheus_demasoni` · 고급, 브리샤르디 · `neolamprologus_brichardi` · 일반, 블루 돌핀 시클리드 · `cyrtocara_moorii` · 고급, 세네갈 비키르 · `polypterus_senegalus` · 고급, 아프리카 민물 (11종), 아프리카 버터플라이피시 · `pantodon_buchholzi` · 고급 (+4 more)
 
-### Community 51 - "morphs.ts"
-Cohesion: 0.27
-Nodes (11): LocusDef, FishPalette, palette(), SpeciesMorphs, AlleleSpec, intensityMorphs(), locus(), morphs() (+3 more)
+### Community 51 - "api.ts"
+Cohesion: 0.25
+Nodes (14): attemptBite(), attemptEncounter(), claimExpedition(), createPlayer(), fetchHealth(), getBites(), getEncounters(), getRegion() (+6 more)
 
 ### Community 52 - "인도양 (10종)"
 Cohesion: 0.18
@@ -308,9 +322,9 @@ Nodes (11): 레드 데빌 시클리드 · `amphilophus_labiatus` · 고급, 멕�
 Cohesion: 0.18
 Nodes (11): 무지개송어 · `oncorhynchus_mykiss` · 고급, 북미 민물 (10종), 블루길 · `lepomis_macrochirus` · 일반, 세일핀 몰리 · `poecilia_latipinna` · 일반, 안개은린어 · `orig_mistsilver` · 영웅 · 오리지널 특별 개체, 앨리게이터 가 · `atractosteus_spatula` · 영웅, 채널메기 · `ictalurus_punctatus` · 고급, 큰입배스 · `micropterus_salmoides` · 고급 (+3 more)
 
-### Community 56 - "errors.ts"
-Cohesion: 0.33
-Nodes (6): AppEnv, HttpError, expireEncounters(), BiteAttemptBody, EncounterAttemptBody, ref_zod
+### Community 56 - "check.mjs"
+Cohesion: 0.17
+Nodes (10): biteAttempts, bites, errors, me, now, player, region, report (+2 more)
 
 ### Community 57 - "유럽 민물 (9종)"
 Cohesion: 0.20
@@ -320,13 +334,21 @@ Nodes (10): 강꼬치고기 · `esox_lucius` · 고급, 벨루가 철갑상어 �
 Cohesion: 0.20
 Nodes (10): 그린란드 핼리벗 · `reinhardtius_hippoglossoides` · 고급, 그린란드상어 · `somniosus_microcephalus` · 전설, 늑대고기 · `anarhichas_lupus` · 희귀, 럼프피시 · `cyclopterus_lumpus` · 고급, 북극 홍어 · `amblyraja_hyperborea` · 희귀, 북극곤들매기 · `salvelinus_alpinus` · 고급, 북극대구 · `boreogadus_saida` · 일반, 북극해 (9종) (+2 more)
 
+### Community 59 - "ExpeditionPanel.tsx"
+Cohesion: 0.16
+Nodes (19): ApiRequestError, getExpeditions(), getMe(), authConfigured, key, signOut(), supabase, url (+11 more)
+
 ### Community 60 - "대서양 (9종)"
 Cohesion: 0.20
 Nodes (10): 대서양 (9종), 대서양 고등어 · `scomber_scombrus` · 일반, 대서양 대구 · `gadus_morhua` · 고급, 대서양 연어 · `salmo_salar` · 고급, 대서양 참다랑어 · `thunnus_thynnus` · 영웅, 대서양 청어 · `clupea_harengus` · 일반, 대서양 핼리벗 · `hippoglossus_hippoglossus` · 희귀, 유령장어 · `orig_ghosteel` · 영웅 · 오리지널 특별 개체 (+2 more)
 
 ### Community 61 - "fishArt.ts"
-Cohesion: 0.21
-Nodes (12): DEFAULT_PALETTE, DOMINANCE_RANK, FISH_FRAMES, FISH_SLOTS, FishFileSpec, FishLayer, FishSlot, hexToHsl() (+4 more)
+Cohesion: 0.19
+Nodes (13): DEFAULT_PALETTE, DOMINANCE_RANK, FISH_FRAMES, FISH_SLOTS, FishFileSpec, FishLayer, FishSlot, hexToHsl() (+5 more)
+
+### Community 62 - "viewModel.ts"
+Cohesion: 0.29
+Nodes (9): HunterCard, MOCK_BADGES, MOCK_HUNTERS, MOCK_PLAYER, REGION_NAME_KO, MainView, mmss(), SHOP_STAGE_NAME (+1 more)
 
 ### Community 63 - "물고기 그림 규격 (디자인 결정 84~88번)"
 Cohesion: 0.25
@@ -336,8 +358,56 @@ Nodes (7): 1. 크기와 파일 위치, 2. 프레임 (꼬리 흔들기 2프레임
 Cohesion: 0.33
 Nodes (5): 1단계, 2단계, 3단계, 4단계 (고대), 물고기 생성 프롬프트 (120종)
 
+### Community 65 - "store.ts"
+Cohesion: 0.27
+Nodes (9): GameState, Phase, ServerStatus, ExpeditionsResponse, MeResponse, BottomTab, packages_shared_src_index_bottomtab, packages_shared_src_index_expeditionsresponse (+1 more)
+
+### Community 66 - "biteGauge.ts"
+Cohesion: 0.36
+Nodes (8): chanceAt(), DISPLAY_MAX_CHANCE, displayChance(), Needle, NEEDLE_SPEED, needleSpeed(), RELEASE_REASON_KO, stepNeedle()
+
+### Community 70 - "백악기 (9종)"
+Cohesion: 0.20
+Nodes (10): 길리쿠스 · `gillicus_arcuatus` · 고급 · 고대, 레피도테스 · `lepidotes` · 일반 · 고대, 백악기 (9종), 스쿠알리코락스 · `squalicorax` · 희귀 · 고대, 엔코두스 · `enchodus` · 일반 · 고대, 크레톡시리나 · `cretoxyrhina_mantelli` · 영웅 · 고대, 크시팍티누스 · `xiphactinus_audax` · 전설 · 고대, 폭풍턱어 · `orig_stormjaw` · 영웅 · 오리지널 특별 개체 (+2 more)
+
+### Community 71 - "morphs.ts"
+Cohesion: 0.33
+Nodes (9): FishPalette, palette(), AlleleSpec, intensityMorphs(), locus(), morphs(), patternLocus(), shadeLocus() (+1 more)
+
+### Community 76 - "월드씨 UI 디자인 브리프"
+Cohesion: 0.22
+Nodes (9): 10. 구현 참고 파일, 1. 디자인 범위와 기준, 2. 현재 구현 상태, 5. 후속 화면 요구사항, 6. 시각 방향과 공통 규칙, 7. 공통 UI 부품과 상태, 8. 새 디자인 전달 체크리스트, 9. 시안 평가 기준 (+1 more)
+
+### Community 77 - "월드씨 화면 구성 요소 목록 (v0.1)"
+Cohesion: 0.29
+Nodes (7): 0. 공통 요소 (모든 화면), 1. 시작 흐름, 5. 도감 탭 (확정), 6. 상점 탭 (확정), 7. 기타 화면, 디자인 단계에서 정해야 할 것, 월드씨 화면 구성 요소 목록 (v0.1)
+
+### Community 78 - "메인 화면(샵 허브) UI 기준 (v2)"
+Cohesion: 0.33
+Nodes (3): 1. 해상도와 화면 영역, 2. 공통 스타일, 메인 화면(샵 허브) UI 기준 (v2)
+
+### Community 79 - "3. 사육 탭"
+Cohesion: 0.33
+Nodes (6): 3-1. 수조 목록 (확정), 3-2. 수조 상세 (확정), 3-3. 개체 상세 (확정), 3-4. 교배 (확정), 3-5. 보관함 (확정), 3. 사육 탭
+
+### Community 80 - "2. 샵 탭 (허브)"
+Cohesion: 0.40
+Nodes (5): 2-1. 허브 메인 (확정), 2-2. 시장 (확정: 하이브리드), 2-3. 길드 (확정), 2-4. 수족관 전시 (확정: 최종 콘텐츠), 2. 샵 탭 (허브)
+
+### Community 81 - "3. 메인 화면 구성"
+Cohesion: 0.40
+Nodes (5): 3. 메인 화면 구성, 상단바, 샵 장면, 하단 탭, 헌터 띠
+
+### Community 82 - "4. 샵 장면 (탑다운 3/4 시점)"
+Cohesion: 0.40
+Nodes (5): 4. 샵 장면 (탑다운 3/4 시점), 물고기 크기 기준 (360×640), 배치 (기준 이미지 위치 → 게임 좌표, 대략), 샵 단계별 모습 (대장님 제공 이미지), 시점 규칙
+
+### Community 83 - "4. 원정 화면"
+Cohesion: 0.50
+Nodes (4): 4. 원정 화면, 수색 설정, 입질 미니게임, 진행 및 수령
+
 ## Knowledge Gaps
-- **519 isolated node(s):** `name`, `private`, `packageManager`, `dev:client`, `dev:server` (+514 more)
+- **553 isolated node(s):** `errors`, `report`, `now`, `player`, `me` (+548 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -345,16 +415,16 @@ Nodes (5): 1단계, 2단계, 3단계, 4단계 (고대), 물고기 생성 프롬�
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `createApp()` connect `app.ts` to `abnormal.test.ts`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `hasAsset()` connect `HubScene` to `App.tsx`, `fishArt.test.ts`, `FishPreview.tsx`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
+  _High betweenness centrality (0.032) - this node is a cross-community bridge._
 - **Why does `hono` connect `app.ts` to `server/package.json`?**
-  _High betweenness centrality (0.023) - this node is a cross-community bridge._
-- **What connects `name`, `private`, `packageManager` to the rest of the system?**
-  _519 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `App.tsx` be split into smaller, more focused modules?**
-  _Cohesion score 0.057455540355677154 - nodes in this community are weakly interconnected._
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `server/package.json` to `app.ts`?**
+  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+- **What connects `errors`, `report`, `now` to the rest of the system?**
+  _553 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `world.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.05683563748079877 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05711263881544157 - nodes in this community are weakly interconnected._
 - **Should `main.schema.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.041666666666666664 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0425531914893617 - nodes in this community are weakly interconnected._
+- **Should `scripts` be split into smaller, more focused modules?**
+  _Cohesion score 0.05128205128205128 - nodes in this community are weakly interconnected._

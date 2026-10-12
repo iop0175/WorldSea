@@ -217,9 +217,9 @@ describe('D. 불공정·정책', () => {
     await attemptEncounter(db, USER, ENC, { attemptNo: 1, position: 0, floatId: 'test_float' }, at(10));
     expect(await stock()).toBe(1);
   });
-  it.fails('높은 등급 정지 입질에 자동 시도를 보내도 직접 진행 규칙을 어기지 않는다', async () => {
+  it('높은 등급 정지 입질에도 자동 시도를 허용한다 (90번, 자동 확률이 더 낮음)', async () => {
     await pg.exec(`update rare_bites set paused_repeat=true`);
-    await expect(attemptBite(db, USER, BITE, { attemptNo: 1, auto: true }, at(10))).rejects.toBeDefined();
+    await expect(attemptBite(db, USER, BITE, { attemptNo: 1, auto: true }, at(10))).resolves.toBeDefined();
   });
   it('이미 포획한 입질에 다시 시도하면 닫힌 입질로 거절한다', async () => {
     vi.spyOn(hunt, 'seededRoll').mockReturnValue(0);

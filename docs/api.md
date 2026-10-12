@@ -80,7 +80,7 @@
 - 일반 포획은 회차 종료 시 `fish`에 소유권을 확정한다. `expeditionId`와 `pendingClaim: true`로 수령 대기 개체를 식별한다. 결과의 재화·아이템·경험치는 수령 전까지 지급하지 않는다. 보호종·야생 0마리·취약 어종 일일 한도 소진은 놓아줌 보상으로 처리한다(보전 포인트·샵 평판은 활동 시 확정).
 - 미니게임 대상은 `rare_bites`에 예약한다. 높은 등급의 `pause`는 원정을 정지시키고, 낮은 등급의 직접 진행 입질은 반복을 계속한다. 자동 설정 또는 낮은 등급 입질의 30분 만료는 서버 임시 확률로 한 번 판정하며 장비·시도 기록을 함께 반영한다. 높은 등급 정지 입질은 만료 시 자동 시도 없이 바다로 돌아간다.
 - 다른 플레이어의 조회·시작 요청도 만료된 입질을 최대 100명의 플레이어 단위로 정리하므로, 소유자가 자리를 비워도 예약이 계속 남지 않는다. 요청이 없을 때는 다음 요청에서 정리한다.
-- 특별 맵은 발생 시각부터 24시간 보관하고 개체를 예약하지 않는다. 직접 입질 미니게임·특별 맵 시도 API는 다음 단계다.
+- 특별 맵은 발생 시각부터 24시간 보관하고 개체를 예약하지 않는다. 직접 입질 시도는 아래 "입질 미니게임·특별 맵"을 따르고, 특별 맵 시도 API(`/v1/encounters`)는 다음 단계다.
 - `0010_expedition_progress.sql`까지 적용해야 한다. 수색 시작 재전송은 동일 원정의 현재 `endsAt`을 반환할 수 있으며, 추가 차감·새 원정 생성은 하지 않는다.
 
 배치 수령:
@@ -100,9 +100,27 @@
 ### 입질 미니게임·특별 맵
 | 상태 | 메서드 | 경로 | 설명 |
 |---|---|---|---|
-| 📝 | GET | `/v1/bites` | 대기 중인 입질 (남은 시간) |
-| 📝 | POST | `/v1/bites/:id/attempt` | 시도: `{ position, floatId?, baitId? }` 또는 `{ auto: true }`. 서버가 시드·등급·장비로 판정. 장비는 시도 시 차감 |
-| 📝 | POST | `/v1/encounters/:id/attempt` | 특별 맵 기회 사용 (5번) |
+| ✅ | GET | `/v1/bites` | 대기 중인 입질. 조회 시 만료분을 먼저 확정한다 |
+| ✅ | POST | `/v1/bites/:id/attempt` | 시도: `{ attemptNo, position, floatId?, baitId? }` 또는 `{ attemptNo, auto: true, ... }`. 서버가 시드·등급·장비로 판정. 장비는 시도 시 차감 |
+| ✅ | GET | `/v1/encounters` | 열려 있는 특별 맵(24시간 보관). 서버 최초 포획 전에는 `speciesId: null` |
+| ✅ | POST | `/v1/encounters/:id/attempt` | 특별 맵 기회 사용 (5번): `{ attemptNo, position, floatId?, baitId? }`. 자동 시도 없음 |
+
+입질 조회·시도:
+- 목록 응답 `{ serverTime, bites }`. 각 입질은 `id`, `expeditionId`, `speciesId`, `rarity`, `expiresAt`, `attemptsUsed`, `attemptsMax`(3), `paused`(높은 등급 정지 입질), `chances`, `autoChance`, `gear`를 제공한다. `chances`는 이번 시도의 장비 없는 위치별 성공 확률 11칸이고 `chances[i]`가 `position i/10`(0=가운데, 1=가장자리)의 확률이다. `gear`는 쓸 수 있는 찌·미끼(`id`, `kind`, `count`, `chanceBonus`)이며 `chanceBonus`는 확률에 그대로 더해지고 최대 확률(95%)에서 잘린다. 다른 어종 전용 미끼는 제외한다.
+- 시도 요청의 `attemptNo`는 이번이 몇 번째 시도인지(`attemptsUsed + 1`)다. 직접 시도는 `position`(0~1)을, 자동 시도는 `auto: true`만 보낸다. 서버는 `biteChance`(`game/hunt.ts`)로 확률을 계산하고 입질 시드와 시도 순번에서 만든 난수(`seededRoll`)로 판정하므로 화면 확률과 판정 확률이 같다.
+- 응답 `{ serverTime, attempt: { attemptNo, success, chance }, bite: { id, status, attemptsUsed, attemptsMax, fishId, chances } }`. 성공이면 `caught`로 끝나고 수령 대기 개체(`fishId`)가 원정 결과에 더해진다. 실패하면 다음 시도 확률(시도마다 하락)을 `chances`로 주고, 3번째 실패이거나 그 사이 어종이 보호종·일일 한도 초과가 되면 `escaped`로 바다에 돌려보낸다(야생 개체수 복원).
+- 장비는 시도마다 성공·실패와 무관하게 하나씩 차감한다. 단 보호종·일일 한도·0마리로 어차피 잡을 수 없는 시도는 장비를 차감하지 않고 바로 `escaped`로 끝낸다(특별 맵도 같다).
+- 직접·자동 시도를 이미 한 입질이 30분 만료되면 자동 판정 없이 `expired`로 닫고 시도 횟수를 유지하며 예약만 푼다. 없거나 종류가 다르거나 다른 어종 전용이면 `409 insufficient_items`이고 아무것도 바꾸지 않는다.
+- 같은 `attemptNo`를 같은 내용으로 다시 보내면 저장된 결과를 돌려주고 장비를 다시 차감하지 않는다(응답 유실 재시도). 열려 있는 입질에 다른 내용이면 `409 idempotency_conflict`, 끝났거나 만료된 입질이면 `409 bite_closed`, 순번을 건너뛰면 `400 invalid_request`, 남의 입질이면 `404`다.
+- 높은 등급 정지 입질도 같은 방식으로 직접 시도한다. 시도 결과가 원정 상태(`completed`, `high_grade_bite`)를 되살리지는 않는다.
+
+특별 맵 시도:
+- 목록 응답 `{ serverTime, encounters }`. 각 항목은 `id`, `regionId`, `speciesId`(공개 전 null), `rarity`, `expiresAt`, `chancesLeft`, `chancesMax`(5), `chances`(이번 기회의 위치별 확률 11칸), `gear`다. 확률 규칙·장비 보정·차감은 입질 시도와 같다(`biteChance`, 시도마다 하락).
+- 개체는 시도하는 순간에만 다룬다(예약 없음). 성공하면 한 트랜잭션에서 야생 개체수를 줄이고 **바로 소유**(`pendingClaim: false`, 원정 결과와 무관)로 만들며 `species_discoveries`에 서버 최초 포획을 기록해 모두에게 공개한다. 실패하면 야생은 그대로다.
+- 성공하면 `finished`. 5번 모두 실패하거나 그 사이 어종이 보호종·일일 한도 초과·0마리가 되면 남은 기회를 0으로 하고 `finished`다. 24시간이 지나면 `expired`가 되어 `409 encounter_closed`다.
+- 응답 `{ serverTime, attempt: { attemptNo, success, chance }, encounter: { id, status, chancesLeft, fishId, speciesId, chances } }`. `speciesId`는 성공했을 때만 채운다.
+- 시도 기록 표가 없어 재전송 결과를 되돌려주지 못한다. 이미 처리된 `attemptNo`는 `409 idempotency_conflict`(장비 차감 없음)이며 클라이언트는 `GET /v1/encounters`로 다시 조회한다. 응답 유실이 잦으면 시도 기록 표를 추가한다.
+- 확률 수치(`manualChance`, `edgeFactor`, `attemptPenalty`)는 `HUNT_TEMP`의 밸런싱 전 임시값이다.
 
 ### 사육·교배
 | 상태 | 메서드 | 경로 | 설명 |

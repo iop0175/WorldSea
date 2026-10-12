@@ -3,6 +3,7 @@
  * 요청 본문은 zod 스키마로 검증하고, 응답은 아래 타입을 따른다.
  */
 import { z } from 'zod';
+import type { Rarity } from '../game/constants';
 import type { ExpeditionClaimResult, ExpeditionResult, HuntOptions } from '../db/types';
 
 export interface HealthResponse {
@@ -26,6 +27,9 @@ export type ApiErrorCode =
   | 'insufficient_stamina'
   | 'insufficient_time_tickets'
   | 'idempotency_conflict'
+  | 'bite_closed' // 이미 끝났거나 만료된 입질
+  | 'encounter_closed' // 이미 끝났거나 24시간이 지난 특별 맵
+  | 'insufficient_items' // 선택한 찌·미끼가 없거나 이 어종에 쓸 수 없음
   | 'internal';
 
 export interface ApiError {
@@ -74,6 +78,97 @@ export interface StartExpeditionResponse {
     options: HuntOptions;
     staminaCost: number;
     usedTimeTicket: boolean;
+  };
+}
+
+/** 입질 시도: 직접(position 0=가운데~1=가장자리) 또는 auto. attemptNo는 이번이 몇 번째 시도인지(재전송 구분용) */
+export const biteAttemptBody = z.strictObject({
+  attemptNo: z.number().int().min(1).max(10),
+  position: z.number().min(0).max(1).optional(),
+  auto: z.boolean().optional(),
+  floatId: z.string().min(1).max(100).optional(),
+  baitId: z.string().min(1).max(100).optional(),
+}).refine((body) => body.auto ? body.position === undefined : body.position !== undefined, {
+  message: '직접 시도에는 position이, 자동 시도에는 auto만 보내야 합니다', path: ['position'],
+});
+export type BiteAttemptBody = z.infer<typeof biteAttemptBody>;
+
+export interface BiteView {
+  id: string;
+  expeditionId: string;
+  speciesId: string;
+  rarity: Rarity;
+  expiresAt: string;
+  attemptsUsed: number;
+  attemptsMax: number;
+  /** 높은 등급 정지 입질 */
+  paused: boolean;
+  /** 이번 시도의 장비 없는 위치별 성공 확률. chances[i]는 position i/(길이-1) */
+  chances: number[];
+  autoChance: number;
+  /** 쓸 수 있는 찌·미끼. chanceBonus는 확률(0~1)에 그대로 더해지고 최대 확률에서 잘린다 */
+  gear: { id: string; kind: 'float' | 'bait'; count: number; chanceBonus: number }[];
+}
+
+export interface BitesResponse {
+  serverTime: string;
+  bites: BiteView[];
+}
+
+export interface BiteAttemptResponse {
+  serverTime: string;
+  attempt: { attemptNo: number; success: boolean; chance: number };
+  bite: {
+    id: string;
+    status: 'pending' | 'caught' | 'escaped';
+    attemptsUsed: number;
+    attemptsMax: number;
+    /** 포획 성공 시 수령 대기 개체 id */
+    fishId: string | null;
+    /** 계속 시도할 수 있을 때 다음 시도의 위치별 확률(장비 없음) */
+    chances: number[] | null;
+  };
+}
+
+/** 특별 맵 시도: 직접 시도만 있다(자동 없음). attemptNo는 이번이 몇 번째 기회인지 */
+export const encounterAttemptBody = z.strictObject({
+  attemptNo: z.number().int().min(1).max(10),
+  position: z.number().min(0).max(1),
+  floatId: z.string().min(1).max(100).optional(),
+  baitId: z.string().min(1).max(100).optional(),
+});
+export type EncounterAttemptBody = z.infer<typeof encounterAttemptBody>;
+
+export interface EncounterView {
+  id: string;
+  regionId: string;
+  /** 서버에서 누군가 처음 잡기 전에는 null("??? (특별 맵)") */
+  speciesId: string | null;
+  rarity: Rarity;
+  expiresAt: string;
+  chancesLeft: number;
+  chancesMax: number;
+  /** 이번 기회의 장비 없는 위치별 성공 확률. BiteView.chances와 같은 규칙 */
+  chances: number[];
+  gear: BiteView['gear'];
+}
+
+export interface EncountersResponse {
+  serverTime: string;
+  encounters: EncounterView[];
+}
+
+export interface EncounterAttemptResponse {
+  serverTime: string;
+  attempt: { attemptNo: number; success: boolean; chance: number };
+  encounter: {
+    id: string;
+    status: 'active' | 'finished';
+    chancesLeft: number;
+    /** 포획 성공 시 새 개체 id(바로 소유). 이때 어종이 공개된다 */
+    fishId: string | null;
+    speciesId: string | null;
+    chances: number[] | null;
   };
 }
 

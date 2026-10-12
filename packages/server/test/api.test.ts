@@ -8,7 +8,7 @@ import { drizzle } from 'drizzle-orm/pglite';
 import { createLocalJWKSet, exportJWK, generateKeyPair, SignJWT } from 'jose';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as schema from '@worldsea/shared/db/main';
-import type { ExpeditionsResponse, MeResponse, StartExpeditionResponse } from '@worldsea/shared';
+import type { BiteAttemptResponse, BitesResponse, ExpeditionsResponse, MeResponse, StartExpeditionResponse } from '@worldsea/shared';
 import * as hunt from '../src/game/hunt';
 import { createApp } from '../src/app';
 import { keySetVerifier, supabaseVerifier } from '../src/auth';
@@ -418,5 +418,50 @@ describe('수색 진행 API', () => {
     expect(await all.json()).toMatchObject({ claimed: { gold: 0 }, hasMore: false });
     const me = await (await call('/v1/me', token)).json() as MeResponse;
     expect(me.player).toMatchObject({ gold: 20, exp: 10 });
+  });
+});
+
+describe('입질 시도 HTTP API', () => {
+  const USER = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+  const HUNTER = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+  const EXPEDITION = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+  const BITE = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
+  let token: string;
+  beforeAll(async () => {
+    token = await sign(USER);
+    await pg.exec(`insert into auth.users(id) values ('${USER}');
+      insert into players(id,nickname,stamina) values ('${USER}','입질대장',10);
+      insert into hunters(id,owner_id,name) values ('${HUNTER}','${USER}','입질헌터');
+      insert into regions(id,name_ko,kind,unlock_stage,required_level,special_map_chance,hunt_seconds,hunt_stamina_cost)
+        values ('bite_http','입질 시험 지역','freshwater',1,1,0,300,1);
+      insert into species(id,name_ko,region_id,rarity,temp_min,temp_max,salinity,max_size_cm,base_price,initial_population)
+        values ('bite_http_fish','입질 시험어','bite_http','epic',20,30,'fresh',10,100,100);
+      insert into wild_populations(species_id,count,reserved) values ('bite_http_fish',99,1);
+      insert into expeditions(id,player_id,hunter_id,region_id,started_at,ends_at,stamina_cost,repeat_total)
+        values ('${EXPEDITION}','${USER}','${HUNTER}','bite_http',now(),now()+interval '1 day',1,3);
+      insert into rare_bites(id,expedition_id,player_id,species_id,expires_at,minigame_seed)
+        values ('${BITE}','${EXPEDITION}','${USER}','bite_http_fish',now()+interval '30 minutes',1);`);
+  });
+  it('인증·요청 형식·소유권을 검사한다', async () => {
+    expect((await call('/v1/bites')).status).toBe(401);
+    expect((await call(`/v1/bites/${BITE}/attempt`, undefined, { attemptNo: 1, position: 0 })).status).toBe(401);
+    expect((await call('/v1/bites/invalid/attempt', token, { attemptNo: 1, position: 0 })).status).toBe(400);
+    expect((await call(`/v1/bites/${BITE}/attempt`, token, { attemptNo: 1 })).status).toBe(400);
+    expect((await call(`/v1/bites/${BITE}/attempt`, await sign(USER_A), { attemptNo: 1, position: 0 })).status).toBe(404);
+    const foreign = await (await call('/v1/bites', await sign(USER_A))).json() as BitesResponse;
+    expect(foreign.bites).toEqual([]);
+  });
+  it('입질 목록을 보고 시도해 포획을 확정한다', async () => {
+    const list = await (await call('/v1/bites', token)).json() as BitesResponse;
+    expect(list.bites).toMatchObject([{ id: BITE, speciesId: 'bite_http_fish', rarity: 'epic', attemptsUsed: 0, attemptsMax: 3 }]);
+    const roll = vi.spyOn(hunt, 'seededRoll').mockReturnValue(0);
+    try {
+      const r = await call(`/v1/bites/${BITE}/attempt`, token, { attemptNo: 1, position: 0 });
+      expect(r.status).toBe(200);
+      const body = await r.json() as BiteAttemptResponse;
+      expect(body).toMatchObject({ attempt: { success: true, chance: 0.5 }, bite: { status: 'caught', fishId: expect.any(String) } });
+      expect((await call(`/v1/bites/${BITE}/attempt`, token, { attemptNo: 2, position: 0 })).status).toBe(409);
+    } finally { roll.mockRestore(); }
+    expect(((await (await call('/v1/bites', token)).json()) as BitesResponse).bites).toEqual([]);
   });
 });

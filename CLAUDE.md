@@ -147,6 +147,8 @@
   - src/db.ts: postgres-js + Drizzle, Hyperdrive(배포) 또는 DATABASE_URL(로컬)
   - src/routes/players.ts: GET /v1/me(스태미너는 요청 시점 계산), POST /v1/players(가입: 플레이어+첫 헌터, 한 트랜잭션)
   - src/routes/expeditions.ts: POST /v1/expeditions(수색 시작). 헌터 소유·슬롯·진행 중 원정·지역 레벨·반복 상한·장비 종류 검사, 플레이어 행 잠금 후 첫 회차 스태미너·고대 입장 티켓 차감과 원정 생성을 한 트랜잭션으로 처리. Idempotency-Key로 재시도 중복 차감 방지(0009_expedition_start_key.sql 필요). GET /v1/expeditions와 src/game/expeditionProgress.ts가 요청 시점 진행·포획·입질 만료를 확정한다(0010_expedition_progress.sql 필요). src/game/expeditionClaims.ts가 개별/모두 배치 수령과 중복 지급 방지를 처리한다(0011_expedition_claims.sql 필요).
+  - src/routes/bites.ts + src/game/bites.ts: GET /v1/bites(대기 입질·위치별 확률 표·쓸 수 있는 장비), POST /v1/bites/:id/attempt(직접/자동 시도). 플레이어 행 잠금 후 장비 차감·시도 기록·포획 확정(captureFish)·야생 개체수 복원(saveWildPopulation)을 한 트랜잭션으로 처리하고 attemptNo로 재전송을 구분한다. 확률 biteChance·시드 난수 seededRoll은 game/hunt.ts(HUNT_TEMP.manualChance 등 임시값). 새 마이그레이션 없음.
+  - src/routes/encounters.ts + src/game/encounters.ts: GET /v1/encounters, POST /v1/encounters/:id/attempt(특별 맵 기회 5번). 개체는 시도 순간에만 다루고 성공 시 야생 개체수 감소·바로 소유·species_discoveries 기록을 한 트랜잭션으로 처리. 시도 기록 표가 없어 재전송은 409(응답 유실이 잦으면 표 추가). 새 마이그레이션 없음.
   - /ws?token= : 토큰 검증 후 그 사용자 채널(Durable Object)에 연결
   - test/api.test.ts: vitest + PGlite(실제 마이그레이션) + 로컬 서명 토큰으로 인증·가입·내 정보 검증
   - src/realtime/player-channel.ts: 플레이어별 Durable Object, WebSocket Hibernation, push() RPC
@@ -200,7 +202,20 @@
 검증(2026-10-10): 전체 타입 검사·shared/server 테스트 79개·DB 마이그레이션 및 안전장치·클라이언트 빌드·Workers 배포 dry-run 통과. 마지막 야생 개체 경쟁, 동시/반복 조회, 저장 실패 롤백, 계정 삭제, 자리 비움 중 입질 만료를 검증했다. Drizzle 스냅샷과 현재 스키마 일치 확인, graphify 코드 그래프 갱신 완료(SQL 파서 미설치로 SQL 내부 관계는 제외). 실제 Supabase 마이그레이션 적용과 배포는 하지 않았다.
 완료(2026-10-10): 배치 수령 API(POST /v1/expeditions/:id/claim, /claim-all), 수령 요청 키·응답 저장으로 중복 지급 방지, 50개/50원정씩 처리. 기존 포획 개체를 수령 상태로 옮기며 재화·아이템·경험치와 수령 기록을 한 트랜잭션으로 확정한다. 진행 중 수령과 입질 대기 원정의 후속 결과 수령을 지원한다. 원정 결과 목록·개별/모두 수령·진행/회복 대기 표시·5초 상태 갱신, 샵 허브 모두 수령/완료 카드 연결. 실제 DB에는 0011_expedition_claims.sql 적용 필요.
 검증(2026-10-10, 수령 단계): 전체 타입 검사·shared/server 테스트 89개·DB 마이그레이션과 가드·클라이언트 빌드·Workers dry-run 통과. 실제 모바일 크기 브라우저에서 로그인, 예시 수령, 3회 반복 수색, 완료, 모두 수령, 새로고침 후 상태 유지 확인. 로컬 데모는 5초 수색과 수령 대기 베타 2마리/예시 보상을 사용하며 실제 DB·지역 시드는 변경하지 않는다.
-다음: 직접 입질 미니게임·특별 맵 시도 API/화면. (문서 순서에 따라 수령 단계 완료, 2026-10-10)
+완료(2026-10-12): 직접 입질 시도 API(GET /v1/bites, POST /v1/bites/:id/attempt). 가로 게이지 위치(0~1)와 장비로 위치별 성공 확률을 계산해 화면 확률과 판정을 일치시키고(80번), 시도마다 확률 하락·장비 차감·3번째 실패 시 방류(78번)를 구현했다. 기존 자동 판정과 같은 포획 확정 코드(captureFish)를 쓰도록 expeditionProgress.ts에서 분리했다. 검증: 전체 타입 검사·shared 31개·server 74개 통과(이후 어브노말 테스트 포함 147개).
+완료(2026-10-12): 특별 맵 시도 API(GET /v1/encounters, POST /v1/encounters/:id/attempt). 입질 시도와 같은 확률 규칙, 성공 시 바로 소유·서버 최초 포획 공개(66번). 검증: 타입 검사·shared 31개·server 85개 통과.
+다음: 입질 미니게임·특별 맵 화면(client). 가로 게이지 + 바늘 왕복(중심일수록 빠름), 서버가 준 위치별 확률 표 표시, 장비 선택, 남은 시간/기회 표시. 원정 탭의 pendingBites에서 진입.
 수색 구현 시 참고할 결정: 대상 등급 69, 포획 시점 70, 놓아줌 71·72, 어종 결정 73, 취약 한도 74, 하루 기준 75, 보관 76, 자리 비움 77, 시도 78, 조작 79, 확률 표시 80, 등급 난이도 81, 특별 맵 82. 준비된 규칙 함수: needsMinigame·releaseReward·gameDay·nextDailyReset·BITE_MAX_ATTEMPTS(shared/game/constants.ts), vulnerableDailyLimit·statusFromPercent(shared/game/population.ts), computeStamina(shared/game/stamina.ts), hunterSlots(shared/game/hunters.ts).
+어브노말 테스트(2026-10-12, server/test/abnormal.test.ts) 수정 완료: ① 직접·자동 시도를 한 입질이 만료되면 자동 판정 없이 expired로 닫고(시도 순번 충돌로 만료 정리가 500이 되어 모든 요청이 막히던 문제), 다른 플레이어의 만료 정리가 실패해도 요청한 플레이어는 막지 않는다(실패는 console.error) ② 보호종·일일 한도·0마리로 잡을 수 없는 시도는 장비를 차감하지 않고 바다로 돌려보낸다 ③ 야생 개체수 행이 없으면 TypeError 대신 500 internal ④ 시드 난수를 (0,1) 열린 구간으로 바꿔 항상 성공하는 시드를 없앴다.
+
+결정 필요(대장님 확인 후 반영, 임시값으로 진행 중):
+- A. 높은 등급 정지(pause) 입질에 자동(auto) 시도를 허용할지. 현재는 허용(71번은 pause=직접 진행, 자동 확률이 직접보다 낮아 이득은 없음). 막으려면 attemptBite에서 bite.pausedRepeat이면 auto 거절(409)로 바꾸고 abnormal.test.ts의 it.fails를 it으로 바꾼다.
+- B. 바늘 위치(position)를 서버가 검증할지. 현재는 클라이언트 신고값을 믿어서 항상 0(가운데)을 보내면 최대 확률을 받는다(79번 방식의 한계, 확률 표시 80번과도 연관). 선택지: ① 그대로(확률 공개로 공정성 설명, 부정 사용 허용) ② 서버가 바늘 위상을 minigameSeed와 입질 시각으로 정하고 클라이언트 보고 위치·시각이 허용 오차 안인지 검사 ③ 서버가 시도 시작 요청에서 "멈출 위치"를 먼저 뽑고 위치별 확률만 신고값으로 쓰되 시도 간격 제한. 출시 전 결정.
+- C. 특별 맵 시도의 응답 유실 재전송(현재 409로 재조회 안내). 잦으면 encounter_attempts 표를 추가할지.
+- D. 직접 시도 후 만료된 입질의 정책(현재: 이미 쓴 장비는 돌려주지 않고 바다로 복귀). 시도 기회가 남았을 때 만료되면 자동 판정 한 번을 줄지(77번은 "직접 하지 않으면 자동 한 번"이라 직접 시도를 시작했으면 해당 없음으로 해석함).
+- E. 잡을 수 없게 된 시도에서 쓴 장비·시도 기록 표시(기록에는 선택 장비가 남지만 차감은 하지 않음).
+
+임시 수치 — 입질·특별 맵(2026-10-12, 임시값으로 구현 중, 원본 server/game/hunt.ts HUNT_TEMP): 직접 시도 가운데 성공 확률 manualChance 일반 95·고급 90·희귀 75·영웅 50·전설 30%, 가장자리는 가운데의 40%(edgeFactor, 사이는 직선), 시도마다 -5%p(attemptPenalty, 입질 3번·특별 맵 5번 모두 적용), 최대 95%(maxChance), 자동 확률 autoChance 80/70/55/30/15%, 장비 보정은 items.chanceBonus를 확률에 더함, 위치 표는 11칸(CHANCE_STEPS). 직접이 자동보다 조금 높게 잡았다(자동 감점 원칙).
+정해야 할 수치(대장님 확인 필요): ① 등급별 성공 확률 표(위 manualChance) ② 가장자리 배율(edgeFactor)과 시도당 하락 폭(78번 미정) ③ 자동 진행 감점 폭과 등급별 차등 ④ 찌·미끼 등급별 chanceBonus(현재 시드에 값 없음, 0) ⑤ 특별 맵 확률이 일반 입질과 같아도 되는지(영웅이라 50%에서 시작, 5번 모두 가운데를 맞추면 누적 약 92%, 중간 위치만 맞추면 약 77%) ⑥ 특별 맵 발생 확률 specialMapChance(현재 지역마다 1%) ⑦ 특별 개체 포획 시 일일 한도(취약 규칙을 그대로 적용 중) ⑧ 조합 개수 N, 상점 가격.
 임시 수치(밸런싱 전): 지역 해금 레벨 1~40·수색 5~30분·스태미너 1~5(seed/world.ts), 어종 기준 가격 100/300/1000/4000/20000(seed/build.ts), 개체수 규칙 값(game/population.ts), 스태미너 기본 최대 60·300초당 1 회복(shared/game/stamina.ts), 시작 지급 골드 1000·시간 티켓 3(server/routes/players.ts), 헌터 슬롯 VIP 기준 5등급(shared/game/hunters.ts).
 이후 밸런싱 수치: 재화량, 광고 일일 한도, 길드 규모/퀘스트 보상, VIP 티어 포인트/혜택, 경매 허용 레벨, 유료 호스팅 전환 시점, 고대 어종 모프 유전자.

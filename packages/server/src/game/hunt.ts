@@ -11,7 +11,31 @@ export const HUNT_TEMP = {
   gold: 20, premium: 1, exp: 10,
   staminaPrice: 10, staminaAmount: 60, staminaDailyMax: 5,
   autoChance: { common: 0.8, uncommon: 0.7, rare: 0.55, epic: 0.3, legendary: 0.15 },
+  /** 직접 입질: 게이지 가운데(position 0)의 성공 확률. 가장자리(1)에서는 edgeFactor배, 시도마다 attemptPenalty 감소 */
+  manualChance: { common: 0.95, uncommon: 0.9, rare: 0.75, epic: 0.5, legendary: 0.3 },
+  edgeFactor: 0.4, attemptPenalty: 0.05, maxChance: 0.95,
 } as const;
+
+/** 위치 표 해상도: chances[i]는 position i/(길이-1)의 확률 */
+export const CHANCE_STEPS = 11;
+
+/** 입질 시도 성공 확률. position이 null이면 자동 진행. 장비 보정은 더하고, 확률 표시값과 판정값이 같도록 이 함수만 쓴다. */
+export function biteChance(rarity: Rarity, position: number | null, attemptNo: number, bonus = 0): number {
+  const base = position === null
+    ? HUNT_TEMP.autoChance[rarity]
+    : HUNT_TEMP.manualChance[rarity] * (1 - (1 - HUNT_TEMP.edgeFactor) * position);
+  return Math.round(Math.max(0, Math.min(HUNT_TEMP.maxChance, base - HUNT_TEMP.attemptPenalty * (attemptNo - 1) + bonus)) * 1000) / 1000;
+}
+
+export const biteChanceTable = (rarity: Rarity, attemptNo: number, bonus = 0) =>
+  Array.from({ length: CHANCE_STEPS }, (_, i) => biteChance(rarity, i / (CHANCE_STEPS - 1), attemptNo, bonus));
+
+/** 입질 시드와 시도 순번에서 0~1(양 끝 제외) 난수를 만든다. 같은 시도는 항상 같은 결과라 재현·검증이 된다. */
+export function seededRoll(seed: number, attemptNo: number): number {
+  let h = Math.imul(seed ^ Math.imul(attemptNo, 0x9e3779b1), 0x85ebca6b);
+  h = Math.imul(h ^ (h >>> 13), 0xc2b2ae35);
+  return (((h ^ (h >>> 16)) >>> 0) + 0.5) / 0x100000000; // 0이 나오면 확률과 무관하게 성공하므로 (0,1) 열린 구간으로 둔다
+}
 
 /** 서버 난수만 사용한다. 테스트에서는 난수를 주입해 경계값을 검증한다. */
 export function random(): number {

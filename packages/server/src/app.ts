@@ -8,6 +8,8 @@ import { HttpError, sendError } from './errors';
 import { playerRoutes } from './routes/players';
 import { regionRoutes } from './routes/regions';
 import { expeditionRoutes } from './routes/expeditions';
+import { biteRoutes } from './routes/bites';
+import { encounterRoutes } from './routes/encounters';
 
 export type AppEnv = {
   Bindings: Env;
@@ -51,6 +53,8 @@ export function createApp(deps: AppDeps = defaultDeps) {
   v1.route('/', playerRoutes);
   v1.route('/', regionRoutes);
   v1.route('/', expeditionRoutes);
+  v1.route('/', biteRoutes);
+  v1.route('/', encounterRoutes);
   app.route('/v1', v1);
 
   /**

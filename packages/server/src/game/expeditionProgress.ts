@@ -17,6 +17,44 @@ type Species = typeof species.$inferSelect;
 type Bite = typeof rareBites.$inferSelect;
 const emptyResult = (): ExpeditionResult => ({ catches: [], gold: 0, premium: 0, exp: 0, items: [], misses: 0 });
 
+type Population = typeof wildPopulations.$inferSelect;
+
+/** 포획 개체를 만들고 플레이어의 일일 포획 수에 반영한다. 호출자는 플레이어 행 잠금을 보유해야 한다. */
+export async function insertCaughtFish(
+  tx: Db, playerId: string, s: Species, at: Date, origin: { regionId: string; expeditionId: string | null; pendingClaim: boolean },
+): Promise<string> {
+  const genotype = wildGenotype(s.geneLoci);
+  const [caught] = await tx.insert(fish).values({
+    ownerId: playerId, speciesId: s.id, origin: 'wild', sex: random() < 0.5 ? 'male' : 'female',
+    genotype, morphKey: morphKey(s.geneLoci, phenotype(s.geneLoci, genotype)),
+    sizeCm: s.maxSizeCm * (0.6 + random() * 0.4), health: 90 + random() * 10,
+    growthRate: 1, maturity: 1, caughtRegionId: origin.regionId, expeditionId: origin.expeditionId,
+    pendingClaim: origin.pendingClaim, bornAt: at, statsUpdatedAt: at,
+  }).returning({ id: fish.id });
+  const day = gameDay(at);
+  const [counter] = await tx.select().from(speciesDailyCatches).where(and(eq(speciesDailyCatches.playerId, playerId), eq(speciesDailyCatches.day, day), eq(speciesDailyCatches.speciesId, s.id)));
+  await tx.insert(speciesDailyCatches).values({ playerId, day, speciesId: s.id, count: (counter?.count ?? 0) + 1 })
+    .onConflictDoUpdate({ target: [speciesDailyCatches.playerId, speciesDailyCatches.day, speciesDailyCatches.speciesId], set: { count: (counter?.count ?? 0) + 1 } });
+  return caught!.id;
+}
+
+/** 원정의 포획 개체를 수령 대기로 만들고 원정 결과에 더한다. 원정 행 저장은 호출자 몫. */
+export async function captureFish(tx: Db, playerId: string, e: Expedition, s: Species, at: Date): Promise<string> {
+  const id = await insertCaughtFish(tx, playerId, s, at, { regionId: e.regionId, expeditionId: e.id, pendingClaim: true });
+  const result = e.result ??= emptyResult();
+  const entry = result.catches.find((catch_) => catch_.speciesId === s.id);
+  if (entry) entry.count++;
+  else result.catches.push({ speciesId: s.id, count: 1 });
+  return id;
+}
+
+/** 야생 개체수 변경을 저장하고 보전 상태를 다시 계산한다. 호출자는 야생 행 잠금을 보유해야 한다. */
+export async function saveWildPopulation(tx: Db, p: Population, s: Species): Promise<void> {
+  p.status = statusFromPercent((p.count + p.reserved) / s.initialPopulation * 100, p.status);
+  p.version++;
+  await tx.update(wildPopulations).set({ count: p.count, reserved: p.reserved, status: p.status, version: p.version }).where(eq(wildPopulations.speciesId, s.id));
+}
+
 /** 플레이어를 먼저 잠가 공유 스태미너와 결과의 중복 처리를 막는다. */
 export async function advanceExpeditions(db: Db, playerId: string, now: Date): Promise<void> {
   // 자리를 비운 플레이어의 예약도 다른 요청에서 해제한다. 한 요청의 정리량은 제한한다.
@@ -24,10 +62,16 @@ export async function advanceExpeditions(db: Db, playerId: string, now: Date): P
     .where(and(eq(rareBites.status, 'pending'), lte(rareBites.expiresAt, now)))
     .groupBy(rareBites.playerId).orderBy(asc(rareBites.playerId)).limit(100);
   for (const id of new Set([...overdue.map((b) => b.playerId), playerId])) {
-    await db.transaction(async (tx) => {
-      const [player] = await tx.select().from(players).where(eq(players.id, id)).for('update');
-      if (player) await settleExpeditions(tx, player, new Date(Math.max(now.getTime(), player.staminaUpdatedAt.getTime())));
-    });
+    try {
+      await db.transaction(async (tx) => {
+        const [player] = await tx.select().from(players).where(eq(players.id, id)).for('update');
+        if (player) await settleExpeditions(tx, player, new Date(Math.max(now.getTime(), player.staminaUpdatedAt.getTime())));
+      });
+    } catch (err) {
+      // 다른 플레이어의 정리 실패가 이 요청을 막지 않게 한다. 요청한 본인의 실패는 그대로 알린다.
+      if (id === playerId) throw err;
+      console.error('만료 정리 실패', id, err);
+    }
   }
 }
 
@@ -48,28 +92,10 @@ export async function settleExpeditions(tx: Db, player: Player, now: Date): Prom
   const changed = new Set<string>();
   const byId = new Map(running.map((e) => [e.id, e]));
 
-  const addCatch = (e: Expedition, s: Species) => {
-    const result = e.result ??= emptyResult();
-    const entry = result.catches.find((catch_) => catch_.speciesId === s.id);
-    if (entry) entry.count++;
-    else result.catches.push({ speciesId: s.id, count: 1 });
-    changed.add(e.id);
-  };
   const capture = async (e: Expedition, s: Species, at: Date) => {
-    const genotype = wildGenotype(s.geneLoci);
-    const [caught] = await tx.insert(fish).values({
-      ownerId: player.id, speciesId: s.id, origin: 'wild', sex: random() < 0.5 ? 'male' : 'female',
-      genotype, morphKey: morphKey(s.geneLoci, phenotype(s.geneLoci, genotype)),
-      sizeCm: s.maxSizeCm * (0.6 + random() * 0.4), health: 90 + random() * 10,
-      growthRate: 1, maturity: 1, caughtRegionId: e.regionId, expeditionId: e.id,
-      pendingClaim: true, bornAt: at, statsUpdatedAt: at,
-    }).returning({ id: fish.id });
-    addCatch(e, s);
-    const day = gameDay(at);
-    const [counter] = await tx.select().from(speciesDailyCatches).where(and(eq(speciesDailyCatches.playerId, player.id), eq(speciesDailyCatches.day, day), eq(speciesDailyCatches.speciesId, s.id)));
-    await tx.insert(speciesDailyCatches).values({ playerId: player.id, day, speciesId: s.id, count: (counter?.count ?? 0) + 1 })
-      .onConflictDoUpdate({ target: [speciesDailyCatches.playerId, speciesDailyCatches.day, speciesDailyCatches.speciesId], set: { count: (counter?.count ?? 0) + 1 } });
-    return caught!.id;
+    const id = await captureFish(tx, player.id, e, s, at);
+    changed.add(e.id);
+    return id;
   };
   const quota = async (s: Species, at: Date): Promise<boolean> => {
     const p = populations.find((p) => p.speciesId === s.id);
@@ -86,18 +112,15 @@ export async function settleExpeditions(tx: Db, player: Player, now: Date): Prom
     if (limit !== null && (counter?.count ?? 0) + reserved >= limit) return false;
     return true;
   };
-  const savePopulation = async (s: Species) => {
-    const p = populations.find((p) => p.speciesId === s.id)!;
-    p.status = statusFromPercent((p.count + p.reserved) / s.initialPopulation * 100, p.status);
-    p.version++;
-    await tx.update(wildPopulations).set({ count: p.count, reserved: p.reserved, status: p.status, version: p.version }).where(eq(wildPopulations.speciesId, s.id));
-  };
+  const savePopulation = (s: Species) => saveWildPopulation(tx, populations.find((p) => p.speciesId === s.id)!, s);
   const resolveAuto = async (bite: Bite, e: Expedition | undefined, s: Species, at: Date) => {
     const p = populations.find((p) => p.speciesId === s.id)!;
     let bonus = 0;
     let gearMissing = false;
     const used: { floatId?: string; baitId?: string } = {};
-    if (!bite.pausedRepeat && e) {
+    // 직접 시도를 한 입질은 자동 판정 없이 만료로 닫는다(시도 순번 충돌 방지, 이미 쓴 장비는 돌려주지 않음).
+    const manual = bite.attemptsUsed > 0;
+    if (!bite.pausedRepeat && e && !manual) {
       for (const kind of ['float', 'bait'] as const) {
         const id = kind === 'float' ? e.options.floatId : e.options.baitId;
         if (!id) continue;
@@ -111,7 +134,7 @@ export async function settleExpeditions(tx: Db, player: Player, now: Date): Prom
         bonus += item.chanceBonus;
       }
     }
-    const auto = !bite.pausedRepeat && !!e && !gearMissing;
+    const auto = !bite.pausedRepeat && !!e && !manual && !gearMissing;
     if (auto) {
       for (const id of Object.values(used)) {
         const [stock] = await tx.select().from(playerItems).where(and(eq(playerItems.playerId, player.id), eq(playerItems.itemId, id)));
@@ -129,7 +152,7 @@ export async function settleExpeditions(tx: Db, player: Player, now: Date): Prom
     await savePopulation(s);
     if (auto) await tx.insert(biteAttempts).values({ biteId: bite.id, attemptNo: 1, ...used, isAuto: true, success, createdAt: at });
     bite.status = success ? 'caught' : auto ? 'escaped' : 'expired';
-    await tx.update(rareBites).set({ status: bite.status, isAuto: auto, attemptsUsed: auto ? 1 : 0, fishId, resolvedAt: at }).where(eq(rareBites.id, bite.id));
+    await tx.update(rareBites).set({ status: bite.status, isAuto: auto || bite.isAuto, attemptsUsed: auto ? 1 : bite.attemptsUsed, fishId, resolvedAt: at }).where(eq(rareBites.id, bite.id));
     if (gearMissing && e?.status === 'active') {
       e.status = 'completed'; e.stopReason = 'gear_empty'; e.waitingForStamina = false;
       changed.add(e.id);

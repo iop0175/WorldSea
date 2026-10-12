@@ -18,6 +18,7 @@
 4. 4단계: 고대(데본기, 백악기). 시간 티켓으로 입장.
 - 특별 지역: 원정 중 드물게 특별 맵 발생, 기회 5번, 특별 개체(오리지널) 수집.
 - 특별 맵 대기(확정, 82번): 특별 맵이 열리면 24시간 보관하고 알림을 보낸다. 반복 수색은 계속된다. 특별 개체는 플레이어가 들어가 시도하는 순간에만 예약한다(공유 바다를 묶지 않음). 24시간이 지나면 특별 맵은 사라진다. 시도 방식은 일반 입질과 같은 게이지·확률 표시(79~81번), 기회 5번.
+- 특별 맵 재전송(확정, 92번): 일반 입질의 bite_attempts처럼 특별 맵 시도도 기록 표(encounter_attempts: encounterId·attemptNo 유니크, 위치·장비·확률·성공 여부)에 남기고, 응답을 못 받은 같은 순번 재전송에는 저장된 결과를 그대로 돌려준다(409 재조회 대신). 마지막 시도로 특별 맵이 닫힌 뒤의 재전송도 결과를 돌려주도록 기록 조회를 상태 검사보다 먼저 한다. 구현 대기(마이그레이션 필요).
 - 오리지널 전설급 노출(확정, 65번): 지역 상세 목록에는 "??? (전설)" 실루엣으로 자리만 보이고 이름·학명·개체수 비율은 숨긴다.
 - 특별 개체 희귀도(확정, 68번): 지역별 특별 개체 12종은 모두 영웅(epic). 지역 전설급보다 한 단계 아래 (특별 맵 자체가 희소하므로).
 - 특별 개체 노출(확정, 66번): 처음엔 "??? (특별 맵)" 실루엣, 서버에서 누군가 처음 잡으면 모두에게 공개(species_discoveries). 실루엣은 목록 끝(특별 개체 → 전설급 순)에 두어 이름순 위치로 정체를 추측하지 못하게 한다.
@@ -148,7 +149,7 @@
   - src/routes/players.ts: GET /v1/me(스태미너는 요청 시점 계산), POST /v1/players(가입: 플레이어+첫 헌터, 한 트랜잭션)
   - src/routes/expeditions.ts: POST /v1/expeditions(수색 시작). 헌터 소유·슬롯·진행 중 원정·지역 레벨·반복 상한·장비 종류 검사, 플레이어 행 잠금 후 첫 회차 스태미너·고대 입장 티켓 차감과 원정 생성을 한 트랜잭션으로 처리. Idempotency-Key로 재시도 중복 차감 방지(0009_expedition_start_key.sql 필요). GET /v1/expeditions와 src/game/expeditionProgress.ts가 요청 시점 진행·포획·입질 만료를 확정한다(0010_expedition_progress.sql 필요). src/game/expeditionClaims.ts가 개별/모두 배치 수령과 중복 지급 방지를 처리한다(0011_expedition_claims.sql 필요).
   - src/routes/bites.ts + src/game/bites.ts: GET /v1/bites(대기 입질·위치별 확률 표·쓸 수 있는 장비), POST /v1/bites/:id/attempt(직접/자동 시도). 플레이어 행 잠금 후 장비 차감·시도 기록·포획 확정(captureFish)·야생 개체수 복원(saveWildPopulation)을 한 트랜잭션으로 처리하고 attemptNo로 재전송을 구분한다. 확률 biteChance·시드 난수 seededRoll은 game/hunt.ts(HUNT_TEMP.manualChance 등 임시값). 새 마이그레이션 없음.
-  - src/routes/encounters.ts + src/game/encounters.ts: GET /v1/encounters, POST /v1/encounters/:id/attempt(특별 맵 기회 5번). 개체는 시도 순간에만 다루고 성공 시 야생 개체수 감소·바로 소유·species_discoveries 기록을 한 트랜잭션으로 처리. 시도 기록 표가 없어 재전송은 409(응답 유실이 잦으면 표 추가). 새 마이그레이션 없음.
+  - src/routes/encounters.ts + src/game/encounters.ts: GET /v1/encounters, POST /v1/encounters/:id/attempt(특별 맵 기회 5번). 개체는 시도 순간에만 다루고 성공 시 야생 개체수 감소·바로 소유·species_discoveries 기록을 한 트랜잭션으로 처리. 시도 기록 표가 없어 재전송은 409(92번에 따라 encounter_attempts 추가 예정). 새 마이그레이션 없음.
   - /ws?token= : 토큰 검증 후 그 사용자 채널(Durable Object)에 연결
   - test/api.test.ts: vitest + PGlite(실제 마이그레이션) + 로컬 서명 토큰으로 인증·가입·내 정보 검증
   - src/realtime/player-channel.ts: 플레이어별 Durable Object, WebSocket Hibernation, push() RPC
@@ -209,7 +210,6 @@
 어브노말 테스트(2026-10-12, server/test/abnormal.test.ts) 수정 완료: ① 직접·자동 시도를 한 입질이 만료되면 자동 판정 없이 expired로 닫고(시도 순번 충돌로 만료 정리가 500이 되어 모든 요청이 막히던 문제), 다른 플레이어의 만료 정리가 실패해도 요청한 플레이어는 막지 않는다(실패는 console.error) ② 보호종·일일 한도·0마리로 잡을 수 없는 시도는 장비를 차감하지 않고 바다로 돌려보낸다 ③ 야생 개체수 행이 없으면 TypeError 대신 500 internal ④ 시드 난수를 (0,1) 열린 구간으로 바꿔 항상 성공하는 시드를 없앴다.
 
 결정 필요(대장님 확인 후 반영, 임시값으로 진행 중):
-- C. 특별 맵 시도의 응답 유실 재전송(현재 409로 재조회 안내). 잦으면 encounter_attempts 표를 추가할지.
 - D. 직접 시도 후 만료된 입질의 정책(현재: 이미 쓴 장비는 돌려주지 않고 바다로 복귀). 시도 기회가 남았을 때 만료되면 자동 판정 한 번을 줄지(77번은 "직접 하지 않으면 자동 한 번"이라 직접 시도를 시작했으면 해당 없음으로 해석함).
 - E. 잡을 수 없게 된 시도에서 쓴 장비·시도 기록 표시(기록에는 선택 장비가 남지만 차감은 하지 않음).
 

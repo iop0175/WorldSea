@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { useGameStore } from '../../store';
+import { shopStageNow, useGameStore } from '../../store';
 import { GAME_HEIGHT, GAME_WIDTH, LAYOUT, STAGE1_SPOTS as S } from '../layout';
 import { FISH_KEYS } from './BootScene';
 import { hasAsset } from '../assets';
@@ -37,9 +37,12 @@ export class HubScene extends Phaser.Scene {
   create() {
     const g = this.add.graphics().setDepth(0);
     g.fillStyle(C.void).fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
-    const hasSceneArt = hasAsset('bg/hub_stage1');
+    // 단계별 장면 그림(bg/hub_stage<n>). 없는 단계는 1단계 그림. 서버 미연결 미리보기는 ?stage=n 으로 확인
+    const stage = shopStageNow();
+    const stageKey = hasAsset(`bg/hub_stage${stage}`) ? `bg/hub_stage${stage}` : 'bg/hub_stage1';
+    const hasSceneArt = hasAsset(stageKey);
     if (hasSceneArt) {
-      this.add.image(0, LAYOUT.scene.y, 'bg/hub_stage1')
+      this.add.image(0, LAYOUT.scene.y, stageKey)
         .setOrigin(0)
         .setDisplaySize(GAME_WIDTH, LAYOUT.scene.h)
         .setDepth(0);

@@ -4,25 +4,20 @@ import { ApiRequestError, createPlayer, fetchHealth } from '../api';
 import { signInWithEmail, signInWithProvider, signOut } from '../auth/supabase';
 import { collectResults, refreshMe } from '../session';
 import { toView, type MainView } from './viewModel';
-import { useGameStore } from '../store';
+import { shopStageNow, useGameStore } from '../store';
 import { LAYOUT, STAGE1_SPOTS } from '../game/layout';
 import { ICONS, PixelIcon, type PixelArt } from './PixelIcon';
 import { assetUrl, hasAsset, SLICES } from '../game/assets';
 import { MOCK_BADGES } from './mock';
 import { ExpeditionPanel } from './ExpeditionPanel';
+import { ScreenSkeleton } from './ScreenSkeleton';
+import { TAB_HOME } from './screens';
 
 /** 게임 좌표(360x640 기준 px)를 화면 CSS 길이로 */
 const g = (n: number) => `calc(var(--px) * ${n})`;
 const box = (x: number, y: number, w?: number, h?: number): CSSProperties => ({
   left: g(x), top: g(y), ...(w !== undefined ? { width: g(w) } : {}), ...(h !== undefined ? { height: g(h) } : {}),
 });
-
-const TAB_INFO: Record<Exclude<BottomTab, 'shop'>, { title: string; lines: string[] }> = {
-  farm: { title: '사육', lines: ['수조 환경(수온·염도·수질)과 자동화 설비', '교배와 성장 관리'] },
-  expedition: { title: '원정', lines: ['헌터를 보내 수색 (1회 / 반복 최대 100회)', '희귀어 입질 미니게임'] },
-  dex: { title: '도감', lines: ['어종 120종과 모프 기록', '보전 상태(안정·취약·보호종·야생 멸종)'] },
-  store: { title: '상점', lines: ['찌·미끼(3등급까지), 헌터 외형', '구독과 VIP'] },
-};
 
 /** 에셋(icon/...)이 있으면 이미지, 없으면 임시 도트 아이콘 */
 function Icon({ k, fb, size }: { k: string; fb: PixelArt; size: string }) {
@@ -34,7 +29,7 @@ function Icon({ k, fb, size }: { k: string; fb: PixelArt; size: string }) {
 
 /** 카드 배경 이미지 (있을 때만) */
 const bgImage = (key: string): CSSProperties | undefined => {
-  const reference: Record<string, string> = { "ui/card_complete_bg": "09_card_gold_map", "ui/card_locked_bg": "10_card_blue_dragon", "ui/region/asia_fresh": "08_card_underwater" };
+  const reference: Record<string, string> = { "ui/card_complete_bg": "09_card_gold_map", "ui/card_locked_bg": "10_card_blue_dragon", "ui/region/asia_fresh": "08_card_underwater", "ui/card_locked_red_bg": "11_card_dark_dragon" };
   const url = assetUrl(reference[key] ? `reference/${reference[key]}` : key);
   return url ? { backgroundImage: `url(${url})`, backgroundSize: '100% 100%', imageRendering: 'pixelated' } : undefined;
 };
@@ -47,14 +42,14 @@ function Badge({ value }: { value?: string }) {
 function TopBar({ v: P, onMenu, onInfo }: { v: MainView; onMenu: () => void; onInfo: (title: string, detail: string) => void }) {
   return (
     <header className="topbar" style={box(0, LAYOUT.topBar.y, 360, LAYOUT.topBar.h)}>
-      <button type="button" className="panel profile" onClick={() => onInfo('프로필', `${P.nickname} · LV.${P.level}`)} aria-label={`프로필, ${P.nickname}, 레벨 ${P.level}`}>
+      <button type="button" className="panel profile" onClick={() => useGameStore.getState().openScreen('profile')} aria-label={`프로필, ${P.nickname}, 레벨 ${P.level}`}>
         <span className="avatar"><Icon k="icon/avatar_default" fb={ICONS.face} size={g(24)} /></span>
         <span className="profile-text">
           <span className="name">{P.nickname} <b>LV.{P.level}</b></span>
           <span className="bar"><span style={{ width: `${P.expRatio * 100}%` }} /></span>
         </span>
       </button>
-      <button type="button" className="panel res premium" onClick={() => onInfo('프리미엄', `보유 ${P.premium.toLocaleString()}개 · 충전 기능은 준비 중입니다.`)} aria-label={`프리미엄 ${P.premium}, 충전`}>
+      <button type="button" className="panel res premium" onClick={() => useGameStore.getState().openScreen('store_premium')} aria-label={`프리미엄 ${P.premium}, 충전`}>
         <Icon k="icon/res_premium" fb={ICONS.gem} size={g(12)} /><span className="num">{P.premium}</span><span className="plus">+</span>
       </button>
       <button type="button" className="panel res gold" onClick={() => onInfo('골드', `보유 ${P.gold.toLocaleString()}개 · 충전 기능은 준비 중입니다.`)} aria-label={`골드 ${P.gold.toLocaleString()}, 충전`}>
@@ -76,21 +71,23 @@ function TopBar({ v: P, onMenu, onInfo }: { v: MainView; onMenu: () => void; onI
 }
 
 function SceneOverlay({ v: P, onInfo }: { v: MainView; onInfo: (title: string, detail: string) => void }) {
+  // 2~4단계 장면은 객체 배치(간판·라벨·터치 영역)가 아직 없어 1단계 전용 오버레이는 숨긴다
+  const stage1 = useGameStore((st) => st.me?.player.shopStage ?? shopStageNow()) === 1;
   return (
     <div className="scene-ui">
       {/* 간판 글자 + 샵 단계 */}
-      <div className="sign" style={box(120, 46, 120, 26)}>WORLDSEA</div>
-      <button type="button" className="stage-bar" onClick={() => onInfo("샵 성장", `${P.shopStageName} · 샵 확장 기능은 준비 중입니다.`)} style={box(105, 78, 150, 14)} aria-label={`${P.shopStageName}, 다음 단계까지 ${Math.round(P.shopStageProgress * 100)}%`}>
+      {stage1 && <div className="sign" style={box(120, 46, 120, 26)}>WORLDSEA</div>}
+      <button type="button" className="stage-bar" onClick={() => useGameStore.getState().openScreen('shop_upgrade')} style={box(105, 78, 150, 14)} aria-label={`${P.shopStageName}, 다음 단계까지 ${Math.round(P.shopStageProgress * 100)}%`}>
         <span className="gem" /><span>{P.shopStageName}</span>
         <span className="bar"><span style={{ width: `${P.shopStageProgress * 100}%` }} /></span>
         <span className="pct">{Math.round(P.shopStageProgress * 100)}%</span><span className="gem" />
       </button>
 
       {/* 장면 터치 영역과 라벨 */}
-      {Object.entries(STAGE1_SPOTS).map(([key, s]) => {
+      {stage1 && Object.entries(STAGE1_SPOTS).map(([key, s]) => {
         const isDoor = key === 'market' || key === 'guild';
         return (
-          <button key={key} type="button" onClick={() => isDoor ? onInfo(s.label, `${s.label} 기능은 준비 중입니다.`) : useGameStore.getState().setTab(key === "counter" ? "store" : "farm")} className={'labelTop' in s ? 'spot label-top' : 'spot'} style={box(s.x, s.y, s.w, s.h)} aria-label={s.label}>
+          <button key={key} type="button" onClick={() => isDoor ? useGameStore.getState().openScreen(key === 'market' ? 'market' : 'guild_find') : useGameStore.getState().setTab(key === "counter" ? "store" : "farm")} className={'labelTop' in s ? 'spot label-top' : 'spot'} style={box(s.x, s.y, s.w, s.h)} aria-label={s.label}>
             <span className={isDoor ? 'plate' : 'label'}>{s.label}</span>
           </button>
         );
@@ -98,12 +95,12 @@ function SceneOverlay({ v: P, onInfo }: { v: MainView; onInfo: (title: string, d
 
       {/* 양옆 패널 */}
       <nav className="side left" style={box(0, 90, 40)} aria-label="빠른 메뉴 왼쪽">
-        <button type="button" onClick={() => onInfo("출석", "출석 기능은 준비 중입니다.")} aria-label="출석"><Icon k="icon/side_attend" fb={ICONS.attend} size={g(22)} /><span>출석</span><Badge value={MOCK_BADGES.attend} /></button>
-        <button type="button" onClick={() => onInfo("복원 이벤트", "복원 이벤트 기능은 준비 중입니다.")} aria-label="복원 이벤트"><Icon k="icon/side_restore" fb={ICONS.restore} size={g(22)} /><span>복원</span></button>
+        <button type="button" onClick={() => useGameStore.getState().openScreen('attendance')} aria-label="출석"><Icon k="icon/side_attend" fb={ICONS.attend} size={g(22)} /><span>출석</span><Badge value={MOCK_BADGES.attend} /></button>
+        <button type="button" onClick={() => useGameStore.getState().openScreen('restoration_event')} aria-label="복원 이벤트"><Icon k="icon/side_restore" fb={ICONS.restore} size={g(22)} /><span>복원</span></button>
       </nav>
       <nav className="side right" style={box(320, 90, 40)} aria-label="빠른 메뉴 오른쪽">
-        <button type="button" onClick={() => onInfo("가방", "가방 기능은 준비 중입니다.")} aria-label="가방"><Icon k="icon/side_bag" fb={ICONS.bag} size={g(22)} /><span>가방</span></button>
-        <button type="button" onClick={() => onInfo("친구", "친구 기능은 준비 중입니다.")} aria-label="친구"><Icon k="icon/side_friends" fb={ICONS.friends} size={g(22)} /><span>친구</span></button>
+        <button type="button" onClick={() => useGameStore.getState().openScreen('inventory')} aria-label="가방"><Icon k="icon/side_bag" fb={ICONS.bag} size={g(22)} /><span>가방</span></button>
+        <button type="button" onClick={() => useGameStore.getState().openScreen('friends')} aria-label="친구"><Icon k="icon/side_friends" fb={ICONS.friends} size={g(22)} /><span>친구</span></button>
       </nav>
     </div>
   );
@@ -145,7 +142,7 @@ function HunterBand({ v, onOpen, onInfo }: { v: MainView; onOpen: (screen: "setu
               </button>
             );
           return (
-            <button key={i} type="button" className="card locked" onClick={() => onInfo("헌터 해금", h.condition)} style={bgImage('ui/card_locked_bg')} aria-label={`헌터 슬롯 ${i + 1}, ${h.condition}`}>
+            <button key={i} type="button" className="card locked" onClick={() => onInfo("헌터 해금", h.condition)} style={bgImage(h.condition.includes('구독') ? 'ui/card_locked_red_bg' : 'ui/card_locked_bg')} aria-label={`헌터 슬롯 ${i + 1}, ${h.condition}`}>
               <Icon k="icon/lock" fb={ICONS.lock} size={g(20)} /><span>{h.condition}</span>
             </button>
           );
@@ -173,6 +170,7 @@ function TabBar() {
 /** 메인 게임 화면 (로그인 후, 또는 미리보기) */
 function MainScreen({ preview }: { preview: boolean }) {
   const activeTab = useGameStore((s) => s.activeTab);
+  const top = useGameStore((s) => s.screens.at(-1) ?? TAB_HOME[activeTab]);
   const me = useGameStore((s) => s.me);
   const [menuOpen, setMenuOpen] = useState(false);
   const [info, setInfo] = useState<{title: string; detail: string} | null>(null);
@@ -199,19 +197,14 @@ function MainScreen({ preview }: { preview: boolean }) {
   return (
     <>
       <TopBar v={v} onInfo={onInfo} onMenu={() => setMenuOpen((o) => !o)} />
-      {activeTab === 'shop' ? <SceneOverlay v={v} onInfo={onInfo} /> : activeTab === 'expedition' ? <ExpeditionPanel preview={preview} initialScreen={expeditionScreen} /> : (
-        <section className="sheet" style={box(12, 120, 336)} aria-label={TAB_INFO[activeTab].title}>
-          <h2>{TAB_INFO[activeTab].title}</h2>
-          {TAB_INFO[activeTab].lines.map((l) => <p key={l}>{l}</p>)}
-          <p className="soon">준비 중</p>
-        </section>
-      )}
+      {top ? <ScreenSkeleton id={top} /> : activeTab === 'shop' ? <SceneOverlay v={v} onInfo={onInfo} /> : <ExpeditionPanel preview={preview} initialScreen={expeditionScreen} />}
       {activeTab !== 'expedition' && <HunterBand v={v} onOpen={openExpedition} onInfo={onInfo} />}
       <TabBar />
       {preview && activeTab !== 'expedition' && <div className="preview-note" style={box(60, 486, 240, 12)}>미리보기 (서버 미연결 · 예시 데이터)</div>}
       {info && <div className="info-backdrop" onClick={() => setInfo(null)}><section className="info-dialog" role="dialog" aria-modal="true" aria-labelledby="info-title" onClick={(event) => event.stopPropagation()}><h2 id="info-title">{info.title}</h2><p>{info.detail}</p><button autoFocus type="button" className="gate-btn gold" onClick={() => setInfo(null)}>확인</button></section></div>}
       {menuOpen && (
         <div className="menu-pop" style={box(232, 36, 124)} role="menu">
+          {([['mail', '우편함', '13_btn_mail'], ['settings', '설정', '12_btn_settings'], ['hunter_skin', '헌터 외형', '16_btn_star'], ['index', '전체 화면', '14_btn_trophy']] as const).map(([id, label, ico]) => <button key={id} type="button" role="menuitem" onClick={() => { setMenuOpen(false); useGameStore.getState().openScreen(id); }}><img src={assetUrl(`reference/${ico}`)} alt="" />{label}</button>)}
           <button type="button" role="menuitem" onClick={() => { setMenuOpen(false); void refreshMe(); }} disabled={preview}>새로고침</button>
           <button type="button" role="menuitem" onClick={() => { setMenuOpen(false); void signOut(); }} disabled={preview}>로그아웃</button>
         </div>

@@ -182,6 +182,8 @@
 - docs/fish-art.md: 물고기 그림 규격(84~89번)과 작업 순서 / docs/fish-prompts.md: 120종 생성 프롬프트(기본 120 + 모프 78)와 파일 목록
 - docs/assets-main.md: 메인 화면(1단계) 에셋 목록 (파일명, 크기, 겹 순서, 9-slice, 생성 프롬프트, 우선순위)
 - docs/screens.md: 화면 구성 요소 목록 (페이지 디자인 기준, 확정/제안 구분)
+- docs/assets-stages.md: 샵 2~4단계를 객체로 쪼갠 에셋 목록(결정 2026-10-13: 통짜 장면 대신 1단계처럼 개별 객체, 교배는 1단계 유리 돔·치어 수조 재사용, 4단계도 한 화면 360x462만). 수조 3겹, 크기·위치, 새로 그릴 객체 60장. 지금 bg/hub_stage2~4.png는 임시 시안 크롭이고 1단계 아닌 단계에서는 간판·라벨 오버레이를 숨긴다
+- docs/assets-screens.md: 메인 화면 외 전체 화면 에셋 목록(틀·아이콘·배경·캐릭터·fx·앱·소리, 우선순위). 스켈레톤 화면은 client/src/ui/screens.ts(데이터)+ScreenSkeleton.tsx, store의 screens 스택으로 이동, 메뉴 > 전체 화면에서 전부 열 수 있다. 실제 화면을 만들면 screens.ts에서 해당 항목을 지운다
 - docs/ui-main.md + docs/reference/main-ui-reference.png: 메인 화면 UI 기준 v2(대장님 제공, 탑다운 3/4 시점, 9:16). 해상도 360x640. 화면 배치·패널·색·아이콘·장면 구성은 이 기준을 따른다. 기준 이미지는 에셋으로 직접 쓰지 않고 진짜 픽셀아트로 새로 그린다. v1(쿼터뷰)은 참고 보관용. 샵 단계별 장면 기준: main-ui-reference.png(1단계), hub-stage2/3/4-reference.png(2~4단계). 컨셉 이미지이며 물고기가 아닌 생물(해파리, 펭귄, 거북 등)은 넣지 않는다.
 
 ## 명령어 (저장소 루트에서)

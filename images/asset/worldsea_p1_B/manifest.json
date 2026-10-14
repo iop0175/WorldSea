@@ -1,0 +1,82 @@
+{
+  "assets": [
+    {
+      "file": "bg/splash.png",
+      "size": [
+        360,
+        640
+      ]
+    },
+    {
+      "file": "chr/portrait_elder.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "chr/portrait_staff.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "ui/logo_emblem.png",
+      "size": [
+        64,
+        64
+      ]
+    },
+    {
+      "file": "story/intro_01.png",
+      "size": [
+        360,
+        360
+      ]
+    },
+    {
+      "file": "story/intro_02.png",
+      "size": [
+        360,
+        360
+      ]
+    },
+    {
+      "file": "story/intro_03.png",
+      "size": [
+        360,
+        360
+      ]
+    },
+    {
+      "file": "story/intro_04.png",
+      "size": [
+        360,
+        360
+      ]
+    },
+    {
+      "file": "fx/finger.png",
+      "size": [
+        32,
+        16
+      ]
+    },
+    {
+      "file": "fx/arrow_down.png",
+      "size": [
+        24,
+        12
+      ]
+    },
+    {
+      "file": "fx/egg.png",
+      "size": [
+        48,
+        12
+      ]
+    }
+  ],
+  "notes": "Story/background images intentionally opaque; icon and FX sprites transparent. Art is a first-pass adaptation from generated concept imagery."
+}

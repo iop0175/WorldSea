@@ -1,0 +1,398 @@
+{
+  "pack": "WorldSea P1 C",
+  "assets": [
+    {
+      "file": "icon/store_gear.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "gear"
+    },
+    {
+      "file": "icon/store_combine.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "combine"
+    },
+    {
+      "file": "icon/store_gacha.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "gacha"
+    },
+    {
+      "file": "icon/store_premium.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "premium"
+    },
+    {
+      "file": "icon/store_sub.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "sub"
+    },
+    {
+      "file": "icon/store_vip.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "vip"
+    },
+    {
+      "file": "icon/store_stamina.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "stamina"
+    },
+    {
+      "file": "icon/store_ads.png",
+      "size": [
+        24,
+        24
+      ],
+      "description": "ads"
+    },
+    {
+      "file": "icon/tank_breed.png",
+      "size": [
+        16,
+        16
+      ],
+      "description": "breed"
+    },
+    {
+      "file": "icon/tank_display.png",
+      "size": [
+        16,
+        16
+      ],
+      "description": "display"
+    },
+    {
+      "file": "icon/tank_hold.png",
+      "size": [
+        16,
+        16
+      ],
+      "description": "hold"
+    },
+    {
+      "file": "icon/equip_filter.png",
+      "size": [
+        16,
+        16
+      ],
+      "description": "filter"
+    },
+    {
+      "file": "icon/equip_heater.png",
+      "size": [
+        16,
+        16
+      ],
+      "description": "heater"
+    },
+    {
+      "file": "icon/equip_feeder.png",
+      "size": [
+        16,
+        16
+      ],
+      "description": "feeder"
+    },
+    {
+      "file": "icon/env_temp.png",
+      "size": [
+        12,
+        12
+      ],
+      "description": "temp"
+    },
+    {
+      "file": "icon/env_salt.png",
+      "size": [
+        12,
+        12
+      ],
+      "description": "salt"
+    },
+    {
+      "file": "icon/env_quality.png",
+      "size": [
+        12,
+        12
+      ],
+      "description": "quality"
+    },
+    {
+      "file": "icon/status_stable.png",
+      "size": [
+        12,
+        12
+      ],
+      "description": "stable"
+    },
+    {
+      "file": "icon/status_vulnerable.png",
+      "size": [
+        12,
+        12
+      ],
+      "description": "vulnerable"
+    },
+    {
+      "file": "icon/status_protected.png",
+      "size": [
+        12,
+        12
+      ],
+      "description": "protected"
+    },
+    {
+      "file": "icon/status_extinct.png",
+      "size": [
+        12,
+        12
+      ],
+      "description": "extinct"
+    },
+    {
+      "file": "icon/sex_male.png",
+      "size": [
+        10,
+        10
+      ],
+      "description": "male"
+    },
+    {
+      "file": "icon/sex_female.png",
+      "size": [
+        10,
+        10
+      ],
+      "description": "female"
+    },
+    {
+      "file": "icon/health.png",
+      "size": [
+        10,
+        10
+      ],
+      "description": "health"
+    },
+    {
+      "file": "icon/growth.png",
+      "size": [
+        10,
+        10
+      ],
+      "description": "growth"
+    },
+    {
+      "file": "icon/inbreed.png",
+      "size": [
+        10,
+        10
+      ],
+      "description": "inbreed"
+    },
+    {
+      "file": "icon/origin_wild.png",
+      "size": [
+        10,
+        10
+      ],
+      "description": "wild"
+    },
+    {
+      "file": "icon/origin_farm.png",
+      "size": [
+        10,
+        10
+      ],
+      "description": "farm"
+    },
+    {
+      "file": "item/float_common.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "float"
+    },
+    {
+      "file": "item/bait_common.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "bait"
+    },
+    {
+      "file": "item/float_uncommon.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "float"
+    },
+    {
+      "file": "item/bait_uncommon.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "bait"
+    },
+    {
+      "file": "item/float_rare.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "float"
+    },
+    {
+      "file": "item/bait_rare.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "bait"
+    },
+    {
+      "file": "item/float_epic.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "float"
+    },
+    {
+      "file": "item/bait_epic.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "bait"
+    },
+    {
+      "file": "item/float_legendary.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "float"
+    },
+    {
+      "file": "item/bait_legendary.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "bait"
+    },
+    {
+      "file": "item/bait_legend_special.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "special"
+    },
+    {
+      "file": "item/growth.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "growth_item"
+    },
+    {
+      "file": "item/breed_boost.png",
+      "size": [
+        20,
+        20
+      ],
+      "description": "boost"
+    },
+    {
+      "file": "bg/hdr_farm.png",
+      "size": [
+        336,
+        56
+      ],
+      "description": "header scene no text"
+    },
+    {
+      "file": "bg/hdr_dex.png",
+      "size": [
+        336,
+        56
+      ],
+      "description": "header scene no text"
+    },
+    {
+      "file": "bg/hdr_store.png",
+      "size": [
+        336,
+        56
+      ],
+      "description": "header scene no text"
+    },
+    {
+      "file": "bg/tank_interior_fresh.png",
+      "size": [
+        336,
+        150
+      ],
+      "description": "empty aquarium interior, no fish"
+    },
+    {
+      "file": "bg/tank_interior_sea.png",
+      "size": [
+        336,
+        150
+      ],
+      "description": "empty aquarium interior, no fish"
+    },
+    {
+      "file": "bg/tank_interior_ancient.png",
+      "size": [
+        336,
+        150
+      ],
+      "description": "empty aquarium interior, no fish"
+    },
+    {
+      "file": "bg/world_map.png",
+      "size": [
+        336,
+        200
+      ],
+      "description": "12 region markers, no labels"
+    },
+    {
+      "file": "fx/map_pin.png",
+      "size": [
+        36,
+        12
+      ],
+      "description": "horizontal sprite sheet: open, locked, ticket"
+    }
+  ],
+  "note": "Pixel-native RGBA PNG; text-free; scene backgrounds are opaque by design."
+}

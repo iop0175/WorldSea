@@ -1,0 +1,58 @@
+{
+  "game_size": [
+    360,
+    640
+  ],
+  "stages": [
+    {
+      "path": "bg/hub_stage2.png",
+      "size": [
+        360,
+        462
+      ],
+      "title": "작은 아쿠아리움",
+      "description": "1층의 따뜻한 목재 인테리어, 중앙 대형 산호 수조, 소형 전시 수조, 안내 카운터",
+      "source_crop": [
+        3,
+        0,
+        449,
+        573
+      ],
+      "alpha": false
+    },
+    {
+      "path": "bg/hub_stage3.png",
+      "size": [
+        360,
+        462
+      ],
+      "title": "중형 아쿠아리움",
+      "description": "2층 관람 공간, 대형 원통 수조, 곡선 난간, 계단과 중앙 전망 구역",
+      "source_crop": [
+        500,
+        0,
+        980,
+        616
+      ],
+      "alpha": false
+    },
+    {
+      "path": "bg/hub_stage4.png",
+      "size": [
+        360,
+        900
+      ],
+      "title": "대형 공공 수족관",
+      "description": "초대형 유리 돔, 다층 관람 통로, 메인 타워형 수조, 하단 입구",
+      "source_crop": [
+        1054,
+        25,
+        1434,
+        975
+      ],
+      "alpha": false
+    }
+  ],
+  "usage": "배경은 완성 장면이므로 RGB 불투명이며 글자·UI는 포함하지 않음. 게임 HUD, 헌터 카드, 하단 탭은 별도 레이어로 합성.",
+  "pixel_grid": "2px nearest-neighbor pixel grid at game resolution"
+}

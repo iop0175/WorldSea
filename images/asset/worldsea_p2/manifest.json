@@ -1,0 +1,641 @@
+{
+  "title": "월드씨 P2 에셋 팩",
+  "version": "1.0",
+  "engine_resolution": [
+    360,
+    640
+  ],
+  "style": "native low-resolution 2D pixel art, no image text",
+  "pixel_scaling": "nearest-neighbor integer scaling recommended",
+  "asset_count": 71,
+  "assets": [
+    {
+      "file": "bg/region/asia_fresh.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "아시아 민물; no text"
+    },
+    {
+      "file": "ui/region/asia_fresh.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "아시아 민물; no text"
+    },
+    {
+      "file": "bg/region/central_america_fresh.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "중미 민물; no text"
+    },
+    {
+      "file": "ui/region/central_america_fresh.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "중미 민물; no text"
+    },
+    {
+      "file": "bg/region/south_america_fresh.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "남미 민물; no text"
+    },
+    {
+      "file": "ui/region/south_america_fresh.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "남미 민물; no text"
+    },
+    {
+      "file": "bg/region/north_america_fresh.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "북미 민물; no text"
+    },
+    {
+      "file": "ui/region/north_america_fresh.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "북미 민물; no text"
+    },
+    {
+      "file": "bg/region/pacific.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "태평양; no text"
+    },
+    {
+      "file": "ui/region/pacific.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "태평양; no text"
+    },
+    {
+      "file": "bg/region/africa_fresh.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "아프리카 민물; no text"
+    },
+    {
+      "file": "ui/region/africa_fresh.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "아프리카 민물; no text"
+    },
+    {
+      "file": "bg/region/europe_fresh.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "유럽 민물; no text"
+    },
+    {
+      "file": "ui/region/europe_fresh.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "유럽 민물; no text"
+    },
+    {
+      "file": "bg/region/atlantic.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "대서양; no text"
+    },
+    {
+      "file": "ui/region/atlantic.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "대서양; no text"
+    },
+    {
+      "file": "bg/region/indian.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "인도양; no text"
+    },
+    {
+      "file": "ui/region/indian.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "인도양; no text"
+    },
+    {
+      "file": "bg/region/arctic.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "북극; no text"
+    },
+    {
+      "file": "ui/region/arctic.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "북극; no text"
+    },
+    {
+      "file": "bg/region/devonian.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "데본기; no text"
+    },
+    {
+      "file": "ui/region/devonian.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "데본기; no text"
+    },
+    {
+      "file": "bg/region/cretaceous.png",
+      "width": 336,
+      "height": 96,
+      "category": "region_banner",
+      "alpha": false,
+      "notes": "백악기; no text"
+    },
+    {
+      "file": "ui/region/cretaceous.png",
+      "width": 84,
+      "height": 52,
+      "category": "region_thumbnail",
+      "alpha": false,
+      "notes": "백악기; no text"
+    },
+    {
+      "file": "icon/vip_iron.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; iron"
+    },
+    {
+      "file": "icon/vip_bronze.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; bronze"
+    },
+    {
+      "file": "icon/vip_silver.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; silver"
+    },
+    {
+      "file": "icon/vip_gold.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; gold"
+    },
+    {
+      "file": "icon/vip_platinum.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; platinum"
+    },
+    {
+      "file": "icon/vip_emerald.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; emerald"
+    },
+    {
+      "file": "icon/vip_diamond.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; diamond"
+    },
+    {
+      "file": "icon/vip_master.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; master"
+    },
+    {
+      "file": "icon/vip_grandmaster.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; grandmaster"
+    },
+    {
+      "file": "icon/vip_challenger.png",
+      "width": 28,
+      "height": 28,
+      "category": "vip_rank",
+      "alpha": true,
+      "notes": "28x28; challenger"
+    },
+    {
+      "file": "guild/emblem_01.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "anchor"
+    },
+    {
+      "file": "guild/emblem_02.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "wave"
+    },
+    {
+      "file": "guild/emblem_03.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "coral"
+    },
+    {
+      "file": "guild/emblem_04.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "shell"
+    },
+    {
+      "file": "guild/emblem_05.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "sun"
+    },
+    {
+      "file": "guild/emblem_06.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "octopus"
+    },
+    {
+      "file": "guild/emblem_07.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "fin"
+    },
+    {
+      "file": "guild/emblem_08.png",
+      "width": 32,
+      "height": 32,
+      "category": "guild_emblem",
+      "alpha": true,
+      "notes": "crossed"
+    },
+    {
+      "file": "icon/res_conservation.png",
+      "width": 12,
+      "height": 12,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/res_vip.png",
+      "width": 12,
+      "height": 12,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/region_freshwater.png",
+      "width": 12,
+      "height": 12,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/region_sea.png",
+      "width": 12,
+      "height": 12,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/region_ancient.png",
+      "width": 12,
+      "height": 12,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/legend_seen.png",
+      "width": 12,
+      "height": 12,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/dex_new.png",
+      "width": 12,
+      "height": 12,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/role_leader.png",
+      "width": 10,
+      "height": 10,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/role_sub.png",
+      "width": 10,
+      "height": 10,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/role_member.png",
+      "width": 10,
+      "height": 10,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/popup_error.png",
+      "width": 32,
+      "height": 32,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "icon/attend_check.png",
+      "width": 16,
+      "height": 16,
+      "category": "extra_icon",
+      "alpha": true
+    },
+    {
+      "file": "fx/hatch_burst.png",
+      "width": 128,
+      "height": 32,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 4,
+        "frame_width": 32,
+        "frame_height": 32
+      },
+      "notes": "4 frames; hatch sparkle burst"
+    },
+    {
+      "file": "fx/dna_helix.png",
+      "width": 96,
+      "height": 48,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 4,
+        "frame_width": 24,
+        "frame_height": 48
+      },
+      "notes": "4 frames; breeding DNA loop"
+    },
+    {
+      "file": "fx/levelup_burst.png",
+      "width": 192,
+      "height": 64,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 3,
+        "frame_width": 64,
+        "frame_height": 64
+      },
+      "notes": "3 frames; level-up flash"
+    },
+    {
+      "file": "fx/gacha_flash.png",
+      "width": 192,
+      "height": 64,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 3,
+        "frame_width": 64,
+        "frame_height": 64
+      },
+      "notes": "3 frames; capsule reveal"
+    },
+    {
+      "file": "fx/reward_chest.png",
+      "width": 96,
+      "height": 40,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 2,
+        "frame_width": 48,
+        "frame_height": 40
+      },
+      "notes": "2 frames; closed/open chest"
+    },
+    {
+      "file": "fx/capsule_common.png",
+      "width": 120,
+      "height": 24,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 5,
+        "frame_width": 24,
+        "frame_height": 24
+      },
+      "notes": "5 frames; common gacha capsule"
+    },
+    {
+      "file": "fx/capsule_uncommon.png",
+      "width": 120,
+      "height": 24,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 5,
+        "frame_width": 24,
+        "frame_height": 24
+      },
+      "notes": "5 frames; uncommon gacha capsule"
+    },
+    {
+      "file": "fx/capsule_rare.png",
+      "width": 120,
+      "height": 24,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 5,
+        "frame_width": 24,
+        "frame_height": 24
+      },
+      "notes": "5 frames; rare gacha capsule"
+    },
+    {
+      "file": "fx/capsule_epic.png",
+      "width": 120,
+      "height": 24,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 5,
+        "frame_width": 24,
+        "frame_height": 24
+      },
+      "notes": "5 frames; epic gacha capsule"
+    },
+    {
+      "file": "fx/capsule_legendary.png",
+      "width": 120,
+      "height": 24,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 5,
+        "frame_width": 24,
+        "frame_height": 24
+      },
+      "notes": "5 frames; legendary gacha capsule"
+    },
+    {
+      "file": "fx/discovery_rays.png",
+      "width": 96,
+      "height": 96,
+      "category": "effect",
+      "alpha": true,
+      "notes": "Static discovery halo. Rotate in game."
+    },
+    {
+      "file": "fx/attend_cell.png",
+      "width": 324,
+      "height": 40,
+      "category": "effect",
+      "alpha": true,
+      "animation": {
+        "layout": "horizontal",
+        "frames": 3,
+        "frame_width": 108,
+        "frame_height": 40
+      },
+      "notes": "3 frames; normal, claimed, today"
+    },
+    {
+      "file": "bg/hdr_market.png",
+      "width": 336,
+      "height": 56,
+      "category": "section_header",
+      "alpha": false,
+      "notes": "Text-free header art"
+    },
+    {
+      "file": "bg/hdr_auction.png",
+      "width": 336,
+      "height": 56,
+      "category": "section_header",
+      "alpha": false,
+      "notes": "Text-free header art"
+    },
+    {
+      "file": "bg/hdr_guild.png",
+      "width": 336,
+      "height": 56,
+      "category": "section_header",
+      "alpha": false,
+      "notes": "Text-free header art"
+    },
+    {
+      "file": "bg/restoration_event.png",
+      "width": 336,
+      "height": 80,
+      "category": "event_banner",
+      "alpha": false,
+      "notes": "Fish release restoration event; no text"
+    },
+    {
+      "file": "bg/gacha_machine.png",
+      "width": 120,
+      "height": 140,
+      "category": "standalone_object",
+      "alpha": true,
+      "notes": "120x140 transparent capsule machine"
+    }
+  ],
+  "notes": [
+    "Region banners/cards are intentionally opaque scene images; UI badges, icons and FX use real RGBA transparency.",
+    "FX horizontal strips must be sliced using animation frame metadata.",
+    "VIP badge and guild emblem textures contain no text.",
+    "Not included: stage 2-4 full hub scenes, platform icons and sound; planned as separate extensive scene/audio pass."
+  ]
+}

@@ -1,0 +1,257 @@
+{
+  "assets": [
+    {
+      "path": "ui/btn_gray.png",
+      "size": [
+        24,
+        16
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/btn_red.png",
+      "size": [
+        24,
+        16
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/dialog_frame.png",
+      "size": [
+        48,
+        48
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/gauge_frame.png",
+      "size": [
+        24,
+        10
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/input_frame.png",
+      "size": [
+        24,
+        16
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/list_row.png",
+      "size": [
+        32,
+        24
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/scroll_thumb.png",
+      "size": [
+        4,
+        16
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/sheet_frame.png",
+      "size": [
+        32,
+        32
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/slot_frame.png",
+      "size": [
+        24,
+        24
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/tab_off.png",
+      "size": [
+        40,
+        16
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/tab_on.png",
+      "size": [
+        40,
+        16
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/toggle_off.png",
+      "size": [
+        24,
+        12
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "ui/toggle_on.png",
+      "size": [
+        24,
+        12
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/ad_play.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/back.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/check.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/close.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/filter.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/friend_add.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/gavel.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/info.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/mail.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/plus.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/refresh.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/release.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/search.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/settings.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/sort.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/timer.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    },
+    {
+      "path": "icon/trophy.png",
+      "size": [
+        14,
+        14
+      ],
+      "mode": "RGBA"
+    }
+  ],
+  "nine_slice": {
+    "dialog_frame": 12,
+    "sheet_frame": 8,
+    "list_row": 6,
+    "slot_frame": 4,
+    "btn_gray": 5,
+    "btn_red": 5,
+    "tab_on": 4,
+    "tab_off": 4,
+    "gauge_frame": 3,
+    "input_frame": 4,
+    "scroll_thumb": 1
+  }
+}

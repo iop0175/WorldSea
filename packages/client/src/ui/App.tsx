@@ -29,7 +29,7 @@ function Icon({ k, fb, size }: { k: string; fb: PixelArt; size: string }) {
 
 /** 카드 배경 이미지 (있을 때만) */
 const bgImage = (key: string): CSSProperties | undefined => {
-  const reference: Record<string, string> = { "ui/card_complete_bg": "09_card_gold_map", "ui/card_locked_bg": "10_card_blue_dragon", "ui/region/asia_fresh": "08_card_underwater", "ui/card_locked_red_bg": "11_card_dark_dragon" };
+  const reference: Record<string, string> = { "ui/card_complete_bg": "09_card_gold_map", "ui/card_locked_bg": "10_card_blue_dragon", "ui/card_locked_red_bg": "11_card_dark_dragon" };
   const url = assetUrl(reference[key] ? `reference/${reference[key]}` : key);
   return url ? { backgroundImage: `url(${url})`, backgroundSize: '100% 100%', imageRendering: 'pixelated' } : undefined;
 };
@@ -300,6 +300,7 @@ export function App() {
   return (
     <div className={`hud phase-${phase} ${skinClass}`} style={skinVars}>
       {(phase === 'ready' || phase === 'preview') && <MainScreen preview={phase === 'preview'} />}
+      {phase !== 'ready' && phase !== 'preview' && <><img className="splash" src={assetUrl('bg/splash')} alt="" /><img className="logo" src={assetUrl('ui/logo_emblem')} alt="" style={box(148, 40, 64, 64)} /></>}
       {phase === 'login' && <LoginScreen />}
       {phase === 'signup' && <SignupScreen />}
       {phase === 'loading' && <div className="gate-center">불러오는 중…</div>}

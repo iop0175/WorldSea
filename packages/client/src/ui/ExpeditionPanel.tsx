@@ -13,6 +13,9 @@ const PREVIEW_REGIONS: RegionView[] = [
   { id: 'devonian', nameKo: '데본기', kind: 'ancient', unlockStage: 4, requiredLevel: 35, requiresTimeTicket: true, specialMapChance: 0.01, huntSeconds: 1800, huntStaminaCost: 5, unlocked: false },
 ];
 
+/** 지역 그림(bg/region·ui/region). 해당 지역 파일이 없으면 종류별 시안으로 대신한다 */
+const regionArt = (dir: 'bg' | 'ui', r?: RegionView) => assetUrl(`${dir}/region/${r?.id}`) ?? assetUrl(`reference/${r?.kind === 'ancient' ? 'region-ancient' : 'region-coral'}`);
+
 const STOP_LABEL: Record<string, string> = { stamina_empty: '스태미너 부족', premium_cap: '프리미엄 사용 상한', premium_empty: '프리미엄 부족', daily_limit: '일일 구매 한도', gear_empty: '장비 부족', high_grade_bite: '높은 등급 입질 대기' };
 
 /** 수색·진행·배치 수령. 게임 값은 서버 응답으로만 갱신한다. */
@@ -122,8 +125,8 @@ export function ExpeditionPanel({ preview, initialScreen = 'setup' }: { preview:
         </article>)}
       </div>}
       {screen === 'setup' && (loading ? <p role="status">지역과 헌터를 불러오는 중…</p> : <form className="expedition-form" onSubmit={(event) => void submit(event)}>
-        <div className="region-art"><img src={assetUrl(`reference/${selectedRegion?.kind === 'ancient' ? 'region-ancient' : 'region-coral'}`)} alt="" /><div><strong>{selectedRegion?.nameKo ?? '지역 선택'}</strong><span>새로운 물고기를 찾아 떠나는 여행</span></div></div>
-        <div className="region-thumbnails">{regions.map((r) => <button type="button" key={r.id} className={r.id === selectedRegion?.id ? 'selected' : ''} disabled={busy || !r.unlocked} onClick={() => setRegionId(r.id)} aria-label={`${r.nameKo}${!r.unlocked ? ' · 잠김' : ''}`}><img src={assetUrl(`reference/${r.kind === 'ancient' ? 'region-ancient' : 'region-coral'}`)} alt="" /></button>)}</div>
+        <div className="region-art"><img src={regionArt('bg', selectedRegion)} alt="" /><div><strong>{selectedRegion?.nameKo ?? '지역 선택'}</strong><span>새로운 물고기를 찾아 떠나는 여행</span></div></div>
+        <div className="region-thumbnails">{regions.map((r) => <button type="button" key={r.id} className={r.id === selectedRegion?.id ? 'selected' : ''} disabled={busy || !r.unlocked} onClick={() => setRegionId(r.id)} aria-label={`${r.nameKo}${!r.unlocked ? ' · 잠김' : ''}`}><img src={regionArt('ui', r)} alt="" /></button>)}</div>
         <label>지역<select aria-label="지역" value={selectedRegion?.id ?? ''} onChange={(e) => setRegionId(e.target.value)} disabled={busy || !regions.length}>
           {!regions.length && <option value="">지역 없음</option>}
           {regions.map((r) => <option key={r.id} value={r.id} disabled={!r.unlocked}>{r.nameKo}{!r.unlocked ? ` · LV.${r.requiredLevel} 해금` : ''}</option>)}

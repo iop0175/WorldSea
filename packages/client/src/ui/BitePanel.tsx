@@ -11,6 +11,10 @@ import { useGameStore } from '../store';
 import { mmss } from './viewModel';
 import { REGION_NAME_KO } from './mock';
 import { ICONS, PixelIcon, type PixelArt } from './PixelIcon';
+import { assetUrl } from '../game/assets';
+
+/** 장비 id(float_rare, bait_worm_common, bait_target_<어종>) → 등급 아이콘(item/*). 없으면 undefined */
+const gearIcon = (id?: string) => id && assetUrl(id.startsWith('bait_target_') ? 'item/bait_legend_special' : `item/${id.startsWith('float') ? 'float' : 'bait'}_${id.split('_').pop()}`);
 
 /** 어종 이름: 지역 상세 응답에서 공개된 것만 모아 둔다 (특별 개체는 서버 최초 포획 전까지 비공개) */
 const speciesNames = new Map<string, string>();
@@ -188,9 +192,10 @@ function BiteGame({ initial, freshAuto, onClose, onChanged }: { initial: Round; 
     const g = round.gear.find((x) => x.id === (kind === 'float' ? floatId : baitId));
     const has = round.gear.some((x) => x.kind === kind);
     const name = kind === 'float' ? '찌' : '미끼';
+    const iconUrl = gearIcon((g ?? round.gear.find((x) => x.kind === kind))?.id);
     return (
       <button type="button" className={`bs-slot${g ? ' on' : ''}`} onClick={() => cycle(kind)} disabled={phase !== 'ready' || !has} aria-label={`${name} 선택`}>
-        <PixelIcon art={kind === 'float' ? ICONS.bobber : ICONS.worm} size="calc(var(--px) * 18)" />
+        {iconUrl ? <img src={iconUrl} alt="" style={{ width: 'calc(var(--px) * 18)', height: 'calc(var(--px) * 18)' }} /> : <PixelIcon art={kind === 'float' ? ICONS.bobber : ICONS.worm} size="calc(var(--px) * 18)" />}
         <span className="bs-slot-text">{g ? <><b>+{Math.round(g.chanceBonus * 100)}%p</b><small>{name} ×{g.count}</small></> : <small>{has ? `${name} 선택` : `${name} 없음`}</small>}</span>
       </button>
     );

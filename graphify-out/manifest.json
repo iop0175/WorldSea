@@ -75,8 +75,8 @@
     "semantic_hash": ""
   },
   "packages/client/src/ui/App.tsx": {
-    "mtime": 1791879921.5090065,
-    "ast_hash": "d8861c57aac301c80676e54d4bedeb70",
+    "mtime": 1791941621.4277923,
+    "ast_hash": "fa503162e4168db80950b82d0c015b22",
     "semantic_hash": ""
   },
   "packages/client/src/ui/PixelIcon.tsx": {
@@ -480,8 +480,8 @@
     "semantic_hash": ""
   },
   "packages/client/src/ui/ExpeditionPanel.tsx": {
-    "mtime": 1791792380.9630327,
-    "ast_hash": "1f30e7a0684ae956745b9ac1398fd332",
+    "mtime": 1791941621.4277923,
+    "ast_hash": "277fee731254453597d56cd1ee1e839d",
     "semantic_hash": ""
   },
   "packages/server/scripts/smoke.ts": {
@@ -830,8 +830,8 @@
     "semantic_hash": ""
   },
   "packages/client/src/assets/ui/region/asia_fresh.png": {
-    "mtime": 1791250191.220299,
-    "ast_hash": "bbc1833de90d5c2156659524be4300a4",
+    "mtime": 1791939458.9118366,
+    "ast_hash": "b5a6b6eb3cf0899cd1d8d5fe5efce47e",
     "semantic_hash": ""
   },
   "packages/client/ui-preview-remade.png": {
@@ -870,8 +870,8 @@
     "semantic_hash": ""
   },
   "packages/client/src/ui/BitePanel.tsx": {
-    "mtime": 1791780989.4750896,
-    "ast_hash": "8aab709f575188f6ea39e3b5bcc8ed24",
+    "mtime": 1791941632.0002651,
+    "ast_hash": "111087c8ebb4d57bf7fa43be36d9d3c0",
     "semantic_hash": ""
   },
   "packages/shared/src/game/biteGauge.test.ts": {
@@ -1160,8 +1160,8 @@
     "semantic_hash": ""
   },
   "packages/client/src/ui/ScreenSkeleton.tsx": {
-    "mtime": 1791939189.205701,
-    "ast_hash": "9e3c37fdcf44b6438e458aeb36b69adc",
+    "mtime": 1791941584.7938151,
+    "ast_hash": "1f31f02eed274af0490159f1f0bbf5b7",
     "semantic_hash": ""
   },
   "packages/client/src/ui/screens.ts": {
@@ -1170,8 +1170,8 @@
     "semantic_hash": ""
   },
   "docs/assets-screens.md": {
-    "mtime": 1791939228.6984458,
-    "ast_hash": "d55f2995e230fb52c5caf98b4db735f6",
+    "mtime": 1791941829.5478363,
+    "ast_hash": "26c4fbd8a7c498d3e2383cd92a44e3ff",
     "semantic_hash": ""
   },
   "images/asset/worldsea_p1_A/manifest.json": {
@@ -2177,6 +2177,806 @@
   "images/asset/asset_copy/20_btn_close.png": {
     "mtime": 1791251459.0,
     "ast_hash": "2a648681d06182af5b122b975b10b774",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/gacha_machine.png": {
+    "mtime": 1791939458.869865,
+    "ast_hash": "7c7c0fd08ef09d2c583826f4450c23da",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/hdr_auction.png": {
+    "mtime": 1791939458.870865,
+    "ast_hash": "b51f34cba12d6b261568514ff2b3cf85",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/hdr_dex.png": {
+    "mtime": 1791939458.8408237,
+    "ast_hash": "6d4152e7714c07542838dcc3e92db493",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/hdr_farm.png": {
+    "mtime": 1791939458.8408237,
+    "ast_hash": "744a088bd878b1c1f1971b29d22d6d55",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/hdr_guild.png": {
+    "mtime": 1791939458.8713691,
+    "ast_hash": "ab5582a05717a0fa32ceed9d8e5d0dd0",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/hdr_market.png": {
+    "mtime": 1791939458.8713691,
+    "ast_hash": "fe8e267c1453784e436a2b712a53702a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/hdr_store.png": {
+    "mtime": 1791939458.8408237,
+    "ast_hash": "b65aff5833f8da0731055451fb1e572d",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/africa_fresh.png": {
+    "mtime": 1791939458.8733745,
+    "ast_hash": "ef837f747e28e923c2daf79d8068a57d",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/arctic.png": {
+    "mtime": 1791939458.8733745,
+    "ast_hash": "d6f182344b31e7309fdefd1d1ad17922",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/asia_fresh.png": {
+    "mtime": 1791939458.8743744,
+    "ast_hash": "2b792bdf5668426fbc40826f4e91e483",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/atlantic.png": {
+    "mtime": 1791939458.874879,
+    "ast_hash": "3bff2ea9a09ae6d2433c591af75eb39f",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/central_america_fresh.png": {
+    "mtime": 1791939458.8758843,
+    "ast_hash": "be2b8371143b3abc1277d4b415067485",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/cretaceous.png": {
+    "mtime": 1791939458.8758843,
+    "ast_hash": "667b4676e3042a853281b661c8cd3023",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/devonian.png": {
+    "mtime": 1791939458.8771477,
+    "ast_hash": "47c01f9344c2ecea623c78c2cdd8ccdf",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/europe_fresh.png": {
+    "mtime": 1791939458.8771477,
+    "ast_hash": "88aee0b9bab591864eccf8aa9f82ce80",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/indian.png": {
+    "mtime": 1791939458.8781846,
+    "ast_hash": "72001abc4644b7af197387f908dd43dd",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/north_america_fresh.png": {
+    "mtime": 1791939458.8791852,
+    "ast_hash": "d4d124c7b3a786fde9a749c0d8fbbefd",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/pacific.png": {
+    "mtime": 1791939458.880185,
+    "ast_hash": "65d4821ceeabc5395bd078cf2991e551",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/region/south_america_fresh.png": {
+    "mtime": 1791939458.880185,
+    "ast_hash": "3855e1f997dbb0596dbb2f5160d74a55",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/restoration_event.png": {
+    "mtime": 1791939458.8723743,
+    "ast_hash": "f5b313599edd8ef89196fe9b20bb2580",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/splash.png": {
+    "mtime": 1791939458.8328247,
+    "ast_hash": "c6990c58d0729a3c5908d8fea94a9b88",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/tank_interior_ancient.png": {
+    "mtime": 1791939458.8424313,
+    "ast_hash": "1f2d9a345f5e77816c8b08d0d1ab9517",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/tank_interior_fresh.png": {
+    "mtime": 1791939458.8429391,
+    "ast_hash": "164ebf8928de9910dc7ab523dd386b31",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/tank_interior_sea.png": {
+    "mtime": 1791939458.8437214,
+    "ast_hash": "1fd14e268ae68022a1c10fc85d652049",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/bg/world_map.png": {
+    "mtime": 1791939458.8443882,
+    "ast_hash": "fa8c1814368c04f379dc9cb4137351af",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/chr/portrait_elder.png": {
+    "mtime": 1791939458.8338265,
+    "ast_hash": "5467eb96649474eb400cb594e552fb90",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/chr/portrait_staff.png": {
+    "mtime": 1791939458.8338265,
+    "ast_hash": "b7ba4781465b55c467944fa27473946f",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/arrow_down.png": {
+    "mtime": 1791939458.8348258,
+    "ast_hash": "0d4d11ffda8e4c2a2dbf4b3d905f4496",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/attend_cell.png": {
+    "mtime": 1791939458.880185,
+    "ast_hash": "3ee5698d1e4fc2d829232f1086b4e861",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/capsule_common.png": {
+    "mtime": 1791939458.8821998,
+    "ast_hash": "7e43429b90cd1a96979c98b031faffa4",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/capsule_epic.png": {
+    "mtime": 1791939458.8828173,
+    "ast_hash": "b36f5456576f7886366aa81b5772fd6b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/capsule_legendary.png": {
+    "mtime": 1791939458.8836122,
+    "ast_hash": "e5d10f35ae2f16191d5cc96eeefe97e9",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/capsule_rare.png": {
+    "mtime": 1791939458.88412,
+    "ast_hash": "f7897357dbcf65a5cfb0c8fbbfccadc7",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/capsule_uncommon.png": {
+    "mtime": 1791939458.8851712,
+    "ast_hash": "afabde3fd759069cd87cc43fb50e99a5",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/discovery_rays.png": {
+    "mtime": 1791939458.8857727,
+    "ast_hash": "607b9c639911435e91a524898e850bfd",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/dna_helix.png": {
+    "mtime": 1791939458.8863757,
+    "ast_hash": "f2785e30119622af472d688bec62971a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/egg.png": {
+    "mtime": 1791939458.8348258,
+    "ast_hash": "04c0bcaf62391dce98018d06cf2f9a18",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/finger.png": {
+    "mtime": 1791939458.8358254,
+    "ast_hash": "a9c39eb5e94e9d49de2ead04173a3b4f",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/gacha_flash.png": {
+    "mtime": 1791939458.8869743,
+    "ast_hash": "2dc192a237a1b9c0b8fca11b06beb4d0",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/hatch_burst.png": {
+    "mtime": 1791939458.8875747,
+    "ast_hash": "1bd301af321a1866fd586146ebe7a88f",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/levelup_burst.png": {
+    "mtime": 1791939458.8881493,
+    "ast_hash": "511b8dcc7a7a8cf0b5326441cb601467",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/map_pin.png": {
+    "mtime": 1791939458.8450468,
+    "ast_hash": "2b81d4afa3afbecd60adb0f43bef4f44",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/fx/reward_chest.png": {
+    "mtime": 1791939458.8892696,
+    "ast_hash": "72fbe65fd59455a983e36fa9b9a78a8e",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_01.png": {
+    "mtime": 1791939458.8897903,
+    "ast_hash": "38470bce1b0152c7ddbd4a5b5144fa3d",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_02.png": {
+    "mtime": 1791939458.890891,
+    "ast_hash": "6ce647ec87861dc382950c1815159cda",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_03.png": {
+    "mtime": 1791939458.8914175,
+    "ast_hash": "a59ce24805b5c28695d8af12cf63c355",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_04.png": {
+    "mtime": 1791939458.891983,
+    "ast_hash": "dace6d880c66032d6319c05e491e5a7d",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_05.png": {
+    "mtime": 1791939458.892761,
+    "ast_hash": "4df31e3085eaa7fc3197af894d0b2ffa",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_06.png": {
+    "mtime": 1791939458.8933976,
+    "ast_hash": "c60742f8876efca309b6f8de900587b5",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_07.png": {
+    "mtime": 1791939458.8940017,
+    "ast_hash": "f7f01d5a20790a7cfc1956e404ef1563",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/guild/emblem_08.png": {
+    "mtime": 1791939458.894627,
+    "ast_hash": "47b7bc87291470a63c46caec633f308a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/ad_play.png": {
+    "mtime": 1791939458.8142235,
+    "ast_hash": "cfed46e02048217993a968b75c5b24da",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/attend_check.png": {
+    "mtime": 1791939458.8952806,
+    "ast_hash": "e80504bebc45c5cfbf8262e9d3b68cef",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/back.png": {
+    "mtime": 1791939458.8153923,
+    "ast_hash": "1a3d2db7275c5b7ce2c3d627bd9a5c7b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/check.png": {
+    "mtime": 1791939458.8153923,
+    "ast_hash": "c3798c84a13bfb51a8c87ac6fa5ba520",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/close.png": {
+    "mtime": 1791939458.816395,
+    "ast_hash": "e76a196306d8c08234ada82edc5c2a5d",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/dex_new.png": {
+    "mtime": 1791939458.8958793,
+    "ast_hash": "7606a191bbe0b6a8d1ebada718196421",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/env_quality.png": {
+    "mtime": 1791939458.846321,
+    "ast_hash": "ea800e6cc70e091dbd1861c0632d14ca",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/env_salt.png": {
+    "mtime": 1791939458.846321,
+    "ast_hash": "ea800e6cc70e091dbd1861c0632d14ca",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/env_temp.png": {
+    "mtime": 1791939458.8469527,
+    "ast_hash": "6e2b3aca99ba184ce39aab4e70752a9a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/equip_feeder.png": {
+    "mtime": 1791939458.847548,
+    "ast_hash": "f7e7aaf73ba6adb12f9b75dd41d8d90e",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/equip_filter.png": {
+    "mtime": 1791939458.8480558,
+    "ast_hash": "9b2b1becb1e54517cc8cc4855a6107ae",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/equip_heater.png": {
+    "mtime": 1791939458.848574,
+    "ast_hash": "96119a761fa8d77bc4132983c68461b1",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/filter.png": {
+    "mtime": 1791939458.816395,
+    "ast_hash": "6a66e2a931cbeecf1e8198c6caec13cb",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/friend_add.png": {
+    "mtime": 1791939458.8173957,
+    "ast_hash": "a1fbdf52186629710edb9a3d56f1150a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/gavel.png": {
+    "mtime": 1791939458.8173957,
+    "ast_hash": "b93b5fd2ff090e82a9070f9aa997f2df",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/growth.png": {
+    "mtime": 1791939458.8496132,
+    "ast_hash": "acd20ba08aedb15c82e6f7590a534940",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/health.png": {
+    "mtime": 1791939458.8501253,
+    "ast_hash": "d934dc9114e0cd50f4643421b38ec8a5",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/inbreed.png": {
+    "mtime": 1791939458.8506408,
+    "ast_hash": "4fa91e36b1f589a095939faa67756d80",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/info.png": {
+    "mtime": 1791939458.8187482,
+    "ast_hash": "2071520cea585b9b40a81d36c0cd1a6a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/legend_seen.png": {
+    "mtime": 1791939458.8968823,
+    "ast_hash": "013d72da25fde822b5124d8450047526",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/mail.png": {
+    "mtime": 1791939458.819752,
+    "ast_hash": "1f118a05cd565889e5bc636a058dc8bf",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/origin_farm.png": {
+    "mtime": 1791939458.8511555,
+    "ast_hash": "a7ccfd747e6f0f2b37084e6c5348d777",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/origin_wild.png": {
+    "mtime": 1791939458.8516684,
+    "ast_hash": "df1eaea8146da4704d05b7db2a02a43a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/plus.png": {
+    "mtime": 1791939458.819752,
+    "ast_hash": "a7265d768122ce004ba6dcde9e7a2e9e",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/popup_error.png": {
+    "mtime": 1791939458.8978827,
+    "ast_hash": "3894f9214baa0fa487fdf45894a9c20c",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/refresh.png": {
+    "mtime": 1791939458.8207543,
+    "ast_hash": "bb02a1d51da5afc868b6034861ec1a74",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/region_ancient.png": {
+    "mtime": 1791939458.8978827,
+    "ast_hash": "9a393ee2fdd042014711c23c13bd5d34",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/region_freshwater.png": {
+    "mtime": 1791939458.898882,
+    "ast_hash": "ed16efa3853e18372d94589ccf1ddebb",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/region_sea.png": {
+    "mtime": 1791939458.8998818,
+    "ast_hash": "08376ed344c481ae6ad2440fe5db1a35",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/release.png": {
+    "mtime": 1791939458.8207543,
+    "ast_hash": "a3cc9fea99d78a34bf423943c0794282",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/res_conservation.png": {
+    "mtime": 1791939458.8998818,
+    "ast_hash": "415b090fc60afa5363032e15d94b9bb4",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/res_vip.png": {
+    "mtime": 1791939458.9008818,
+    "ast_hash": "fccd5ccdbaa6656627af8a36efc69a0c",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/role_leader.png": {
+    "mtime": 1791939458.901882,
+    "ast_hash": "cd5eef7ef448f170bad309581ef07d2f",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/role_member.png": {
+    "mtime": 1791939458.901882,
+    "ast_hash": "1c58a764f163dcc1ace3c364eaec988b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/role_sub.png": {
+    "mtime": 1791939458.902882,
+    "ast_hash": "f041de8059f131d60e1370c0c45216d7",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/search.png": {
+    "mtime": 1791939458.8217516,
+    "ast_hash": "586ce78d0483432f31078df4cf55179f",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/settings.png": {
+    "mtime": 1791939458.8217516,
+    "ast_hash": "6f950c624958f7458624073856363329",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/sex_female.png": {
+    "mtime": 1791939458.8521826,
+    "ast_hash": "28a8d02e6e2f83ae2881acf7cafbbef8",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/sex_male.png": {
+    "mtime": 1791939458.8526933,
+    "ast_hash": "28a8d02e6e2f83ae2881acf7cafbbef8",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/sort.png": {
+    "mtime": 1791939458.8227513,
+    "ast_hash": "b9a5743bce2f2473f6a4f873658a5922",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/status_extinct.png": {
+    "mtime": 1791939458.8533661,
+    "ast_hash": "55d437ac5475e7255465159ee3227dd1",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/status_protected.png": {
+    "mtime": 1791939458.8539357,
+    "ast_hash": "e61c2b6ef41d8807095919e085c9b863",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/status_stable.png": {
+    "mtime": 1791939458.8545692,
+    "ast_hash": "ed38a091837f5929e4b0efe58a5c76df",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/status_vulnerable.png": {
+    "mtime": 1791939458.8545692,
+    "ast_hash": "51441ccf4a72c9dfff627277094316bb",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_ads.png": {
+    "mtime": 1791939458.855655,
+    "ast_hash": "cb2e5a1688b05abc7861c88e56610348",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_combine.png": {
+    "mtime": 1791939458.855655,
+    "ast_hash": "1a5f9f5178c98c9579278996b21a01df",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_gacha.png": {
+    "mtime": 1791939458.8566573,
+    "ast_hash": "d60cf7a320e5d4104c98205ed8d89bf4",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_gear.png": {
+    "mtime": 1791939458.8576572,
+    "ast_hash": "37894cd07d3b6fa5b109e73fe02d5800",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_premium.png": {
+    "mtime": 1791939458.8576572,
+    "ast_hash": "c97b6278fffb065fb23b621daa96f467",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_stamina.png": {
+    "mtime": 1791939458.8587701,
+    "ast_hash": "236b332b0c839280c8a2d4ffe686f4b4",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_sub.png": {
+    "mtime": 1791939458.8587701,
+    "ast_hash": "6468892c24139fb7c9b57bdcb1e8583d",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/store_vip.png": {
+    "mtime": 1791939458.859773,
+    "ast_hash": "3354e720afb734bfbea98a9419219eaa",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/tank_breed.png": {
+    "mtime": 1791939458.859773,
+    "ast_hash": "9b02d44df20cb02102ee3084568abad4",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/tank_display.png": {
+    "mtime": 1791939458.8610654,
+    "ast_hash": "aaa40293157a5af8e95db6ad3b7fdba7",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/tank_hold.png": {
+    "mtime": 1791939458.8610654,
+    "ast_hash": "aaa40293157a5af8e95db6ad3b7fdba7",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/timer.png": {
+    "mtime": 1791939458.8237522,
+    "ast_hash": "353468e29cb7298e11be316121faa1c2",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/trophy.png": {
+    "mtime": 1791939458.8237522,
+    "ast_hash": "0b22680a7728eae0d5b67d1e91d7ee89",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_bronze.png": {
+    "mtime": 1791939458.902882,
+    "ast_hash": "4498e4e1ad979876db7c847e1850bbc7",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_challenger.png": {
+    "mtime": 1791939458.9038818,
+    "ast_hash": "9c88a4acfd08c8280163050c4f7f36b0",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_diamond.png": {
+    "mtime": 1791939458.9048817,
+    "ast_hash": "5c297b2270a51d14869111151b207dee",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_emerald.png": {
+    "mtime": 1791939458.9058821,
+    "ast_hash": "691ede8c45cc726f1748c8fa7bfcd6bb",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_gold.png": {
+    "mtime": 1791939458.9058821,
+    "ast_hash": "f34e6517e4e46051d60d840b994713b3",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_grandmaster.png": {
+    "mtime": 1791939458.906882,
+    "ast_hash": "f47b1f763e587cf5beeb841f427f842e",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_iron.png": {
+    "mtime": 1791939458.906882,
+    "ast_hash": "04df333877e06959538e5ecad63cb053",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_master.png": {
+    "mtime": 1791939458.9078822,
+    "ast_hash": "3e6a2a4cb5064ddd68591d134e4cc167",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_platinum.png": {
+    "mtime": 1791939458.9078822,
+    "ast_hash": "b94223cdd07667972df5647fba86bba6",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/icon/vip_silver.png": {
+    "mtime": 1791939458.909243,
+    "ast_hash": "1fce55f390ffed66ec91e7426af95fb6",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/bait_common.png": {
+    "mtime": 1791939458.86207,
+    "ast_hash": "1684d603865dc50dbc0af4b3924fff70",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/bait_epic.png": {
+    "mtime": 1791939458.86207,
+    "ast_hash": "a078b8b6dfd105b913c27d30da4eac27",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/bait_legend_special.png": {
+    "mtime": 1791939458.8640714,
+    "ast_hash": "08dc33ecb85f312051c996d0dda966b0",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/bait_legendary.png": {
+    "mtime": 1791939458.8630698,
+    "ast_hash": "f1f303644cc157df6ea397fddf2aa1fc",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/bait_rare.png": {
+    "mtime": 1791939458.8640714,
+    "ast_hash": "af7d588bfd3802491f999aa3b1257ce8",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/bait_uncommon.png": {
+    "mtime": 1791939458.8654459,
+    "ast_hash": "0d64ee35efe3104716bba8485a0fd136",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/breed_boost.png": {
+    "mtime": 1791939458.8654459,
+    "ast_hash": "9637ba24896a08aabbb9e064861c8497",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/float_common.png": {
+    "mtime": 1791939458.8664489,
+    "ast_hash": "dd16ef8ee28bda15e40c6c9addfe8b50",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/float_epic.png": {
+    "mtime": 1791939458.8664489,
+    "ast_hash": "a323c25ab7611648ca33c17ca2ebb0c7",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/float_legendary.png": {
+    "mtime": 1791939458.8664489,
+    "ast_hash": "f6bb47596395bd7eb422dc111c2769a1",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/float_rare.png": {
+    "mtime": 1791939458.8678603,
+    "ast_hash": "14aa532345f01f96e5813d7081fc13ec",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/float_uncommon.png": {
+    "mtime": 1791939458.8688645,
+    "ast_hash": "ba4263f898a450682b688f139c7f4340",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/item/growth.png": {
+    "mtime": 1791939458.8688645,
+    "ast_hash": "8f81f93db9dae1e0f1dc5dfbd5372710",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/story/intro_01.png": {
+    "mtime": 1791939458.836825,
+    "ast_hash": "f7a91ba1813224014233229d64146a6b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/story/intro_02.png": {
+    "mtime": 1791939458.8378236,
+    "ast_hash": "c2e4726a9166cb3733a0d6bf1387b31c",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/story/intro_03.png": {
+    "mtime": 1791939458.8378236,
+    "ast_hash": "2f1ed504e2ed119d844be0e19caf1b56",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/story/intro_04.png": {
+    "mtime": 1791939458.838824,
+    "ast_hash": "0ff634103a6874740bba86a437194b74",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/btn_gray.png": {
+    "mtime": 1791939458.8247516,
+    "ast_hash": "0a825930378766c5b4748adf003951ec",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/btn_red.png": {
+    "mtime": 1791939458.8257527,
+    "ast_hash": "1bf619d08e83785715f9a0c867908622",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/dialog_frame.png": {
+    "mtime": 1791939458.8267565,
+    "ast_hash": "1a5b7581d03b7a0fc760c9bbb8ea5c57",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/gauge_frame.png": {
+    "mtime": 1791939458.8267565,
+    "ast_hash": "df68c6a317e2c8a654f3627a36798c36",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/input_frame.png": {
+    "mtime": 1791939458.8277555,
+    "ast_hash": "3514b24bab2a9fbf41f1359bca77be15",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/list_row.png": {
+    "mtime": 1791939458.8277555,
+    "ast_hash": "22feacc14cf47c02787df06c1493b56b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/logo_emblem.png": {
+    "mtime": 1791939458.8398235,
+    "ast_hash": "da6f56f0db2d6d5bbf4012ddab9a8478",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/africa_fresh.png": {
+    "mtime": 1791939458.909243,
+    "ast_hash": "2e5e60fc42bfe3170b1d251702146f5e",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/arctic.png": {
+    "mtime": 1791939458.911264,
+    "ast_hash": "319b28589dab1506efc7b9b23d6bb776",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/atlantic.png": {
+    "mtime": 1791939458.9124248,
+    "ast_hash": "3f8973829bbd85f2fa84e5bc62a18ef5",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/central_america_fresh.png": {
+    "mtime": 1791939458.9131086,
+    "ast_hash": "8836b8f5908eed5edc8edc5d193e4227",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/cretaceous.png": {
+    "mtime": 1791939458.9136548,
+    "ast_hash": "d2e3351405b150517bd89198b9e15d2a",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/devonian.png": {
+    "mtime": 1791939458.914187,
+    "ast_hash": "f4e979e90de36806876e2ceaca6973c2",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/europe_fresh.png": {
+    "mtime": 1791939458.9147067,
+    "ast_hash": "d1c79feef54034bddb19f65ef24d382e",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/indian.png": {
+    "mtime": 1791939458.9157677,
+    "ast_hash": "3b6e9c64b054aaee10055b4eb4f98087",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/north_america_fresh.png": {
+    "mtime": 1791939458.9162934,
+    "ast_hash": "5303551735f217867b873e5f8de50390",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/pacific.png": {
+    "mtime": 1791939458.9173415,
+    "ast_hash": "fac1f60dc0b5ed8e7331e6790e818277",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/region/south_america_fresh.png": {
+    "mtime": 1791939458.917868,
+    "ast_hash": "0402f333145636cac0f82f21c8509d36",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/scroll_thumb.png": {
+    "mtime": 1791939458.8288188,
+    "ast_hash": "c9a1e5b952dedc8b0b3425b27cf052f5",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/sheet_frame.png": {
+    "mtime": 1791939458.8288188,
+    "ast_hash": "15eb6fe06c0ea7da75e490fe192854da",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/slot_frame.png": {
+    "mtime": 1791939458.829821,
+    "ast_hash": "b109eb1420e2fa37df987994a281d686",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/tab_off.png": {
+    "mtime": 1791939458.829821,
+    "ast_hash": "7cdbe40903980d2302fae99e7e62e59b",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/tab_on.png": {
+    "mtime": 1791939458.8308237,
+    "ast_hash": "89994fcbb36fd989babd1ca044034b42",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/toggle_off.png": {
+    "mtime": 1791939458.8308237,
+    "ast_hash": "3aca43e874bce0305906cec5ab99dc32",
+    "semantic_hash": ""
+  },
+  "packages/client/src/assets/ui/toggle_on.png": {
+    "mtime": 1791939458.8318236,
+    "ast_hash": "c8e074110c6eff7d8cca6ac65f4ae1b8",
     "semantic_hash": ""
   }
 }

@@ -7,7 +7,7 @@
 - 이 문서는 **아직 없는 것만** 적는다. 도착한 것은 §0에 묶음별로만 적고 목록에서는 지웠다. 적용 완료분: 시안 사본(`images/asset/asset_copy` → `src/assets/reference/`)을 쓰는 제목 바·닫기·설정/우편/트로피/별 아이콘·목록 행·정보 팝업·나무 패널·코랄 배너·잠금 카드, `bg/hub_stage1~4`, `icon/` 16종, `ui/card_*_bg`.
 - `reference/`와 `bg/hub_stage2~4`는 고해상도 시안 크롭이라 **임시**다. 정식 도트 에셋이 나오면 같은 이름으로 바꿔 넣는다.
 
-## 0. 도착해서 `src/assets/`에 복사한 묶음 (2026-10-14) — 화면 연결은 아직
+## 0. 도착해서 `src/assets/`에 복사한 묶음 (2026-10-14) — 일부 화면에 적용, 나머지는 화면을 만들 때 연결
 `images/asset/worldsea_p1_A` `p1_B` `p1_C` `p2` 네 묶음, PNG 161장을 폴더 트리 그대로 `packages/client/src/assets/`에 복사했다(`ui/region/asia_fresh.png`는 덮어씀). 크기는 아래 규격과 모두 맞다. 원본과 `manifest.json`(9-slice 값·프레임 수)은 `images/asset/`에 남아 있다.
 
 | 묶음 | 내용 (장수) |
@@ -21,7 +21,26 @@
 - **스프라이트 시트**: 가로로 이어 붙인 프레임이다. `finger` 32×16(2) `arrow_down` 24×12(2) `egg` 48×12(4) `map_pin` 36×12(3) `capsule_*` 120×24(5) `attend_cell` 324×40(3, 칸 108×40) `reward_chest` 96×40(2) `hatch_burst` 128×32(4) `dna_helix` 96×48(4) `levelup_burst` 192×64(3) `gacha_flash` 192×64(3). 정확한 프레임 정보는 `manifest.json`.
 - **복사하지 않음**: `images/asset/bg/hub_stage2~4.png`(+`manifest.json`)는 시안 크롭 원본이다. 특히 `hub_stage4`는 360×900(드래그 장면)이라 **확정한 한 화면(360×462)** 과 다르다. 클라이언트 쪽 `bg/hub_stage4.png`는 이미 462로 잘라 놓은 것을 그대로 둔다.
 - p2 README: 새로 그린 기준 아트이며 눈으로 검수한 뒤 수정할 수 있다. VIP 10단계·길드 엠블럼 8종·지역 12개는 §11 결정과 같이 확인할 것.
-- 도착한 에셋을 쓰는 화면이 아직 없다(스켈레톤은 `reference/`만 읽음). 실제 화면을 만들 때 하나씩 연결하고, 연결한 뒤에는 §0 표에서 지운다.
+- **적용 현황 (2026-10-14)**
+  - **실제 화면에 적용**: 로그인·닉네임·로딩·오류의 `bg/splash` + `ui/logo_emblem` · 원정 수색 설정의 `bg/region/<id>`(큰 그림)과 `ui/region/<id>`(카드, 파일이 없으면 시안 2장으로 대체) · 헌터 카드(진행 중)의 `ui/region/<id>` 배경 · 입질 화면 찌/미끼 칸의 `item/float_*` `item/bait_*`(전설 전용 미끼는 `bait_legend_special`) · 정보 팝업의 `ui/dialog_frame` · 로그인 입력창 `ui/input_frame` · 로그인 보조 버튼 `ui/btn_gray`.
+  - **스켈레톤 화면에 적용(임시, 화면을 만들 때 다시 연결)**: `ui/sheet_frame`(시트 틀) `ui/list_row`(블록) `ui/btn_gray`+`icon/back` `icon/close`(뒤로·닫기) · 제목 배너 `bg/hdr_farm` `hdr_dex` `hdr_store` `hdr_market` `hdr_auction` `hdr_guild` · 제목·링크 아이콘 `icon/store_*` `tank_*` `gavel` `mail` `settings` 등 · 그림·아이콘 줄: `restoration_event` `world_map` `tank_interior_fresh` `story/intro_01~04` `logo_emblem` `gacha_machine` `guild/emblem_01~08` `icon/vip_*` `item/*` `env_*` `equip_*` `sex_*` `status_*`(어떤 화면에 어떤 에셋이 붙었는지는 `ui/ScreenSkeleton.tsx`의 `ART`).
+  - **아직 어디에도 안 붙음**(만들어질 화면이 없음): `ui/slot_frame` `tab_on/off` `gauge_frame` `toggle_*` `scroll_thumb` `btn_red` · `fx/*` 전부(스프라이트 시트라 코드 재생이 필요) · `bg/hdr_*` 외 `icon/attend_check` 등 일부 · `chr/portrait_*` · `icon/res_conservation` `res_vip` · `icon/store_ads` 외 상점 아이콘의 본 화면용 · `ui/region` 잠긴 상태.
+
+## 0-2. 적용하며 새로 필요해진 것 (2026-10-14) — P2
+도착한 묶음을 붙여 보니 아래가 비어서 임시 아이콘·시안으로 대신했다.
+
+| 파일 | 크기 | 왜 필요한가 |
+|---|---|---|
+| `icon/market` `icon/guild` `icon/bag` `icon/friends` `icon/globe`(세계 지도) `icon/shop_upgrade` | 14×14 | 화면 제목 아이콘. 지금은 시장=시안 상점, 길드=`role_leader`, 가방=`item/growth`, 지도=`search`로 임시 사용 |
+| `icon/profile` `icon/hunter_skin` `icon/prob` `icon/terms` `icon/account` | 14×14 | 프로필·헌터 외형·확률 공개·약관·계정 화면 제목 아이콘(지금은 시안 `reference/`) |
+| `bg/hdr_expedition.png` | 336×56 | 원정 탭 제목 배너. 지금은 시안 `reference/expedition-banner` |
+| `ui/btn_gold.png` | 24×16 slice 5 | 주 버튼(수색 시작·시작하기·모두 수령·확인). `assets-main.md` 목록에 있고 `SLICES`가 인식하지만 p1_A에 `btn_gray`/`btn_red`만 있어 금색은 CSS 색으로 대신 |
+| `ui/region/<id>_locked.png` 12장 또는 자물쇠 오버레이 `ui/region_lock.png` 84×52 | 84×52 | 잠긴 지역 카드. 지금은 코드가 흐리게 처리. 오버레이 1장이면 충분(추천) |
+| `bg/tank_interior_*` 변형 | 336×150 | 수조 상세 배경이 3종(민물·바다·고대)이라 지역 12개 전부를 구분하진 못함. 필요하면 지역군별 추가(제안) |
+| 헌터 걷기·포즈 | | 시안 헌터 3명(`reference/hunter-kai/luna/rex`)이 아직 대신하고 있음. `chr/hunter/<skinId>`는 §1 |
+| `fx/*` 시트 재생 규격 | | 도착한 시트 12종은 프레임 가로 이어붙임이라 재생 코드가 필요(에셋 추가 아님, 확인용 메모) |
+
+- 스플래시(`bg/splash`)는 360×640이지만 밝은 고해상도 그림 느낌이라 도트 격자와 다르다. 의도한 스타일인지 확인 필요(문제면 도트 정리본을 같은 이름으로 교체).
 
 ## 1. 헌터·사람 — 아직 없음
 
@@ -41,7 +60,7 @@
 | `bg/hub_stage2~4.png` 빈 방 + 객체 | | **객체로 쪼개서 만든다(확정).** 시안 크롭은 임시. 목록·크기·위치는 `docs/assets-stages.md` (67장) | P2 |
 
 ## 3. 원정 흐름 시안에서 더 필요한 것 (images/ui 원정 시안 대조) — P1~P2
-지역 카드(`ui/region`)·큰 그림(`bg/region`)은 p2 묶음으로 도착했다(§0). 연결 전까지 원정 화면은 시안 이미지 2장(`reference/region-coral`, `region-ancient`)과 헌터 3명(`hunter-kai/luna/rex`)으로 모든 지역·헌터를 대신한다.
+지역 카드(`ui/region`)·큰 그림(`bg/region`)은 p2 묶음으로 도착해 원정 화면에 연결했다(§0). 지역 파일이 없을 때만 시안 2장(`reference/region-coral`, `region-ancient`)으로 대신한다. 헌터는 아직 시안 3명(`hunter-kai/luna/rex`)이 모든 칸을 대신한다.
 
 | 파일 | 크기 | 설명 | 우선 |
 |---|---|---|---|
@@ -84,7 +103,7 @@ Galmuri(OFL) 앱 내장 완료. 추가 불필요. (법적 원칙: IUCN 로고·�
 3. **P2**: 2~4단계 정식 장면(`assets-stages.md`, 물고기 아닌 생물 제외), 원정 보강 §3, 헌터 외형·카드, 앱 아이콘, 소리
 4. **P3**: 구독 배너, 입질 성공 효과, 관람객 4종, "?" 칸
 
-대략 남은 수량: 원정 보강 14 · 헌터 초상/카드 2+(외형 수×2) · 배너/연출 2 · 2~4단계 67 · 앱 7 · 소리 약 25.
+대략 남은 수량: 원정 보강 14 · 적용 중 발견된 것 §0-2 약 14(아이콘 11·배너 1·버튼 1·잠금 1) · 헌터 초상/카드 2+(외형 수×2) · 배너/연출 2 · 2~4단계 67 · 앱 7 · 소리 약 25.
 
 ## 9. 결정이 필요한 것 (대장님)
 1. 헌터 외형 뽑기 종류 수와 등급 분포 → 초상·카드 수량

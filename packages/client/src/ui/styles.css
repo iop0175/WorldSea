@@ -484,3 +484,30 @@ button:disabled { cursor: default; }
 .sk-title.banner .tag { display: none; }
 /* 시장·경매·길드: 나무 패널(18) */
 .sk-link.wood { border-image-source: url('../assets/reference/18_small_panel_wood.png'); color: #3b2410; }
+
+/* 도착 에셋(p1/p2) 적용: 시트·목록 행·뒤로/닫기·입력창·대화 상자 틀, 제목 배너, 아이콘 줄 */
+.skeleton { left: calc(var(--px) * 4); top: calc(var(--px) * 40); width: calc(var(--px) * 352); height: calc(var(--px) * 458); padding: 0; border: calc(var(--px) * 8) solid transparent; border-image: url('../assets/ui/sheet_frame.png') 8 fill / calc(var(--px) * 8) stretch; background: none; box-shadow: none; image-rendering: pixelated; }
+.skeleton .back, .skeleton .close { border: calc(var(--px) * 5) solid transparent; border-image: url('../assets/ui/btn_gray.png') 5 fill / calc(var(--px) * 5) stretch; background: none; box-shadow: none; image-rendering: pixelated; }
+.skeleton .back img, .skeleton .close img { width: 100%; height: 100%; image-rendering: pixelated; }
+.sk-title.hdr { height: calc(var(--px) * 56); background-size: 100% 100%; box-shadow: inset 0 0 0 calc(var(--px) * 1) #030e15; }
+.sk-title.hdr h2 { padding: calc(var(--px) * 1) calc(var(--px) * 6); background: #051724b8; color: #fff; }
+.sk-title.hdr img { filter: drop-shadow(0 calc(var(--px) * 1) #00131d); }
+.sk-block { border: calc(var(--px) * 6) solid transparent; border-image: url('../assets/ui/list_row.png') 6 fill / calc(var(--px) * 6) stretch; background: none; padding: calc(var(--px) * 2) calc(var(--px) * 2); image-rendering: pixelated; }
+.sk-pic { display: block; width: 100%; margin-bottom: calc(var(--px) * 6); image-rendering: pixelated; }
+.sk-row { display: flex; flex-wrap: wrap; align-items: center; gap: calc(var(--px) * 4); margin-bottom: calc(var(--px) * 6); }
+.sk-row img { height: calc(var(--px) * 24); image-rendering: pixelated; }
+.sk-row.thumbs img { height: calc(var(--px) * 64); }
+.sk-link { display: flex; align-items: center; gap: calc(var(--px) * 6); }
+.sk-link img { flex: none; width: calc(var(--px) * 20); height: calc(var(--px) * 20); object-fit: contain; image-rendering: pixelated; }
+.info-dialog { border-width: calc(var(--px) * 12); border-image: url('../assets/ui/dialog_frame.png') 12 fill / calc(var(--px) * 12) stretch; padding: calc(var(--px) * 4); }
+.gate-form input { border: calc(var(--px) * 4) solid transparent; border-image: url('../assets/ui/input_frame.png') 4 fill / calc(var(--px) * 4) stretch; background: none; box-shadow: none; padding: 0 calc(var(--px) * 2); image-rendering: pixelated; }
+.splash { position: absolute; inset: 0; width: 100%; height: 100%; image-rendering: pixelated; pointer-events: none; }
+.logo { position: absolute; image-rendering: pixelated; pointer-events: none; }
+.region-art { height: calc(var(--px) * 96); }
+.region-thumbnails { overflow-x: auto; scrollbar-width: none; }
+.region-thumbnails::-webkit-scrollbar { display: none; }
+.region-thumbnails button { flex: none; width: calc(var(--px) * 90); height: calc(var(--px) * 58); }
+.region-thumbnails img { object-fit: contain; }
+.bs-slot img { image-rendering: pixelated; }
+.gate-btn:not(.gold) { border: calc(var(--px) * 5) solid transparent; border-image: url('../assets/ui/btn_gray.png') 5 fill / calc(var(--px) * 5) stretch; background: none; box-shadow: none; image-rendering: pixelated; }
+.gate-center { color: #fff; text-shadow: 0 calc(var(--px) * 1) #00131d, 0 0 calc(var(--px) * 4) #00131d; }

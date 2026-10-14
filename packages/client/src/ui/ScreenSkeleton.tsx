@@ -2,7 +2,7 @@ import { GROUPS, SCREENS } from './screens';
 import { useGameStore } from '../store';
 import { assetUrl } from '../game/assets';
 
-/** images/asset 시안(reference/)을 화면 머리 아이콘으로. 전용 아이콘(icon/*)이 생기면 교체 */
+/** images/asset/asset_copy 시안(reference/)을 화면 머리 아이콘으로. 전용 아이콘(icon/*)이 생기면 교체 */
 const GROUP_ICON: Record<string, string> = { 샵: '01_shop', 사육: '02_aquarium_tank', 원정: '04_map', 도감: '05_book_crown', 상점: '06_shopping_basket', 기타: '12_btn_settings' };
 const ID_ICON: Record<string, string> = { settings: '12_btn_settings', mail: '13_btn_mail', profile: '02_profile_avatar', store_vip: '15_btn_crown', aquarium_exhibit: '14_btn_trophy', index: '16_btn_star' };
 

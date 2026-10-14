@@ -367,7 +367,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .gate-link { border: 0; background: transparent; color: var(--muted); text-decoration: underline; font-size: calc(var(--px) * 10); }
 .gate-center { inset: 0; display: flex; align-items: center; justify-content: center; font-size: calc(var(--px) * 12); color: var(--muted); }
 
-/* Reference art skin: images/asset and images/ui */
+/* Reference art skin: images/asset/asset_copy and images/ui */
 :root { --gold: #ffbd32; --gold-deep: #d88016; --glow: #52e4ef; --bar: #082635; --edge-light: #39758f; }
 button { cursor: pointer; }
 button:disabled { cursor: default; }
@@ -460,7 +460,7 @@ button:disabled { cursor: default; }
 .info-dialog h2 { margin: 0 0 calc(var(--px) * 10); color: #c5f8ff; font-size: calc(var(--px) * 16); }
 .info-dialog p { margin: 0 0 calc(var(--px) * 16); line-height: 1.8; overflow-wrap: anywhere; }
 
-/* 화면 스켈레톤 (ui/screens.ts). 틀은 images/asset 시안(reference/) */
+/* 화면 스켈레톤 (ui/screens.ts). 틀은 images/asset/asset_copy 시안(reference/) */
 .skeleton { position: absolute; left: calc(var(--px) * 12); top: calc(var(--px) * 44); width: calc(var(--px) * 336); height: calc(var(--px) * 450); overflow-y: auto; }
 .skeleton header { display: flex; align-items: center; gap: calc(var(--px) * 4); margin-bottom: calc(var(--px) * 8); }
 .sk-title { flex: 1; display: flex; align-items: center; justify-content: center; gap: calc(var(--px) * 5); height: calc(var(--px) * 26); padding: 0 calc(var(--px) * 16); background: url('../assets/reference/07_long_bar_gem_ends.png') 0 0 / 100% 100%; image-rendering: pixelated; }
